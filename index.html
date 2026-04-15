@@ -211,7 +211,10 @@
     <div id="auth-err" class="auth-err"></div>
 
     <div id="login-form">
-      <div class="field"><div class="field-label">Username</div><input class="auth-input" id="l-user" placeholder="your username" autocomplete="username"/></div>
+<div class="field">
+  <div class="field-label">Username</div>
+  <input class="auth-input" id="l-user" placeholder="your username" autocomplete="username"/>
+</div>
       <div class="field"><div class="field-label">Password</div><input class="auth-input" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <button class="auth-btn" onclick="doLogin()" id="login-btn">Sign in</button>
     </div>
@@ -376,7 +379,6 @@ async function doRegister(){
   setBtn('reg-btn','Creating account...', true);
   try {
     const body = {TitleId:TITLE_ID, Username:u, Password:p, RequireBothUsernameAndEmail:false};
-    if(e) body.Email=e;
     const data = await pfCall('/Client/RegisterPlayFabUser', body);
     S.user = { PlayFabId: data.PlayFabId, SessionTicket: data.SessionTicket, Username: u };
     await initPlayerData();
