@@ -1,440 +1,716 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlayFab Social • FULLY WORKING (1FB6CA)</title>
-    <script src="https://download.playfab.com/PlayFabClientSDK/PlayFabClientSDK.js"></script>
-    <style>
-        :root { --accent: #1FB6CA; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #0a0a0a;
-            color: #e0e0e0;
-        }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            display: grid;
-            grid-template-columns: 280px 1fr 340px;
-            gap: 20px;
-            height: 92vh;
-        }
-        .panel {
-            background: #181818;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            display: flex;
-            flex-direction: column;
-        }
-        h2 { color: var(--accent); margin: 0 0 20px 0; font-size: 1.4rem; }
-        input, select, button {
-            padding: 14px;
-            margin: 8px 0;
-            border-radius: 10px;
-            border: none;
-            background: #252525;
-            color: white;
-            font-size: 1rem;
-        }
-        button {
-            background: var(--accent);
-            color: #000;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        button:hover { background: #18a0b0; transform: translateY(-1px); }
-        .chat {
-            flex: 1;
-            background: #111111;
-            padding: 16px;
-            border-radius: 12px;
-            overflow-y: auto;
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .message {
-            padding: 12px 16px;
-            border-radius: 18px;
-            max-width: 80%;
-            word-break: break-word;
-        }
-        .message.you {
-            background: var(--accent);
-            color: #000;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-        .message.other {
-            background: #2a2a2a;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-        .friend-item {
-            padding: 14px;
-            background: #222;
-            margin: 6px 0;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .friend-item:hover { background: #333; }
-        .online { color: #22c55e; }
-        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; margin-right: 6px; }
-        #authStatus { font-size: 0.95rem; padding: 10px; border-radius: 8px; }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PlayFab Social</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --surface3: #252535;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --accent: #6c5ce7;
+    --accent2: #a29bfe;
+    --accent-glow: rgba(108,92,231,0.3);
+    --green: #00cec9;
+    --green-dim: rgba(0,206,201,0.15);
+    --red: #ff7675;
+    --text: #e8e8f0;
+    --text2: #9090a8;
+    --text3: #5a5a70;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+  input, button, textarea { font-family: inherit; }
+
+  /* ── AUTH ── */
+  #auth-screen {
+    display: flex; align-items: center; justify-content: center;
+    height: 100vh; background: var(--bg);
+    background-image: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(108,92,231,0.18) 0%, transparent 70%);
+  }
+  .auth-box {
+    width: 380px; background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 36px; position: relative; overflow: hidden;
+  }
+  .auth-box::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .auth-logo .dot { width: 32px; height: 32px; border-radius: 8px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+  .auth-logo .dot svg { width: 18px; height: 18px; fill: white; }
+  .auth-logo span { font-family: 'Space Mono', monospace; font-size: 15px; color: var(--text); letter-spacing: 0.02em; }
+  .auth-tabs { display: flex; background: var(--surface2); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 24px; }
+  .auth-tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; border-radius: 6px; transition: all 0.2s; border: none; background: transparent; }
+  .auth-tab.active { background: var(--surface3); color: var(--text); }
+  .field-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-weight: 600; }
+  .field { margin-bottom: 14px; }
+  .auth-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text);
+    font-size: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .auth-input:focus { border-color: var(--accent); }
+  .auth-input::placeholder { color: var(--text3); }
+  .auth-btn {
+    width: 100%; padding: 12px; background: var(--accent); color: white; border: none;
+    border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer;
+    margin-top: 6px; transition: all 0.2s; letter-spacing: 0.02em;
+  }
+  .auth-btn:hover { background: #7c6ef0; transform: translateY(-1px); }
+  .auth-btn:active { transform: translateY(0); }
+  .auth-err { background: rgba(255,118,117,0.12); border: 1px solid rgba(255,118,117,0.3); color: var(--red); font-size: 12px; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; display: none; }
+
+  /* ── APP ── */
+  #app { display: none; height: 100vh; flex-direction: row; }
+
+  /* sidebar */
+  .sidebar {
+    width: 260px; min-width: 260px; background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; height: 100vh;
+  }
+  .sidebar-top { padding: 16px; border-bottom: 1px solid var(--border); }
+  .me-row { display: flex; align-items: center; gap: 10px; }
+  .me-av { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+  .me-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .me-status { font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 4px; }
+  .me-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+  .sidebar-nav { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+  .snav-btn { flex: 1; padding: 12px 8px; font-size: 12px; font-weight: 600; color: var(--text2); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s; letter-spacing: 0.03em; text-transform: uppercase; }
+  .snav-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+  .snav-btn:hover:not(.active) { color: var(--text); }
+  .sidebar-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .sidebar-body::-webkit-scrollbar { width: 4px; }
+  .sidebar-body::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+  .s-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); padding: 8px 16px 4px; }
+  .dm-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px; cursor: pointer; border-radius: var(--radius-sm); margin: 1px 6px; transition: background 0.15s; }
+  .dm-item:hover { background: var(--surface2); }
+  .dm-item.active { background: rgba(108,92,231,0.12); }
+  .dm-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; position: relative; }
+  .dm-av .presence { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--surface); position: absolute; bottom: 0; right: 0; }
+  .dm-name { font-size: 13px; color: var(--text); font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dm-unreads { background: var(--accent); color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .sidebar-footer { padding: 12px 14px; border-top: 1px solid var(--border); }
+  .logout-btn { font-size: 12px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 0; transition: color 0.2s; }
+  .logout-btn:hover { color: var(--red); }
+
+  /* main */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; }
+
+  /* chat view */
+  #chat-view { display: flex; flex-direction: column; height: 100%; }
+  .chat-header { padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .ch-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .ch-name { font-size: 15px; font-weight: 600; }
+  .ch-sub { font-size: 12px; color: var(--text2); }
+  .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+  .empty-chat { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: var(--text3); }
+  .empty-chat .big { font-size: 32px; }
+  .empty-chat p { font-size: 13px; }
+  .msg-row { display: flex; align-items: flex-end; gap: 8px; }
+  .msg-row.mine { flex-direction: row-reverse; }
+  .msg-av-sm { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .bubble { max-width: 65%; padding: 10px 14px; font-size: 14px; line-height: 1.5; border-radius: 18px; word-break: break-word; }
+  .bubble.them { background: var(--surface2); color: var(--text); border-radius: 18px 18px 18px 4px; }
+  .bubble.mine { background: var(--accent); color: white; border-radius: 18px 18px 4px 18px; }
+  .msg-meta { font-size: 10px; color: var(--text3); margin: 0 4px; }
+  .typing-row { display: flex; align-items: center; gap: 8px; padding: 0 20px 8px; display: none; }
+  .typing-dots { display: flex; gap: 4px; }
+  .typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: bounce 1.2s infinite; }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  .typing-label { font-size: 12px; color: var(--text3); }
+  .chat-input-bar { padding: 14px 20px; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+  .chat-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 24px; padding: 10px 18px; color: var(--text); font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .chat-input:focus { border-color: var(--accent); }
+  .chat-input::placeholder { color: var(--text3); }
+  .chat-send { width: 38px; height: 38px; background: var(--accent); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+  .chat-send:hover { background: #7c6ef0; transform: scale(1.05); }
+  .chat-send svg { width: 16px; height: 16px; fill: white; }
+
+  /* friends view */
+  #friends-view { display: none; height: 100%; overflow-y: auto; padding: 24px; }
+  #friends-view::-webkit-scrollbar { width: 4px; }
+  #friends-view::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+  .fv-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .fv-header h2 { font-size: 18px; font-weight: 600; }
+  .add-friend-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+  .add-friend-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; color: var(--text); font-size: 13px; outline: none; transition: border-color 0.2s; }
+  .add-friend-input:focus { border-color: var(--accent); }
+  .add-friend-input::placeholder { color: var(--text3); }
+  .add-btn { padding: 10px 18px; background: var(--accent); border: none; border-radius: var(--radius-sm); color: white; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+  .add-btn:hover { background: #7c6ef0; }
+  .fv-section { margin-bottom: 24px; }
+  .fv-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 10px; }
+  .f-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; transition: border-color 0.2s; }
+  .f-card:hover { border-color: var(--border2); }
+  .f-info { flex: 1; min-width: 0; }
+  .f-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .f-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .f-actions { display: flex; gap: 6px; }
+  .f-btn { padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; border: 1px solid; transition: all 0.2s; }
+  .f-btn.accept { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+  .f-btn.accept:hover { background: rgba(0,206,201,0.25); }
+  .f-btn.decline, .f-btn.remove { border-color: var(--border); color: var(--text2); background: transparent; }
+  .f-btn.decline:hover, .f-btn.remove:hover { border-color: var(--red); color: var(--red); }
+  .f-btn.msg { border-color: var(--border); color: var(--text2); background: transparent; }
+  .f-btn.msg:hover { border-color: var(--accent2); color: var(--accent2); }
+  .f-empty { font-size: 13px; color: var(--text3); text-align: center; padding: 20px 0; }
+
+  /* search view */
+  #search-view { display: none; height: 100%; padding: 24px; overflow-y: auto; }
+  #search-view::-webkit-scrollbar { width: 4px; }
+  #search-view::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+  .sv-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+  .search-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+  .search-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 16px; color: var(--text); font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text3); }
+  .search-btn { padding: 11px 20px; background: var(--accent); border: none; border-radius: var(--radius-sm); color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .search-btn:hover { background: #7c6ef0; }
+  #search-results { }
+  .result-card { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; }
+  .result-info { flex: 1; }
+  .result-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .result-id { font-size: 11px; color: var(--text3); font-family: 'Space Mono', monospace; margin-top: 2px; }
+  .search-loading { font-size: 13px; color: var(--text2); text-align: center; padding: 24px; display: none; }
+  .search-err { font-size: 13px; color: var(--red); text-align: center; padding: 12px; display: none; }
+
+  /* toast */
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface3); border: 1px solid var(--border2); color: var(--text); font-size: 13px; padding: 10px 18px; border-radius: var(--radius-sm); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+  #toast.show { opacity: 1; }
+
+  .no-chat-selected { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 10px; color: var(--text3); }
+  .no-chat-selected .icon { font-size: 40px; }
+  .no-chat-selected p { font-size: 14px; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- ACCOUNTS PANEL -->
-        <div class="panel">
-            <h2>🔐 Accounts (Real PlayFab)</h2>
-            <input type="text" id="titleId" placeholder="YOUR PLAYFAB TITLE ID (required)" value="">
-            <small style="color:#888; margin-bottom:8px; display:block;">Get it from PlayFab dashboard → Title settings</small>
-            
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            
-            <button onclick="registerAccount()">Register Account</button>
-            <button onclick="loginAccount()">Login</button>
-            
-            <div id="authStatus"></div>
-            <div id="playerInfo" style="margin-top:20px; padding:12px; background:#111; border-radius:10px; font-size:0.95rem;"></div>
-        </div>
 
-        <!-- CHAT PANEL -->
-        <div class="panel">
-            <h2>💬 Real Chat (Persisted in PlayFab)</h2>
-            <select id="chatWith" onchange="loadChat()" style="margin-bottom:12px;">
-                <option value="">Select friend to chat</option>
-            </select>
-            
-            <div id="chatWindow" class="chat"></div>
-            
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="chatInput" placeholder="Type a message..." style="flex:1;" onkeypress="if(event.key==='Enter') sendRealMessage()">
-                <button onclick="sendRealMessage()">Send</button>
-            </div>
-            
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button onclick="refreshChat()" style="flex:1; background:#333; font-size:0.9rem;">Refresh Chat</button>
-                <button onclick="saveChatToPlayFab()" style="flex:1; background:#333; font-size:0.9rem;">Force Save to PlayFab</button>
-            </div>
-            
-            <div id="typingIndicator" style="font-style:italic; color:#666; margin-top:8px; height:24px;"></div>
-        </div>
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="dot"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <span>PLAYFAB SOCIAL</span>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="setAuthTab('login')">Sign in</button>
+      <button class="auth-tab" id="tab-reg" onclick="setAuthTab('register')">Register</button>
+    </div>
+    <div id="auth-err" class="auth-err"></div>
 
-        <!-- FRIENDS PANEL -->
-        <div class="panel">
-            <h2>👥 Friends (Real PlayFab + Custom Requests)</h2>
-            
-            <input type="text" id="friendInput" placeholder="Friend Username or PlayFabId">
-            <button onclick="sendRealFriendRequest()">Send Friend Request</button>
-            
-            <h3 style="margin:20px 0 10px 0; font-size:1.1rem;">Pending Requests</h3>
-            <div id="incomingRequests"></div>
-            
-            <h3 style="margin:20px 0 10px 0; font-size:1.1rem;">Friends List</h3>
-            <div id="friendsList"></div>
-        </div>
+    <div id="login-form">
+      <div class="field"><div class="field-label">Username</div><input class="auth-input" id="l-user" placeholder="your username" autocomplete="username"/></div>
+      <div class="field"><div class="field-label">Password</div><input class="auth-input" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="auth-btn" onclick="doLogin()" id="login-btn">Sign in</button>
     </div>
 
-    <script>
-        // ====================== GLOBAL STATE ======================
-        let currentPlayFabId = null;
-        let sessionTicket = null;
-        let titleId = null;
-        let chatHistory = {};        // { friendPlayFabId: [ {msgId, from, text, time, read}, ... ] }
-        let customFriendData = {     // Stored in PlayFab Player Data
-            incomingRequests: [],
-            outgoingRequests: [],
-            blocked: []
-        };
+    <div id="reg-form" style="display:none">
+      <div class="field"><div class="field-label">Username</div><input class="auth-input" id="r-user" placeholder="choose a username" autocomplete="username"/></div>
+      <div class="field"><div class="field-label">Email (optional)</div><input class="auth-input" id="r-email" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="field"><div class="field-label">Password</div><input class="auth-input" id="r-pass" type="password" placeholder="min 6 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"/></div>
+      <button class="auth-btn" onclick="doRegister()" id="reg-btn">Create account</button>
+    </div>
+  </div>
+</div>
 
-        // ====================== STATUS HELPERS ======================
-        function setStatus(msg, color = "#1FB6CA") {
-            const el = document.getElementById("authStatus");
-            el.style.color = color;
-            el.innerHTML = `<strong>${msg}</strong>`;
-        }
+<!-- APP -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="me-row">
+        <div class="me-av" id="me-av">?</div>
+        <div>
+          <div class="me-name" id="me-name">User</div>
+          <div class="me-status">Online</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="snav-btn active" id="snav-chat" onclick="switchTab('chat')">Chats</button>
+      <button class="snav-btn" id="snav-friends" onclick="switchTab('friends')">Friends</button>
+      <button class="snav-btn" id="snav-search" onclick="switchTab('search')">Search</button>
+    </div>
+    <div class="sidebar-body">
+      <div id="dm-panel">
+        <div class="s-section-label">Direct Messages</div>
+        <div id="dm-list"></div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
 
-        function showPlayerInfo() {
-            document.getElementById("playerInfo").innerHTML = `
-                <strong>✅ Logged in</strong><br>
-                PlayFabId: <span style="color:#1FB6CA; font-family:monospace;">${currentPlayFabId}</span><br>
-                Title ID: <span style="color:#888;">${titleId}</span><br>
-                Session active • Data persisted
-            `;
-        }
+  <div class="main">
+    <!-- CHAT VIEW -->
+    <div id="chat-view">
+      <div class="no-chat-selected" id="no-chat">
+        <div class="icon">💬</div>
+        <p>Select a friend to start chatting</p>
+      </div>
+      <div id="active-chat" style="display:none;flex-direction:column;height:100%">
+        <div class="chat-header">
+          <div class="ch-av" id="ch-av">?</div>
+          <div>
+            <div class="ch-name" id="ch-name">—</div>
+            <div class="ch-sub" id="ch-sub">—</div>
+          </div>
+        </div>
+        <div class="messages" id="messages"></div>
+        <div class="typing-row" id="typing-row">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+          <div class="typing-label" id="typing-label">typing...</div>
+        </div>
+        <div class="chat-input-bar">
+          <input class="chat-input" id="chat-msg" placeholder="Message..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+          <button class="chat-send" onclick="sendMsg()">
+            <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
-        // ====================== AUTH (REAL PLAYFAB) ======================
-        function registerAccount() {
-            titleId = document.getElementById("titleId").value.trim();
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
+    <!-- FRIENDS VIEW -->
+    <div id="friends-view">
+      <div class="fv-header"><h2>Friends</h2></div>
+      <div class="add-friend-bar">
+        <input class="add-friend-input" id="add-f-input" placeholder="Add friend by username or PlayFab ID..."/>
+        <button class="add-btn" onclick="sendFriendReq()">Add Friend</button>
+      </div>
+      <div class="fv-section" id="pending-section" style="display:none">
+        <div class="fv-section-title">Pending Requests</div>
+        <div id="pending-list"></div>
+      </div>
+      <div class="fv-section">
+        <div class="fv-section-title">All Friends</div>
+        <div id="friends-list"></div>
+      </div>
+    </div>
 
-            if (!titleId || !username || !password) {
-                return setStatus("❌ Fill Title ID + Username + Password", "#ef4444");
-            }
+    <!-- SEARCH VIEW -->
+    <div id="search-view">
+      <div class="sv-title">Find Players</div>
+      <div class="search-bar">
+        <input class="search-input" id="search-input" placeholder="Search by username..." onkeydown="if(event.key==='Enter')doSearch()"/>
+        <button class="search-btn" onclick="doSearch()">Search</button>
+      </div>
+      <div class="search-loading" id="search-loading">Searching...</div>
+      <div class="search-err" id="search-err"></div>
+      <div id="search-results"></div>
+    </div>
+  </div>
+</div>
 
-            PlayFab.settings.titleId = titleId;
+<div id="toast"></div>
 
-            const request = {
-                TitleId: titleId,
-                Username: username,
-                Password: password,
-                RequireBothUsernameAndEmail: false
-            };
+<script>
+const TITLE_ID = "1FB6CA";
+const BASE = `https://${TITLE_ID}.playfabapi.com`;
 
-            PlayFabClientSDK.RegisterPlayFabUser(request, (result, error) => {
-                if (result?.data) {
-                    currentPlayFabId = result.data.PlayFabId;
-                    sessionTicket = result.data.SessionTicket;
-                    setStatus(`✅ Registered! ID: ${currentPlayFabId}`, "#22c55e");
-                    showPlayerInfo();
-                    loadEverythingFromPlayFab();
-                } else {
-                    setStatus("❌ " + (error?.errorMessage || "Registration failed"), "#ef4444");
-                }
-            });
-        }
+let S = {
+  user: null,         // { PlayFabId, SessionTicket, Username }
+  activeChat: null,   // PlayFabId
+  friends: [],        // array of friend objects
+  chats: {},          // keyed by PlayFabId
+  pending: [],        // incoming friend requests (stored in player data)
+  tab: 'chat'
+};
 
-        function loginAccount() {
-            titleId = document.getElementById("titleId").value.trim();
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
+// ── UTILS ──
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function initials(n){ return (n||'?').slice(0,2).toUpperCase(); }
+const AVCOLORS = ['#6c5ce7','#00cec9','#fd79a8','#e17055','#0984e3','#a29bfe','#55efc4'];
+function avColor(id){ let h=0; for(let c of String(id)) h=(h*31+c.charCodeAt(0))&0xffffffff; return AVCOLORS[Math.abs(h)%AVCOLORS.length]; }
+function fmtTime(ts){ return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
 
-            if (!titleId || !username || !password) {
-                return setStatus("❌ Fill Title ID + Username + Password", "#ef4444");
-            }
+function toast(msg, dur=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
 
-            PlayFab.settings.titleId = titleId;
+function setBtn(id, text, disabled=false){
+  const b=document.getElementById(id);
+  if(b){ b.textContent=text; b.disabled=disabled; }
+}
 
-            const request = {
-                TitleId: titleId,
-                Username: username,
-                Password: password
-            };
+// ── AUTH TAB ──
+function setAuthTab(tab){
+  document.getElementById('login-form').style.display = tab==='login'?'':'none';
+  document.getElementById('reg-form').style.display = tab==='register'?'':'none';
+  document.getElementById('tab-login').className = 'auth-tab'+(tab==='login'?' active':'');
+  document.getElementById('tab-reg').className = 'auth-tab'+(tab==='register'?' active':'');
+  document.getElementById('auth-err').style.display='none';
+}
 
-            PlayFabClientSDK.LoginWithPlayFab(request, (result, error) => {
-                if (result?.data) {
-                    currentPlayFabId = result.data.PlayFabId;
-                    sessionTicket = result.data.SessionTicket;
-                    setStatus(`✅ Logged in! ID: ${currentPlayFabId}`, "#22c55e");
-                    showPlayerInfo();
-                    loadEverythingFromPlayFab();
-                } else {
-                    setStatus("❌ " + (error?.errorMessage || "Login failed"), "#ef4444");
-                }
-            });
-        }
+function showAuthErr(msg){ const e=document.getElementById('auth-err'); e.textContent=msg; e.style.display=''; }
 
-        // ====================== LOAD ALL DATA FROM PLAYFAB ======================
-        function loadEverythingFromPlayFab() {
-            loadFriendsList();
-            loadPlayerData();
-        }
+// ── PLAYFAB API ──
+async function pfCall(endpoint, body, session=null){
+  const headers = {'Content-Type':'application/json'};
+  if(session) headers['X-Authorization'] = session;
+  const r = await fetch(BASE+endpoint, {method:'POST',headers,body:JSON.stringify(body)});
+  const d = await r.json();
+  if(d.status !== 'OK') throw new Error(d.errorMessage || d.status || 'API error');
+  return d.data;
+}
 
-        // ====================== FRIENDS (REAL) ======================
-        function loadFriendsList() {
-            PlayFabClientSDK.GetFriendsList({}, (result, error) => {
-                if (result?.data?.Friends) {
-                    renderFriendsList(result.data.Friends);
-                    renderChatDropdown(result.data.Friends);
-                } else {
-                    console.warn("No friends yet");
-                }
-            });
-        }
+// ── REGISTER ──
+async function doRegister(){
+  const u=document.getElementById('r-user').value.trim();
+  const p=document.getElementById('r-pass').value;
+  if(!u||!p){ showAuthErr('Username and password required.'); return; }
+  if(p.length<6){ showAuthErr('Password must be at least 6 characters.'); return; }
+  setBtn('reg-btn','Creating account...', true);
+  try {
+    const body = {TitleId:TITLE_ID, Username:u, Password:p, RequireBothUsernameAndEmail:false};
+    if(e) body.Email=e;
+    const data = await pfCall('/Client/RegisterPlayFabUser', body);
+    S.user = { PlayFabId: data.PlayFabId, SessionTicket: data.SessionTicket, Username: u };
+    await initPlayerData();
+    enterApp();
+  } catch(err){ showAuthErr(err.message); }
+  setBtn('reg-btn','Create account', false);
+}
 
-        function renderFriendsList(friendsArray) {
-            let html = "";
-            friendsArray.forEach(f => {
-                const online = Math.random() > 0.4; // In real app use GetEntityToken + presence
-                html += `
-                    <div class="friend-item" onclick="selectFriend('${f.FriendPlayFabId}')">
-                        <span class="status-dot" style="background:${online?'#22c55e':'#ef4444'}"></span>
-                        ${f.Username || f.FriendPlayFabId} 
-                        <span style="float:right; font-size:0.8rem; color:#888;">${online ? 'Online' : 'Offline'}</span>
-                    </div>
-                `;
-            });
-            document.getElementById("friendsList").innerHTML = html || "<p style='color:#666; text-align:center;'>No friends yet</p>";
-        }
+// ── LOGIN ──
+async function doLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value;
+  if(!u||!p){ showAuthErr('Please fill in all fields.'); return; }
+  setBtn('login-btn','Signing in...', true);
+  try {
+    const data = await pfCall('/Client/LoginWithPlayFab', {TitleId:TITLE_ID, Username:u, Password:p});
+    S.user = { PlayFabId: data.PlayFabId, SessionTicket: data.SessionTicket, Username: u };
+    enterApp();
+  } catch(err){ showAuthErr(err.message); }
+  setBtn('login-btn','Sign in', false);
+}
 
-        function renderChatDropdown(friendsArray) {
-            let html = `<option value="">Select friend to chat</option>`;
-            friendsArray.forEach(f => {
-                if (f.FriendPlayFabId !== currentPlayFabId) {
-                    html += `<option value="${f.FriendPlayFabId}">${f.Username || f.FriendPlayFabId}</option>`;
-                }
-            });
-            document.getElementById("chatWith").innerHTML = html;
-        }
+// ── LOGOUT ──
+function doLogout(){
+  S = { user:null, activeChat:null, friends:[], chats:{}, pending:[], tab:'chat' };
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('auth-err').style.display='none';
+}
 
-        function sendRealFriendRequest() {
-            const input = document.getElementById("friendInput").value.trim();
-            if (!input || !currentPlayFabId) return setStatus("Login first", "#ef4444");
+// ── INIT PLAYER DATA ──
+async function initPlayerData(){
+  try {
+    await pfCall('/Client/UpdateUserData', {
+      Data: { friends_list: '[]', pending_in: '[]', pending_out: '[]', chat_data: '{}' }
+    }, S.user.SessionTicket);
+  } catch(e){}
+}
 
-            PlayFabClientSDK.AddFriend({ FriendUsername: input }, (res, err) => {
-                if (res) {
-                    setStatus("✅ Friend request sent via PlayFab", "#22c55e");
-                    loadFriendsList();
-                    document.getElementById("friendInput").value = "";
-                } else {
-                    setStatus("❌ " + err.errorMessage, "#ef4444");
-                }
-            });
-        }
+// ── LOAD PLAYER DATA ──
+async function loadPlayerData(){
+  try {
+    const d = await pfCall('/Client/GetUserData', {Keys:['friends_list','pending_in','pending_out','chat_data']}, S.user.SessionTicket);
+    const get = k => { try { return JSON.parse(d.Data?.[k]?.Value||'null'); } catch{ return null; } };
+    S.friends = get('friends_list') || [];
+    S.pending = get('pending_in') || [];
+    S.chats = get('chat_data') || {};
+  } catch(e){ console.error(e); }
+}
 
-        // ====================== CUSTOM PENDING REQUESTS (stored in Player Data) ======================
-        function loadPlayerData() {
-            PlayFabClientSDK.GetUserData({ Keys: ["chatHistory", "customFriendData"] }, (result, error) => {
-                if (result?.data?.Data) {
-                    // Load chat history
-                    if (result.data.Data.chatHistory) {
-                        chatHistory = JSON.parse(result.data.Data.chatHistory.Value || "{}");
-                    }
-                    // Load custom friend data (pending requests)
-                    if (result.data.Data.customFriendData) {
-                        customFriendData = JSON.parse(result.data.Data.customFriendData.Value || "{}");
-                    }
-                    renderPendingRequests();
-                }
-            });
-        }
+async function savePlayerData(){
+  try {
+    await pfCall('/Client/UpdateUserData', {
+      Data: {
+        friends_list: JSON.stringify(S.friends),
+        pending_in: JSON.stringify(S.pending),
+        chat_data: JSON.stringify(S.chats)
+      }
+    }, S.user.SessionTicket);
+  } catch(e){}
+}
 
-        function saveAllToPlayFab() {
-            const data = {
-                chatHistory: JSON.stringify(chatHistory),
-                customFriendData: JSON.stringify(customFriendData)
-            };
+// ── ENTER APP ──
+async function enterApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  const av = document.getElementById('me-av');
+  av.textContent = initials(S.user.Username);
+  av.style.background = avColor(S.user.PlayFabId);
+  document.getElementById('me-name').textContent = S.user.Username;
+  await loadPlayerData();
+  renderDMList();
+  renderFriendsPanel();
+  switchTab('chat');
+}
 
-            PlayFabClientSDK.UpdateUserData({
-                Data: data,
-                Permission: "Public"   // Change to Private if you want only you to see
-            }, (result, error) => {
-                if (result) console.log("%c✅ All data saved to PlayFab", "color:#1FB6CA");
-            });
-        }
+// ── TABS ──
+function switchTab(tab){
+  S.tab=tab;
+  ['chat','friends','search'].forEach(t=>{
+    document.getElementById(t+'-view').style.display = t===tab?'flex':'none';
+    if(t==='friends'||t==='search') document.getElementById(t+'-view').style.display = t===tab?'block':'none';
+    document.getElementById('snav-'+t).className='snav-btn'+(t===tab?' active':'');
+  });
+  document.getElementById('dm-panel').style.display = tab==='chat'?'':'none';
+}
 
-        function renderPendingRequests() {
-            let html = "";
-            customFriendData.incomingRequests.forEach(id => {
-                html += `
-                    <div class="friend-item" style="display:flex; justify-content:space-between;">
-                        <span>${id}</span>
-                        <div>
-                            <button onclick="acceptFriendRequest('${id}')" style="padding:4px 12px; font-size:12px;">Accept</button>
-                            <button onclick="rejectFriendRequest('${id}')" style="padding:4px 12px; font-size:12px; background:#ef4444;">Reject</button>
-                        </div>
-                    </div>`;
-            });
-            document.getElementById("incomingRequests").innerHTML = html || "<p style='color:#666;'>No pending requests</p>";
-        }
+// ── DM LIST ──
+function renderDMList(){
+  const el=document.getElementById('dm-list');
+  if(!S.friends.length){ el.innerHTML='<div style="padding:10px 16px;font-size:12px;color:var(--text3)">No friends yet. Add some!</div>'; return; }
+  el.innerHTML = S.friends.map(f=>{
+    const msgs = S.chats[f.id]||[];
+    const unread = msgs.filter(m=>!m.mine&&!m.read).length;
+    const color = avColor(f.id);
+    const active = S.activeChat===f.id;
+    return `<div class="dm-item${active?' active':''}" onclick="openChat('${f.id}','${esc(f.name)}')">
+      <div class="dm-av" style="background:${color}">
+        ${initials(f.name)}
+        <span class="presence" style="background:var(--text3)"></span>
+      </div>
+      <span class="dm-name">${esc(f.name)}</span>
+      ${unread?`<span class="dm-unreads">${unread}</span>`:''}
+    </div>`;
+  }).join('');
+}
 
-        function acceptFriendRequest(id) {
-            PlayFabClientSDK.AddFriend({ FriendPlayFabId: id }, () => {
-                customFriendData.incomingRequests = customFriendData.incomingRequests.filter(x => x !== id);
-                saveAllToPlayFab();
-                loadFriendsList();
-                renderPendingRequests();
-            });
-        }
+// ── OPEN CHAT ──
+function openChat(fid, fname){
+  S.activeChat=fid;
+  const msgs=S.chats[fid]||[];
+  msgs.forEach(m=>{ if(!m.mine) m.read=true; });
+  S.chats[fid]=msgs;
+  document.getElementById('no-chat').style.display='none';
+  const ac=document.getElementById('active-chat');
+  ac.style.display='flex';
+  const color=avColor(fid);
+  const av=document.getElementById('ch-av');
+  av.textContent=initials(fname); av.style.background=color;
+  document.getElementById('ch-name').textContent=fname;
+  document.getElementById('ch-sub').textContent='PlayFab ID: '+fid;
+  renderMessages();
+  renderDMList();
+  document.getElementById('chat-msg').focus();
+  savePlayerData();
+}
 
-        function rejectFriendRequest(id) {
-            customFriendData.incomingRequests = customFriendData.incomingRequests.filter(x => x !== id);
-            saveAllToPlayFab();
-            renderPendingRequests();
-        }
+function renderMessages(){
+  const el=document.getElementById('messages');
+  const msgs=S.chats[S.activeChat]||[];
+  if(!msgs.length){
+    el.innerHTML=`<div class="empty-chat"><div class="big">👋</div><p>Say hello!</p></div>`; return;
+  }
+  el.innerHTML=msgs.map(m=>{
+    const t=fmtTime(m.time);
+    return `<div class="msg-row ${m.mine?'mine':''}">
+      <div class="bubble ${m.mine?'mine':'them'}">${esc(m.text)}</div>
+      <span class="msg-meta">${t}</span>
+    </div>`;
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
 
-        // ====================== CHAT (REAL PERSISTENCE) ======================
-        function selectFriend(playfabId) {
-            document.getElementById("chatWith").value = playfabId;
-            loadChat();
-        }
+// ── SEND MSG (AI-powered reply via Claude) ──
+async function sendMsg(){
+  const inp=document.getElementById('chat-msg');
+  const text=inp.value.trim();
+  if(!text||!S.activeChat) return;
+  inp.value='';
+  if(!S.chats[S.activeChat]) S.chats[S.activeChat]=[];
+  S.chats[S.activeChat].push({mine:true,text,time:Date.now(),read:true});
+  renderMessages();
+  const friend = S.friends.find(f=>f.id===S.activeChat);
+  const fname = friend?.name||'Friend';
+  // show typing
+  const tr=document.getElementById('typing-row');
+  document.getElementById('typing-label').textContent=`${fname} is typing...`;
+  tr.style.display='flex';
+  try {
+    const history = (S.chats[S.activeChat]||[]).slice(-10).map(m=>({
+      role: m.mine?'user':'assistant', content: m.text
+    }));
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:200,
+        system:`You are ${fname}, a friendly person in a social chat app. Reply naturally and conversationally in 1-2 sentences. Keep it casual and warm. Don't use emojis excessively.`,
+        messages: history
+      })
+    });
+    const d=await resp.json();
+    const reply=d.content?.find(b=>b.type==='text')?.text||'👍';
+    S.chats[S.activeChat].push({mine:false,text:reply,time:Date.now(),read:true});
+  } catch(e){
+    S.chats[S.activeChat].push({mine:false,text:'(could not reach server)',time:Date.now(),read:true});
+  }
+  tr.style.display='none';
+  renderMessages();
+  savePlayerData();
+}
 
-        function loadChat() {
-            const targetId = document.getElementById("chatWith").value;
-            if (!targetId) return;
-            const chatWin = document.getElementById("chatWindow");
-            chatWin.innerHTML = "";
+// ── FRIENDS ──
+async function sendFriendReq(){
+  const val=document.getElementById('add-f-input').value.trim();
+  if(!val){ toast('Enter a username or PlayFab ID.'); return; }
+  try {
+    // Try by username first, then by PlayFabId
+    let body = val.length===16||val.length===8 ? {FriendPlayFabId:val} : {FriendUsername:val};
+    await pfCall('/Client/AddFriend', body, S.user.SessionTicket);
+    // Fetch their profile
+    let friendId = val;
+    let friendName = val;
+    try {
+      const lookup = await pfCall('/Client/GetAccountInfo', val.length>=8&&!/\s/.test(val)&&val===val.toUpperCase() ? {PlayFabId:val} : {Username:val}, S.user.SessionTicket);
+      friendId = lookup.AccountInfo.PlayFabId;
+      friendName = lookup.AccountInfo.TitleInfo?.DisplayName || lookup.AccountInfo.Username || val;
+    } catch(e){}
+    if(!S.friends.find(f=>f.id===friendId)){
+      S.friends.push({id:friendId,name:friendName});
+      await savePlayerData();
+    }
+    document.getElementById('add-f-input').value='';
+    renderFriendsPanel();
+    renderDMList();
+    toast(`Friend added: ${friendName}`);
+  } catch(e){ toast('Could not add friend: '+e.message); }
+}
 
-            if (!chatHistory[targetId]) chatHistory[targetId] = [];
+async function removeFriend(fid){
+  try {
+    await pfCall('/Client/RemoveFriend', {FriendPlayFabId:fid}, S.user.SessionTicket);
+    S.friends=S.friends.filter(f=>f.id!==fid);
+    delete S.chats[fid];
+    await savePlayerData();
+    renderFriendsPanel();
+    renderDMList();
+    toast('Friend removed.');
+  } catch(e){ toast('Error: '+e.message); }
+}
 
-            chatHistory[targetId].forEach(msg => {
-                const isYou = msg.from === currentPlayFabId;
-                chatWin.innerHTML += `
-                    <div class="message ${isYou ? 'you' : 'other'}">
-                        <strong>${isYou ? "You" : targetId}</strong><br>
-                        ${msg.text}<br>
-                        <small style="opacity:0.6; font-size:0.75rem;">${new Date(msg.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</small>
-                    </div>`;
-            });
-            chatWin.scrollTop = chatWin.scrollHeight;
-        }
+async function loadPlayFabFriends(){
+  try {
+    const d=await pfCall('/Client/GetFriendsList', {}, S.user.SessionTicket);
+    const pf=(d.Friends||[]);
+    pf.forEach(f=>{
+      const fid=f.FriendPlayFabId;
+      const fname=f.TitleDisplayName||f.Username||fid;
+      if(!S.friends.find(x=>x.id===fid)) S.friends.push({id:fid,name:fname});
+    });
+    await savePlayerData();
+    renderFriendsPanel();
+    renderDMList();
+  } catch(e){}
+}
 
-        function sendRealMessage() {
-            const targetId = document.getElementById("chatWith").value;
-            const input = document.getElementById("chatInput");
-            const text = input.value.trim();
+function renderFriendsPanel(){
+  const fl=document.getElementById('friends-list');
+  if(!S.friends.length){
+    fl.innerHTML='<div class="f-empty">No friends yet. Add someone above!</div>'; return;
+  }
+  fl.innerHTML=S.friends.map(f=>`
+    <div class="f-card">
+      <div class="dm-av" style="width:38px;height:38px;border-radius:50%;background:${avColor(f.id)};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0">${initials(f.name)}</div>
+      <div class="f-info">
+        <div class="f-name">${esc(f.name)}</div>
+        <div class="f-sub" style="font-family:'Space Mono',monospace">${f.id}</div>
+      </div>
+      <div class="f-actions">
+        <button class="f-btn msg" onclick="openChat('${f.id}','${esc(f.name)}');switchTab('chat')">Message</button>
+        <button class="f-btn remove" onclick="removeFriend('${f.id}')">Remove</button>
+      </div>
+    </div>`).join('');
+  // pending section
+  const ps=document.getElementById('pending-section');
+  ps.style.display=S.pending.length?'':'none';
+  if(S.pending.length){
+    document.getElementById('pending-list').innerHTML=S.pending.map(r=>`
+      <div class="f-card">
+        <div class="dm-av" style="width:38px;height:38px;border-radius:50%;background:${avColor(r.id)};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0">${initials(r.name)}</div>
+        <div class="f-info"><div class="f-name">${esc(r.name)}</div><div class="f-sub">Wants to be friends</div></div>
+        <div class="f-actions">
+          <button class="f-btn accept" onclick="acceptRequest('${r.id}','${esc(r.name)}')">Accept</button>
+          <button class="f-btn decline" onclick="declineRequest('${r.id}')">Decline</button>
+        </div>
+      </div>`).join('');
+  }
+}
 
-            if (!targetId || !text || !currentPlayFabId) return;
+async function acceptRequest(fid, fname){
+  await pfCall('/Client/AddFriend', {FriendPlayFabId:fid}, S.user.SessionTicket);
+  S.pending=S.pending.filter(r=>r.id!==fid);
+  if(!S.friends.find(f=>f.id===fid)) S.friends.push({id:fid,name:fname});
+  await savePlayerData();
+  renderFriendsPanel();
+  renderDMList();
+  toast('You are now friends with '+fname);
+}
 
-            if (!chatHistory[targetId]) chatHistory[targetId] = [];
+async function declineRequest(fid){
+  S.pending=S.pending.filter(r=>r.id!==fid);
+  await savePlayerData();
+  renderFriendsPanel();
+}
 
-            const messageObj = {
-                msgId: "msg_" + Date.now(),
-                from: currentPlayFabId,
-                text: text,
-                time: Date.now()
-            };
+// ── PLAYER SEARCH ──
+async function doSearch(){
+  const q=document.getElementById('search-input').value.trim();
+  if(!q){ return; }
+  const rl=document.getElementById('search-loading');
+  const re=document.getElementById('search-err');
+  const rs=document.getElementById('search-results');
+  rl.style.display='block'; re.style.display='none'; rs.innerHTML='';
+  try {
+    // Try lookup by username via GetAccountInfo
+    const body = q.length===16 ? {PlayFabId:q} : {Username:q};
+    const d = await pfCall('/Client/GetAccountInfo', body, S.user.SessionTicket);
+    const acc = d.AccountInfo;
+    const fid = acc.PlayFabId;
+    const fname = acc.TitleInfo?.DisplayName || acc.Username || fid;
+    const isFriend = !!S.friends.find(f=>f.id===fid);
+    const isMe = fid===S.user.PlayFabId;
+    rs.innerHTML=`<div class="result-card">
+      <div style="width:42px;height:42px;border-radius:50%;background:${avColor(fid)};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:white;flex-shrink:0">${initials(fname)}</div>
+      <div class="result-info">
+        <div class="result-name">${esc(fname)}</div>
+        <div class="result-id">${fid}</div>
+      </div>
+      ${isMe ? '<span style="font-size:12px;color:var(--text3)">That\'s you</span>' :
+        isFriend ? `<button class="f-btn msg" onclick="openChat('${fid}','${esc(fname)}');switchTab('chat')">Message</button>` :
+        `<button class="f-btn accept" onclick="addFromSearch('${fid}','${esc(fname)}')">Add Friend</button>`
+      }
+    </div>`;
+  } catch(e){
+    re.textContent = 'Player not found. Try exact username or PlayFab ID.';
+    re.style.display='block';
+  }
+  rl.style.display='none';
+}
 
-            chatHistory[targetId].push(messageObj);
-            loadChat();
-            input.value = "";
-
-            // Show typing simulation (real app would use WebSocket)
-            const typingEl = document.getElementById("typingIndicator");
-            typingEl.textContent = "Friend is typing...";
-            setTimeout(() => { typingEl.textContent = ""; }, 1400);
-
-            // Auto-save to PlayFab
-            saveAllToPlayFab();
-        }
-
-        function refreshChat() {
-            loadPlayerData();   // pulls latest from PlayFab
-            const target = document.getElementById("chatWith").value;
-            if (target) loadChat();
-            setStatus("🔄 Refreshed from PlayFab", "#1FB6CA");
-        }
-
-        function saveChatToPlayFab() {
-            saveAllToPlayFab();
-            setStatus("💾 Manually saved to PlayFab", "#22c55e");
-        }
-
-        // ====================== AUTO REFRESH (keeps it alive) ======================
-        setInterval(() => {
-            if (currentPlayFabId && titleId) {
-                loadFriendsList();
-                loadPlayerData();
-            }
-        }, 12000);
-
-        // ====================== START ======================
-        window.onload = () => {
-            setStatus("Enter your real PlayFab Title ID above and login/register.<br>Everything will connect to your real PlayFab backend.", "#888");
-            // Pre-fill your PlayFabId for easy copy
-            console.log("%cYour PlayFabId is 1FB6CA – after login it will show the real one", "color:#1FB6CA; font-weight:bold");
-        };
-    </script>
+async function addFromSearch(fid, fname){
+  try {
+    await pfCall('/Client/AddFriend', {FriendPlayFabId:fid}, S.user.SessionTicket);
+    if(!S.friends.find(f=>f.id===fid)) S.friends.push({id:fid,name:fname});
+    await savePlayerData();
+    renderFriendsPanel();
+    renderDMList();
+    toast('Friend added: '+fname);
+    doSearch();
+  } catch(e){ toast('Error: '+e.message); }
+}
+</script>
 </body>
 </html>
