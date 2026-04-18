@@ -1,179 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pointercrate Demonlist</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+  <meta charset="UTF-8">
+  <title>how to date an entity (and not die)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 80px;
+      background: #111;
+      color: #eee;
+    }
 
-        body {
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background: #0f0f0f;
-            color: #e0e0e0;
-            line-height: 1.5;
-        }
-        header {
-            background: linear-gradient(to right, #1a1a1a, #2a2a2a);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 3px solid #ff4444;
-        }
-        h1 {
-            margin: 0;
-            font-size: 2.2em;
-            color: #ff4444;
-        }
-        .subtitle {
-            color: #aaa;
-            font-size: 1.1em;
-        }
-        .container {
-            max-width: 1100px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .nav {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        .nav a {
-            background: #1f1f1f;
-            color: #ff4444;
-            padding: 10px 20px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .nav a:hover {
-            background: #ff4444;
-            color: #0f0f0f;
-        }
-        .demon {
-            background: #1a1a1a;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            padding: 18px 22px;
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            transition: transform 0.2s;
-        }
-        .demon:hover {
-            transform: translateX(8px);
-        }
-        .rank {
-            font-size: 2.4em;
-            font-weight: 700;
-            color: #ff4444;
-            width: 80px;
-            text-align: center;
-        }
-        .info {
-            flex: 1;
-        }
-        .level-name {
-            font-size: 1.45em;
-            font-weight: 500;
-            color: #ffffff;
-        }
-        .by {
-            color: #888;
-            font-size: 0.95em;
-        }
-        .publisher {
-            color: #44ffaa;
-        }
-        .points {
-            background: #222;
-            padding: 10px 18px;
-            border-radius: 6px;
-            text-align: center;
-            min-width: 170px;
-        }
-        .points strong {
-            color: #ffdd44;
-            font-size: 1.15em;
-        }
-        .rickroll {
-            cursor: pointer;
-            color: #ff4444;
-            font-weight: bold;
-        }
-        .rickroll:hover {
-            text-decoration: underline;
-        }
-        .footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: #555;
-            font-size: 0.9em;
-        }
-        .top-bar {
-            background: #1f1f1f;
-            padding: 15px;
-            text-align: center;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-    </style>
+    h1 {
+      margin-bottom: 40px;
+    }
+
+    button {
+      padding: 15px 35px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: #4CAF50;
+      color: white;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    button:disabled {
+      background: #777;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+
+    .progress-container {
+      width: 300px;
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
+      margin: 20px auto;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #4CAF50;
+      transition: width 1s linear;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Pointercrate</h1>
-        <p class="subtitle">Geometry Dash Demonlist</p>
-    </header>
 
-    <div class="container">
-        <div class="top-bar">
-            <strong>Time Machine</strong> • 
-            <a href="#" style="color:#ff4444; text-decoration:none;">Record Submission</a>
-        </div>
+  <h1>how to date an entity (and not die)</h1>
 
-        <div class="nav">
-            <a href="#">Main List</a>
-            <a href="#">Extended List</a>
-            <a href="#">Legacy List</a>
-            <a href="#">Stats Viewer</a>
-            <a href="#">Guidelines</a>
-        </div>
+  <button id="downloadBtn" onclick="startDownload()">Download Guide</button>
 
-        <h2 style="text-align:center; margin-bottom:30px; color:#ff6666;">Main Demonlist</h2>
+  <div id="status"></div>
 
-        <!-- Stereo Madness as #1 with Rickroll -->
-        <div class="demon" onclick="rickroll()">
-            <div class="rank">#1</div>
-            <div class="info">
-                <div class="level-name">Stereo Madness <span class="rickroll">(click me)</span></div>
-                <div class="by">by <span class="publisher">RobTop</span> • verified by <span class="verifier">RobTop</span></div>
-            </div>
-            <div class="points">
-                <strong>1000.00</strong> points<br>
-                <small>The Ultimate Demon</small>
-            </div>
-        </div>
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
-        <p style="text-align:center; margin:40px 0; color:#777; font-style:italic;">
-            Every other level has been removed as requested.<br>
-            Only the true #1 remains.
-        </p>
+  <script>
+    function startDownload() {
+      let countdown = 10;
+      const status = document.getElementById("status");
+      const btn = document.getElementById("downloadBtn");
+      const progressBar = document.getElementById("progressBar");
+      const progressContainer = document.getElementById("progressContainer");
 
-    </div>
+      btn.disabled = true;
+      progressContainer.style.display = "block";
 
-    <div class="footer">
-        Recreated with ❤️ for the Geometry Dash community • Not affiliated with Pointercrate
-    </div>
+      status.textContent = "Wait for some seconds...";
 
-    <script>
-        function rickroll() {
-            window.open("https://www.youtube.com/watch?v=dQw4w9wgxcq", "_blank");
+      const interval = setInterval(() => {
+        status.textContent = "Starting in " + countdown + "...";
+
+        // Update progress bar
+        let progress = ((10 - countdown) / 10) * 100;
+        progressBar.style.width = progress + "%";
+
+        countdown--;
+
+        if (countdown < 0) {
+          clearInterval(interval);
+          status.textContent = "Downloading...";
+          progressBar.style.width = "100%";
+
+          setTimeout(() => {
+            window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1&pp=ygUJcmljayByb2xsoAcB0gcJCdMKAYcqIYzv", "_blank");
+          }, 800);
         }
-    </script>
+      }, 1000);
+    }
+  </script>
+
 </body>
 </html>
