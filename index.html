@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GD Level Forge V5</title>
+<title>GD Level Forge V6</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -509,20 +509,90 @@ function flashSave() {
 
 // ═══════════════════════════════════════════════════════
 //  PROVIDER CONFIG
+//  fallback model lists shown before key is entered.
+//  Once a key is typed, ALL providers auto-fetch live models.
 // ═══════════════════════════════════════════════════════
 const PROVIDERS = {
-  openai:   { name:'OpenAI',    keyLabel:'OpenAI API Key',    ph:'sk-...',     info:'Direct to api.openai.com. Key stays in browser only.',          cors:null,
-    models:[{id:'gpt-4o',label:'GPT-4o',tag:'Best',best:true},{id:'gpt-4o-mini',label:'GPT-4o Mini',tag:'Fast'},{id:'gpt-4-turbo',label:'GPT-4 Turbo',tag:'Smart'},{id:'o3-mini',label:'o3 Mini',tag:'Reason'},{id:'o1-mini',label:'o1 Mini',tag:'Reason'}], def:'gpt-4o', call:callOpenAI },
-  claude:   { name:'Claude',    keyLabel:'Anthropic API Key', ph:'sk-ant-...', info:'Direct to api.anthropic.com.',                                  cors:'Claude API may have CORS issues when opened as a local file. Serve from localhost for best results.',
-    models:[{id:'claude-opus-4-6',label:'Claude Opus 4.6',tag:'Best',best:true},{id:'claude-sonnet-4-6',label:'Claude Sonnet 4.6',tag:'Smart'},{id:'claude-haiku-4-5-20251001',label:'Claude Haiku 4.5',tag:'Fast'}], def:'claude-sonnet-4-6', call:callClaude },
-  gemini:   { name:'Gemini',    keyLabel:'Google AI Key',     ph:'AIza...',    info:'Free key at aistudio.google.com. Models auto-load when you enter your key.',  cors:null,
-    models:[{id:'gemini-2.5-flash-preview-05-20',label:'Gemini 2.5 Flash',tag:'Best'},{id:'gemini-2.5-pro-preview-05-06',label:'Gemini 2.5 Pro',tag:'Smart'},{id:'gemini-2.0-flash',label:'Gemini 2.0 Flash',tag:'Fast'},{id:'gemini-1.5-pro',label:'Gemini 1.5 Pro',tag:'Old'},{id:'gemini-1.5-flash',label:'Gemini 1.5 Flash',tag:'Old'}], def:'gemini-2.5-flash-preview-05-20', call:callGemini },
-  grok:     { name:'Grok',      keyLabel:'xAI API Key',       ph:'xai-...',    info:'OpenAI-compatible. Get key at console.x.ai.',                   cors:null,
-    models:[{id:'grok-3-beta',label:'Grok 3 Beta',tag:'Best'},{id:'grok-2-1212',label:'Grok 2',tag:'Smart'},{id:'grok-beta',label:'Grok Beta',tag:'Fast'}], def:'grok-3-beta', call:callGrok },
-  deepseek: { name:'DeepSeek',  keyLabel:'DeepSeek API Key',  ph:'sk-...',     info:'OpenAI-compatible. Get key at platform.deepseek.com.',           cors:null,
-    models:[{id:'deepseek-chat',label:'DeepSeek V3',tag:'Smart'},{id:'deepseek-reasoner',label:'DeepSeek R1',tag:'Reason'}], def:'deepseek-chat', call:callDeepSeek },
-  llama:    { name:'Llama',     keyLabel:'Groq API Key',      ph:'gsk_...',    info:'Ultra-fast Llama via Groq. Free tier at console.groq.com.',      cors:null,
-    models:[{id:'llama-3.3-70b-versatile',label:'Llama 3.3 70B',tag:'Best'},{id:'llama-3.1-70b-versatile',label:'Llama 3.1 70B',tag:'Smart'},{id:'llama3-70b-8192',label:'Llama 3 70B',tag:'Fast'},{id:'llama3-8b-8192',label:'Llama 3 8B',tag:'Tiny'}], def:'llama-3.3-70b-versatile', call:callLlama },
+  openai: {
+    name:'OpenAI', keyLabel:'OpenAI API Key', ph:'sk-...',
+    info:'🔑 Paste your key → models auto-fetch from OpenAI. Get key at platform.openai.com',
+    cors:null, call:callOpenAI,
+    modelsUrl: key => ({ url:`https://api.openai.com/v1/models`, headers:{'Authorization':`Bearer ${key}`} }),
+    filterModels: list => list
+      .filter(m => /^(gpt|o[1-9]|chatgpt)/.test(m.id) && !m.id.includes('instruct') && !m.id.includes('audio') && !m.id.includes('realtime') && !m.id.includes('tts') && !m.id.includes('whisper') && !m.id.includes('dall') && !m.id.includes('embed') && !m.id.includes('search'))
+      .sort((a,b) => b.created - a.created)
+      .map(m => { let tag='Chat'; if(m.id.includes('4o')&&!m.id.includes('mini'))tag='Best'; else if(m.id.includes('4o-mini'))tag='Fast'; else if(m.id.startsWith('o'))tag='Reason'; return {id:m.id,label:m.id,tag}; }),
+    preferOrder: ['gpt-4o','o3','o4'],
+    def:'gpt-4o',
+    models:[{id:'gpt-4o',label:'GPT-4o',tag:'Best'},{id:'gpt-4o-mini',label:'GPT-4o Mini',tag:'Fast'},{id:'o3-mini',label:'o3 Mini',tag:'Reason'},{id:'gpt-4-turbo',label:'GPT-4 Turbo',tag:'Smart'}],
+  },
+  claude: {
+    name:'Claude', keyLabel:'Anthropic API Key', ph:'sk-ant-...',
+    info:'🔑 Paste your key → Claude models listed. Get key at console.anthropic.com',
+    cors:'Claude blocks cross-origin requests from local files. Serve via: python -m http.server 8080', call:callClaude,
+    modelsUrl: null, // Claude has no public /models endpoint, use hardcoded list
+    filterModels: null,
+    preferOrder: ['claude-opus','claude-sonnet'],
+    def:'claude-sonnet-4-6',
+    models:[{id:'claude-opus-4-6',label:'Claude Opus 4.6',tag:'Best'},{id:'claude-sonnet-4-6',label:'Claude Sonnet 4.6',tag:'Smart'},{id:'claude-haiku-4-5-20251001',label:'Claude Haiku 4.5',tag:'Fast'}],
+  },
+  gemini: {
+    name:'Gemini', keyLabel:'Google AI Key', ph:'AIza...',
+    info:'🔑 Paste your key → models auto-fetch from Google. Get key at aistudio.google.com',
+    cors:null, call:callGemini,
+    modelsUrl: key => ({ url:`https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=100`, headers:{} }),
+    filterModels: list => list
+      .filter(m => (m.supportedGenerationMethods||[]).includes('generateContent') && !m.name.includes('embed') && !m.name.includes('aqa') && !m.name.includes('image') && !m.name.includes('vision') && !m.name.includes('tts') && !m.name.includes('live'))
+      .map(m => { const id=m.name.replace('models/',''); let tag='Chat'; if(id.includes('2.5')&&id.includes('pro'))tag='Smart'; else if(id.includes('2.5'))tag='Best'; else if(id.includes('2.0'))tag='Fast'; else if(id.includes('1.5'))tag='Old'; return {id,label:m.displayName||id,tag}; }),
+    preferOrder: ['gemini-2.5-flash','gemini-2.5-pro','gemini-2.0-flash'],
+    def:'gemini-2.5-flash-preview-05-20',
+    models:[{id:'gemini-2.5-flash-preview-05-20',label:'Gemini 2.5 Flash',tag:'Best'},{id:'gemini-2.5-pro-preview-05-06',label:'Gemini 2.5 Pro',tag:'Smart'},{id:'gemini-2.0-flash',label:'Gemini 2.0 Flash',tag:'Fast'}],
+  },
+  grok: {
+    name:'Grok', keyLabel:'xAI API Key', ph:'xai-...',
+    info:'🔑 Paste your key → models auto-fetch from xAI. Get key at console.x.ai',
+    cors:null, call:callGrok,
+    modelsUrl: key => ({ url:`https://api.x.ai/v1/models`, headers:{'Authorization':`Bearer ${key}`} }),
+    filterModels: list => list
+      .filter(m => m.id && !m.id.includes('vision') && !m.id.includes('embed'))
+      .sort((a,b) => (b.created||0)-(a.created||0))
+      .map(m => { let tag='Chat'; if(m.id.includes('grok-3')&&!m.id.includes('mini'))tag='Best'; else if(m.id.includes('mini'))tag='Fast'; return {id:m.id,label:m.id,tag}; }),
+    preferOrder: ['grok-3','grok-2'],
+    def:'grok-3-beta',
+    models:[{id:'grok-3-beta',label:'Grok 3 Beta',tag:'Best'},{id:'grok-3-mini-beta',label:'Grok 3 Mini',tag:'Fast'},{id:'grok-2-1212',label:'Grok 2',tag:'Smart'}],
+  },
+  deepseek: {
+    name:'DeepSeek', keyLabel:'DeepSeek API Key', ph:'sk-...',
+    info:'🔑 Paste your key → models auto-fetch from DeepSeek. Get key at platform.deepseek.com',
+    cors:null, call:callDeepSeek,
+    modelsUrl: key => ({ url:`https://api.deepseek.com/v1/models`, headers:{'Authorization':`Bearer ${key}`} }),
+    filterModels: list => list
+      .filter(m => m.id && !m.id.includes('embed'))
+      .map(m => { let tag='Chat'; if(m.id.includes('reasoner')||m.id.includes('r1'))tag='Reason'; else if(m.id.includes('chat'))tag='Smart'; return {id:m.id,label:m.id,tag}; }),
+    preferOrder: ['deepseek-chat','deepseek-reasoner'],
+    def:'deepseek-chat',
+    models:[{id:'deepseek-chat',label:'DeepSeek V3',tag:'Smart'},{id:'deepseek-reasoner',label:'DeepSeek R1',tag:'Reason'}],
+  },
+  llama: {
+    name:'Groq/All', keyLabel:'Groq API Key', ph:'gsk_...',
+    info:'🔑 Paste your key → ALL Groq models auto-fetch (Llama, Kimi, Qwen, GPT-OSS…). Get key at console.groq.com',
+    cors:null, call:callLlama,
+    modelsUrl: key => ({ url:`https://api.groq.com/openai/v1/models`, headers:{'Authorization':`Bearer ${key}`} }),
+    filterModels: list => list
+      .filter(m => m.id && !m.id.includes('whisper') && !m.id.includes('guard') && !m.id.includes('tts') && !m.id.includes('safeguard') && !m.id.includes('embed') && !m.id.includes('vision'))
+      .sort((a,b) => (b.created||0)-(a.created||0))
+      .map(m => {
+        let tag='Chat';
+        if(m.id.includes('70b')||m.id.includes('120b')||m.id.includes('maverick')||m.id.includes('kimi-k2'))tag='Best';
+        else if(m.id.includes('32b')||m.id.includes('scout')||m.id.includes('qwen'))tag='Smart';
+        else if(m.id.includes('8b')||m.id.includes('8x7')||m.id.includes('mini'))tag='Fast';
+        else if(m.id.includes('reasoner')||m.id.includes('r1')||m.id.includes('reason'))tag='Reason';
+        return {id:m.id, label:m.id, tag};
+      }),
+    preferOrder: ['meta-llama/llama-4-maverick','llama-3.3-70b','moonshotai/kimi-k2','openai/gpt-oss-120b'],
+    def:'llama-3.3-70b-versatile',
+    models:[{id:'llama-3.3-70b-versatile',label:'Llama 3.3 70B',tag:'Best'},{id:'meta-llama/llama-4-scout-17b-16e-instruct',label:'Llama 4 Scout',tag:'Smart'},{id:'llama-3.1-8b-instant',label:'Llama 3.1 8B',tag:'Fast'},{id:'qwen/qwen-3-32b',label:'Qwen 3 32B',tag:'Smart'},{id:'moonshotai/kimi-k2-instruct-0905',label:'Kimi K2',tag:'Best'}],
+  },
 };
 
 let currentProvider = 'openai';
@@ -697,7 +767,7 @@ function updateMemoryStatus() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  PROVIDER UI
+//  PROVIDER UI — universal auto-fetch for ALL providers
 // ═══════════════════════════════════════════════════════
 function switchProvider(p) {
   currentProvider = p;
@@ -711,32 +781,67 @@ function switchProvider(p) {
   const warn = document.getElementById('corsWarn');
   if (cfg.cors) { warn.classList.add('visible'); document.getElementById('corsWarnText').textContent = cfg.cors; }
   else warn.classList.remove('visible');
-  // Show Gemini model fetcher
-  document.getElementById('geminiModelFetcher').style.display = p==='gemini' ? 'block' : 'none';
+  const canFetch = !!cfg.modelsUrl;
+  document.getElementById('geminiModelFetcher').style.display = canFetch ? 'block' : 'none';
+  if (canFetch) document.getElementById('fetchModelsBtn').textContent = `🔄 Fetch ${cfg.name} Models`;
+  document.getElementById('fetchModelsStatus').textContent = '';
   renderModelPills(p);
+}
+
+// Universal fetch — works for OpenAI, Gemini, Grok, DeepSeek, Groq
+async function fetchModelsForProvider(providerKey, key) {
+  const cfg = PROVIDERS[providerKey];
+  if (!cfg.modelsUrl || !cfg.filterModels) return false;
+  try {
+    const { url, headers } = cfg.modelsUrl(key);
+    const r = await fetch(url, { headers });
+    if (!r.ok) return false;
+    const data = await r.json();
+    const rawList = data.models || data.data || data.results || [];
+    const filtered = cfg.filterModels(rawList);
+    if (!filtered || filtered.length === 0) return false;
+    cfg.models = filtered;
+    let best = filtered[0];
+    for (const pref of (cfg.preferOrder||[])) {
+      const found = filtered.find(m => m.id.startsWith(pref) || m.id.includes(pref));
+      if (found) { best = found; break; }
+    }
+    cfg.def = best.id;
+    if (currentProvider === providerKey) {
+      currentModel = best.id;
+      renderModelPills(providerKey);
+      document.getElementById('providerInfoText').textContent =
+        `✅ ${filtered.length} ${cfg.name} models loaded live — showing all available.`;
+    }
+    return true;
+  } catch(e) { return false; }
 }
 
 async function fetchGeminiModelsManual() {
   const key = document.getElementById('apiKey').value.trim();
   const btn = document.getElementById('fetchModelsBtn');
   const status = document.getElementById('fetchModelsStatus');
-  if (!key || key.length < 10) { status.textContent = '⚠️ Enter your API key first'; status.style.color='var(--orange)'; return; }
-  btn.textContent = '⏳ Fetching...'; btn.disabled = true; status.textContent = '';
-  await fetchGeminiModels(key);
-  btn.textContent = '🔄 Fetch Available Models'; btn.disabled = false;
-  status.textContent = `✅ ${PROVIDERS.gemini.models.length} models loaded`;
-  status.style.color = 'var(--green)';
+  if (!key || key.length < 8) { status.textContent='⚠️ Enter key first'; status.style.color='var(--orange)'; return; }
+  btn.textContent='⏳ Fetching...'; btn.disabled=true; status.textContent='';
+  const ok = await fetchModelsForProvider(currentProvider, key);
+  btn.textContent=`🔄 Fetch ${PROVIDERS[currentProvider].name} Models`; btn.disabled=false;
+  if (ok) { status.textContent=`✅ ${PROVIDERS[currentProvider].models.length} models`; status.style.color='var(--green)'; }
+  else { status.textContent='⚠️ Check key / CORS'; status.style.color='var(--orange)'; }
 }
 
 function renderModelPills(p) {
   const wrap = document.getElementById('modelPills');
-  wrap.innerHTML = PROVIDERS[p].models.map(m => {
-    const cls = ['model-pill', m.id === PROVIDERS[p].def ? 'active' : ''].filter(Boolean).join(' ');
-    return `<button class="${cls}" data-m="${m.id}">${m.label}<span class="pill-tag">${m.tag}</span></button>`;
+  const models = PROVIDERS[p].models;
+  const activeId = currentModel || PROVIDERS[p].def;
+  wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:7px;max-height:110px;overflow-y:auto;padding-right:4px;';
+  wrap.innerHTML = models.map(m => {
+    const active = m.id === activeId;
+    const label = m.label.length > 26 ? m.label.slice(0,24)+'…' : m.label;
+    return `<button class="model-pill${active?' active':''}" data-m="${m.id}" title="${m.id}">${label}<span class="pill-tag">${m.tag}</span></button>`;
   }).join('');
   wrap.querySelectorAll('.model-pill').forEach(pill => {
     pill.addEventListener('click', () => {
-      wrap.querySelectorAll('.model-pill').forEach(p => p.classList.remove('active'));
+      wrap.querySelectorAll('.model-pill').forEach(x => x.classList.remove('active'));
       pill.classList.add('active');
       currentModel = pill.dataset.m;
     });
@@ -745,81 +850,14 @@ function renderModelPills(p) {
 
 document.querySelectorAll('.provider-btn').forEach(b => b.addEventListener('click', () => switchProvider(b.dataset.p)));
 
-// ═══════════════════════════════════════════════════════
-//  MODE TIPS
-// ═══════════════════════════════════════════════════════
-const MODE_TIPS = {
-  cube:  '🟦 Cube: Space jumps ≥3 blocks (90u) wide. Max jump reaches ~Y=255 so ceiling spikes should be below that.',
-  ship:  '🚀 Ship: ALWAYS span both floor AND ceiling obstacles. Leave 90–120u vertical gap for the ship.',
-  ball:  '⚽ Ball: Gravity flips each click — alternate floor/ceiling threats. Corridors need ≥2 block height.',
-  ufo:   '🛸 UFO: Rises each click, falls fast. Place orbs at mid-height (Y=165–225).',
-  wave:  '〰️ Wave: Keep corridors ≥60u (2 blocks) wide. Diagonal obstacles are key.',
-  robot: '🤖 Robot: Variable jump — design for both tap-jumps and held-jumps.',
-  spider:'🕷️ Spider: Teleports to opposite surface on click — alternate ceiling/floor obstacles.',
-  mixed: '🔀 Mixed: Use portal IDs 13–18. Add a 90u safe zone after every portal.',
-};
-function updateModeTip() {
-  const tip = document.getElementById('modeTip');
-  const t = MODE_TIPS[document.getElementById('gameMode').value];
-  if (t) { tip.innerHTML = `<span style="font-size:17px;flex-shrink:0">${t.slice(0,2)}</span><span>${t.slice(3)}</span>`; tip.classList.add('visible'); }
-}
-document.getElementById('gameMode').addEventListener('change', updateModeTip);
-updateModeTip();
-
-document.querySelectorAll('.diff-btn').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.diff-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); selectedDiff=b.dataset.d; }));
-document.querySelectorAll('.style-tag').forEach(t => t.addEventListener('click', () => { t.classList.toggle('active'); const s=t.dataset.s; if(t.classList.contains('active')) selectedStyles.push(s); else selectedStyles=selectedStyles.filter(x=>x!==s); }));
-document.getElementById('lvlLen').addEventListener('input', e => document.getElementById('lenVal').textContent = e.target.value);
-document.getElementById('toggleKey').addEventListener('click', () => { const i=document.getElementById('apiKey'); i.type=i.type==='password'?'text':'password'; });
-
-// Auto-fetch Gemini models when key is entered
-let geminiModelFetchTimer = null;
+// Auto-fetch on key input — universal for ALL providers
+let modelFetchTimer = null;
 document.getElementById('apiKey').addEventListener('input', () => {
-  if (currentProvider !== 'gemini') return;
   const key = document.getElementById('apiKey').value.trim();
-  if (key.length < 10) return;
-  clearTimeout(geminiModelFetchTimer);
-  geminiModelFetchTimer = setTimeout(() => fetchGeminiModels(key), 900);
+  if (key.length < 8) return;
+  clearTimeout(modelFetchTimer);
+  modelFetchTimer = setTimeout(() => fetchModelsForProvider(currentProvider, key), 800);
 });
-
-async function fetchGeminiModels(key) {
-  try {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=50`);
-    if (!r.ok) return;
-    const data = await r.json();
-    const supportedMethods = ['generateContent'];
-    const models = (data.models || [])
-      .filter(m => m.supportedGenerationMethods?.some(x=>supportedMethods.includes(x)))
-      .filter(m => !m.name.includes('embedding') && !m.name.includes('aqa') && !m.name.includes('vision') && !m.name.includes('image'))
-      .map(m => {
-        const id = m.name.replace('models/','');
-        const display = m.displayName || id;
-        let tag = 'Available';
-        if (id.includes('2.5')) tag = id.includes('pro') ? 'Smart' : 'Best';
-        else if (id.includes('2.0')) tag = 'Fast';
-        else if (id.includes('1.5')) tag = 'Old';
-        return { id, label: display, tag };
-      });
-    if (models.length > 0) {
-      PROVIDERS.gemini.models = models;
-      // Default to best available
-      const preferred = ['gemini-2.5-flash','gemini-2.5-pro','gemini-2.0-flash'];
-      const best = preferred.find(p => models.some(m=>m.id.startsWith(p))) || models[0].id;
-      const bestModel = models.find(m=>m.id.startsWith(best.split('-').slice(0,3).join('-'))) || models[0];
-      PROVIDERS.gemini.def = bestModel.id;
-      if (currentProvider === 'gemini') {
-        currentModel = bestModel.id;
-        renderModelPills('gemini');
-        const info = document.getElementById('providerInfoText');
-        info.textContent = `✅ Loaded ${models.length} available Gemini models from your key.`;
-      }
-    }
-  } catch(e) { /* silently ignore */ }
-}
-document.getElementById('tipsToggle').addEventListener('click', () => { const b=document.getElementById('tipsBody'); const t=document.getElementById('tipsToggle'); b.classList.toggle('visible'); t.classList.toggle('open',b.classList.contains('visible')); });
-document.getElementById('copyBtn').addEventListener('click', () => { navigator.clipboard.writeText(generatedLevelString); const b=document.getElementById('copyBtn'); b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',2000); });
-document.getElementById('copyFullBtn').addEventListener('click', () => { navigator.clipboard.writeText(generatedLevelString); const b=document.getElementById('copyFullBtn'); b.textContent='✅ Copied!'; setTimeout(()=>b.textContent='📋 Copy Full String',2500); });
-document.getElementById('downloadBtn').addEventListener('click', downloadGMD);
-document.getElementById('generateBtn').addEventListener('click', generate);
 
 // ═══════════════════════════════════════════════════════
 //  ROBUST GMD DECOMPRESSION — handles gzip, zlib, raw, url-safe b64
