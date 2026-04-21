@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GD Level Forge V4</title>
+<title>GD Level Forge V5</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -948,34 +948,53 @@ const KNOWN_OBJ_IDS = new Set([
 ]);
 
 function parseLevelString(str) {
-  // Handle very long strings by chunking
   const parts = str.split(';');
   const objects = [];
   for (const obj of parts) {
     const trimmed = obj.trim();
-    if (!trimmed) continue;
+    if (!trimmed || trimmed.length < 5) continue;
     const kvs = trimmed.split(',');
-    if (kvs.length < 2) continue;
-    // Must start with property 1 (object ID) — first value should be a valid number
-    if (!kvs[0] || kvs[0].trim() !== '1') continue; // property 1 = object type key
-    const objId = kvs[1]?.trim();
-    if (!objId || isNaN(parseInt(objId))) continue;
-    // Accept known IDs OR any numeric ID under 9999 (future-proof)
-    const idNum = parseInt(objId);
-    if (idNum <= 0 || idNum > 9999) continue;
-    // Parse properties
-    const props = {};
-    let valid = true;
-    for (let i = 0; i < kvs.length - 1; i += 2) {
-      const k = kvs[i]?.trim(), v = kvs[i+1]?.trim();
-      if (!k || !v) continue;
-      if (isNaN(parseFloat(k))) { valid = false; break; } // key must be numeric
-      props[k] = v;
+    if (kvs.length < 4) continue; // need at least type + x + y
+
+    // GD objects always start with key "1" = object type ID
+    // But sometimes older formats or decorations might not — we'll try both
+    const firstKey = kvs[0]?.trim();
+    const firstVal = kvs[1]?.trim();
+
+    // Fast path: starts with 1,<numericID> — standard GD object
+    if (firstKey === '1' && firstVal && !isNaN(parseInt(firstVal))) {
+      const idNum = parseInt(firstVal);
+      if (idNum <= 0 || idNum > 9999) continue;
+
+      const props = {};
+      for (let i = 0; i < kvs.length - 1; i += 2) {
+        const k = kvs[i]?.trim(), v = kvs[i+1]?.trim();
+        if (!k || v === undefined || v === null || v === '') continue;
+        // Accept numeric keys only (skip old-style string keys like kA13)
+        if (/^\d+$/.test(k)) props[k] = v;
+      }
+      // Must have at minimum: object type (1), x (2), y (3)
+      if (!props['1'] || !props['2'] || !props['3']) continue;
+      // Y must be in reasonable GD range (0–1500)
+      const y = parseFloat(props['3']);
+      if (isNaN(y) || y < 0 || y > 1500) continue;
+      objects.push(props);
     }
-    if (!valid || !props['1']) continue;
-    // Must have at minimum: object type, x, y
-    if (!props['2'] || !props['3']) continue;
-    objects.push(props);
+    // Slow path: object doesn't start with key 1 — scan for it
+    else {
+      const props = {};
+      for (let i = 0; i < kvs.length - 1; i += 2) {
+        const k = kvs[i]?.trim(), v = kvs[i+1]?.trim();
+        if (!k || v === undefined || v === '') continue;
+        if (/^\d+$/.test(k)) props[k] = v;
+      }
+      if (!props['1'] || !props['2'] || !props['3']) continue;
+      const idNum = parseInt(props['1']);
+      if (isNaN(idNum) || idNum <= 0 || idNum > 9999) continue;
+      const y = parseFloat(props['3']);
+      if (isNaN(y) || y < 0 || y > 1500) continue;
+      objects.push(props);
+    }
   }
   return objects;
 }
@@ -1113,35 +1132,132 @@ document.getElementById('feedStringBtn').addEventListener('click', async () => {
 });
 
 // ═══════════════════════════════════════════════════════
+//  RE-ENCODE objects back to GD string format (for training snippets)
+// ═══════════════════════════════════════════════════════
+function reencodeObjects(objects, max=40) {
+  // Take up to `max` objects and encode them back to GD string format
+  // Only include core layout props: 1(type) 2(x) 3(y) 4(flipH) 5(flipV) 6(rot)
+  const KEEP = new Set(['1','2','3','4','5','6','7','20','21','22','23','24','25']);
+  return objects.slice(0,max).map(o => {
+    // Always include at minimum: 1, 2, 3
+    const parts = [];
+    const keys = Object.keys(o).filter(k => KEEP.has(k) || ['1','2','3'].includes(k));
+    // Sort numerically so output is clean
+    keys.sort((a,b)=>parseInt(a)-parseInt(b));
+    for (const k of keys) {
+      if (o[k] !== undefined && o[k] !== null && o[k] !== '') parts.push(k, o[k]);
+    }
+    return parts.join(',');
+  }).filter(s=>s.length>4).join(';') + ';';
+}
+
+// ═══════════════════════════════════════════════════════
 //  PROMPT BUILDER — uses real extracted knowledge
 // ═══════════════════════════════════════════════════════
 function buildPrompt(cfg) {
   const { levelName, gameMode, levelLength, diff, styles, prompt } = cfg;
   const styleList = styles.length ? styles.join(', ') : 'varied platforming';
+
   const diffMap = {
-    auto:   'moderate — completable by an average GD player',
-    easy:   'easy — wide gaps (120+u), slow pacing, few obstacles',
-    normal: 'normal — standard jumps, moderate density',
-    hard:   'hard — tight jumps (60u gaps), high density, faster pacing',
-    extreme:'extreme — pixel-tight jumps (30–45u gaps), constant obstacles',
+    auto:   'moderate — completable by an average GD player. Normal jump gaps (~90u), 1 spike at a time is fine.',
+    easy:   'easy — wide open gaps (≥120u), slow pacing, max 1 spike at a time, lots of safe zones.',
+    normal: 'normal — standard jump gaps (~90u), some doubles, moderate obstacle density.',
+    hard:   'hard — tighter gaps (60–75u), double/triple spikes, fast pacing, fewer safe zones.',
+    extreme:'extreme — very tight gaps (30–45u between player and obstacle), constant obstacles, memorization required.',
   };
-  const modeMap = {
-    cube:  'CUBE: player jumps. Ground obstacles only unless ceiling is used intentionally.',
-    ship:  'SHIP: player flies up/down. MUST have ceiling obstacles. Leave 90–120u vertical gap.',
-    ball:  'BALL: gravity flips each click. Place alternating floor/ceiling threats.',
-    ufo:   'UFO: rises each click, drops fast. Place orbs at mid-height (Y=165–225).',
-    wave:  'WAVE: diagonal movement. Corridors MUST be ≥60u wide with walls on both sides.',
-    robot: 'ROBOT: variable jump height. Design for both short taps and long holds.',
-    spider:'SPIDER: teleports to opposite surface. Alternate floor/ceiling threats every section.',
-    mixed: 'MIXED: use portal IDs 13=ship,14=ball,15=UFO,16=wave,17=robot,18=spider. Add 90u safe zone after each portal.',
+
+  // Per-mode: what objects go where, physics rules
+  const modeRules = {
+    cube: {
+      desc: 'CUBE MODE',
+      physics: 'Player taps to jump. One tap = one jump. Cannot jump mid-air unless orb is hit. Max jump height ~5 blocks (150u). Jump arc takes ~3 blocks horizontal distance.',
+      ground: 'Ground blocks at Y=105. Spikes on top at Y=135. Ceiling is optional — if used, keep ceiling above Y=285 so player can jump under it.',
+      obstacles: 'SPIKES: obj 3 (up-spike), obj 4 (right-pointing — use rotation). BLOCKS as walls: stack obj 1 at Y=105,135,165 for a 3-block wall.\nORBS: Yellow orb (obj 36) gives one extra jump — place at Y=165–195 above a gap or spike. Pink orb (obj 141) gives huge jump — use sparingly.\nPADS: Yellow pad (obj 35) on ground surface (Y=135 on top of Y=105 block) — auto-jumps player.',
+      examples: [
+        '// Safe zone: 5 ground blocks\n1,1,2,105,3,105;1,1,2,135,3,105;1,1,2,165,3,105;1,1,2,195,3,105;1,1,2,225,3,105;',
+        '// Single spike on ground: ground block + spike on top\n1,1,2,255,3,105;1,3,2,255,3,135;1,1,2,285,3,105;',
+        '// Double spike: two in a row (medium difficulty)\n1,1,2,315,3,105;1,3,2,315,3,135;1,1,2,345,3,105;1,3,2,345,3,135;1,1,2,375,3,105;',
+        '// Yellow orb over a gap: place orb mid-air, gap below\n1,1,2,405,3,105;1,36,2,435,3,180;1,1,2,465,3,105;1,3,2,465,3,135;',
+        '// Yellow pad jump: pad on ground surface, spike after\n1,1,2,495,3,105;1,35,2,495,3,135;1,1,2,525,3,105;1,1,2,555,3,105;1,3,2,585,3,135;',
+        '// Block wall (must orb over): 3-block wall, orb before it\n1,1,2,615,3,105;1,36,2,615,3,210;1,1,2,645,3,105;1,1,2,645,3,135;1,1,2,645,3,165;1,1,2,675,3,105;',
+      ]
+    },
+    ship: {
+      desc: 'SHIP MODE',
+      physics: 'Player HOLDS to fly up, releases to fly down. Gravity is constant. Both floor AND ceiling MUST have obstacles for ship to be challenging. Leave 90–120u vertical flying corridor.',
+      ground: 'Floor at Y=105. Ceiling objects at Y=285–315 (flipped with 5,1). Ship flies between them.',
+      obstacles: 'FLOOR spikes: obj 3 at Y=135 on top of floor blocks (Y=105).\nCEILING spikes: obj 3 with property 5,1 (flip vertical), hanging from ceiling blocks at Y=285.\nMake sure there is ALWAYS at least 90u (3 blocks) of vertical gap between floor spike tip and ceiling spike tip.',
+      examples: [
+        '// Floor + ceiling setup for ship:\n1,1,2,105,3,105;1,1,2,105,3,315;1,1,2,135,3,105;1,1,2,135,3,315;',
+        '// Floor spike + open ceiling:\n1,1,2,165,3,105;1,3,2,165,3,135;1,1,2,165,3,315;1,1,2,195,3,105;1,1,2,195,3,315;',
+        '// Ceiling spike + open floor (ceiling threat):\n1,1,2,225,3,105;1,1,2,225,3,315;1,3,2,225,3,285,5,1;1,1,2,255,3,105;1,1,2,255,3,315;',
+        '// Narrow corridor section (both sides have spikes):\n1,1,2,285,3,105;1,3,2,285,3,135;1,1,2,285,3,315;1,3,2,285,3,285,5,1;',
+      ]
+    },
+    wave: {
+      desc: 'WAVE MODE',
+      physics: 'Player moves diagonally up (hold) or diagonally down (release). Wave is tiny — corridors must be ≥60u (2 blocks) wide. Diagonal walls/blocks work well.',
+      ground: 'Floor at Y=105. Wave travels between Y=105 and Y=345. Corridor walls on BOTH top and bottom.',
+      obstacles: 'Diagonal spike clusters. Use rotation (property 6) on spikes: 6,45 for 45-degree, 6,90 for sideways.\nAlternate tight sections with wider relief sections.',
+      examples: [
+        '// Basic wave corridor (floor + ceiling wall):\n1,1,2,105,3,105;1,1,2,105,3,315;1,3,2,105,3,135;1,3,2,105,3,285,5,1;',
+        '// Diagonal spike wall:\n1,3,2,135,3,165,6,45;1,3,2,165,3,195,6,45;1,3,2,195,3,225,6,45;',
+      ]
+    },
+    ball: {
+      desc: 'BALL MODE',
+      physics: 'Tap to flip gravity. Ball alternates between floor and ceiling. Design with BOTH floor threats (spikes at Y=135) and ceiling threats (spikes at Y=285, flipped).',
+      ground: 'Same as cube but alternate obstacles between floor and ceiling.',
+      obstacles: 'Floor spikes: obj 3 at Y=135. Ceiling spikes: obj 3 with 5,1 at Y=285.\nAlternate which surface has threats to force gravity flips.',
+      examples: [
+        '// Ball: floor spike then ceiling spike (forces flip)\n1,1,2,105,3,105;1,3,2,105,3,135;1,1,2,135,3,105;1,1,2,165,3,105;1,3,2,165,3,285,5,1;1,1,2,195,3,105;',
+      ]
+    },
+    ufo: {
+      desc: 'UFO MODE',
+      physics: 'Each tap gives an upward boost. UFO falls steadily. Objects at mid-height work well for UFO. Place orbs at Y=165–225.',
+      ground: 'Floor Y=105, ceiling optional at Y=315+. Mid-height obstacles at Y=165–225 are most challenging.',
+      obstacles: 'Mid-air blocks as obstacles. Spikes on platforms. Orbs to redirect.',
+      examples: [
+        '// UFO mid-height obstacle:\n1,1,2,105,3,105;1,1,2,135,3,195;1,3,2,135,3,225;1,1,2,165,3,105;',
+      ]
+    },
+    robot: {
+      desc: 'ROBOT MODE',
+      physics: 'Variable jump height — tap for small jump, hold for big jump. Ceiling spikes punish big holds. Design gaps that require specific jump heights.',
+      ground: 'Same as cube. Ceiling at Y=225–255 punishes large jumps.',
+      obstacles: 'Same object types as cube but design heights that test variable jumps.',
+      examples: [
+        '// Robot: low ceiling to punish big jump\n1,1,2,105,3,105;1,1,2,135,3,255;1,1,2,165,3,255;1,1,2,195,3,105;1,3,2,195,3,135;',
+      ]
+    },
+    spider: {
+      desc: 'SPIDER MODE',
+      physics: 'Tap to teleport to opposite surface. Spider alternates floor/ceiling rapidly. ALWAYS have objects on BOTH surfaces reachable.',
+      ground: 'Floor Y=105, Ceiling Y=315. Both surfaces must have walkable platform blocks.',
+      obstacles: 'Alternate threats between surfaces to force teleportation.',
+      examples: [
+        '// Spider: floor block then ceiling block\n1,1,2,105,3,105;1,1,2,135,3,315;1,3,2,135,3,285,5,1;1,1,2,165,3,105;1,3,2,165,3,135;',
+      ]
+    },
+    mixed: {
+      desc: 'MIXED MODE (multiple game modes)',
+      physics: 'Portals switch game modes. Use: 13=ship portal, 14=ball, 15=UFO, 16=wave, 17=robot, 18=spider, 45=gravity flip up, 46=gravity flip down. ALWAYS leave a 90u safe zone AFTER each portal.',
+      ground: 'Depends on section mode.',
+      obstacles: 'Design each section for its specific mode. Add portals as transitions.',
+      examples: [
+        '// Cube section → ship portal → ship section:\n1,1,2,105,3,105;1,3,2,105,3,135;1,1,2,135,3,105;1,13,2,165,3,105;1,1,2,195,3,105;1,1,2,195,3,315;1,1,2,225,3,105;1,1,2,225,3,315;',
+      ]
+    },
   };
+
+  const mode = modeRules[gameMode] || modeRules.cube;
 
   // ─── BUILD TRAINING KNOWLEDGE BLOCK ───────────────────
   let trainingBlock = '';
   if (trainingExamples.length > 0) {
     const allAnalyses = trainingExamples.map(e=>e.analysis).filter(Boolean);
 
-    // Aggregate learned values
     const learnedGroundY = allAnalyses.length ? Math.round(allAnalyses.reduce((s,a)=>s+a.groundYMode,0)/allAnalyses.length) : 105;
     const learnedSpikeY  = allAnalyses.length ? Math.round(allAnalyses.reduce((s,a)=>s+a.spikeYMode,0)/allAnalyses.length) : learnedGroundY+30;
     const learnedOrbY    = allAnalyses.length ? Math.round(allAnalyses.reduce((s,a)=>s+a.orbYMode,0)/allAnalyses.length) : learnedGroundY+60;
@@ -1151,95 +1267,195 @@ function buildPrompt(cfg) {
     const avgClusters    = allAnalyses.length ? Math.round(allAnalyses.reduce((s,a)=>s+a.clusterCount,0)/allAnalyses.length) : 3;
     const avgSafeZones   = allAnalyses.length ? Math.round(allAnalyses.reduce((s,a)=>s+a.safeZoneCount,0)/allAnalyses.length) : 2;
 
-    // Best snippet examples from each training file
+    // Re-encode ACTUAL parsed objects (not raw string bytes) so the AI sees real GD syntax
     const snippets = trainingExamples.slice(0,3).map((ex,i)=>{
       const a = ex.analysis || {};
-      return `--- Example ${i+1}: "${ex.name}" (${ex.objects.length} objects) ---
-Learned patterns: groundY=${a.groundYMode||105}, spikeY=${a.spikeYMode||135}, orbY=${a.orbYMode||165}, xStep=${a.xStep||30}u
-First 20 objects (study the X/Y coordinate patterns):
-${ex.string.slice(0,500)}${ex.string.length>500?'…':''}`;
+      // Get first 40 parsed objects re-encoded — these are ground+gameplay objects
+      const reencoded = reencodeObjects(ex.objects, 40);
+      // Also get a sample from the middle of the level (more interesting section)
+      const midStart = Math.floor(ex.objects.length * 0.35);
+      const midSnippet = reencodeObjects(ex.objects.slice(midStart, midStart+20), 20);
+      return `--- TRAINING EXAMPLE ${i+1}: "${ex.name}" ---
+Stats: ${ex.objects.length} objects, ~${a.maxLength||'?'} blocks long, groundY=${a.groundYMode||105}, spikeY=${a.spikeYMode||'?'}, orbY=${a.orbYMode||'?'}, xStep=${a.xStep||30}u
+LEVEL START (first 40 objects — study X/Y values and spacing):
+${reencoded}
+LEVEL MID-SECTION (objects around 35% mark — study obstacle patterns):
+${midSnippet}`;
     }).join('\n\n');
 
     trainingBlock = `
 
 ╔══════════════════════════════════════════════════════════════╗
-║           TRAINING DATA — REAL GD LEVEL PATTERNS             ║
+║  TRAINING DATA — ${trainingExamples.length} REAL GD LEVEL(S) TO LEARN FROM  ║
 ╚══════════════════════════════════════════════════════════════╝
-You have been trained on ${trainingExamples.length} real Geometry Dash level(s).
-USE THESE EXACT LEARNED VALUES in your generation. Do not invent different coordinates.
 
-🎯 LEARNED COORDINATE RULES (from analysis of ${trainingExamples.length} real levels):
-  ▸ Ground blocks Y-value:  Y = ${learnedGroundY} (ALWAYS use this for floor/ground blocks)
-  ▸ Spike placement Y:      Y = ${learnedSpikeY} (ALWAYS place spikes at this height above ground)
-  ▸ Orb/pad Y-value:        Y = ${learnedOrbY} (ALWAYS place orbs at this height)
-  ▸ X grid step:            ${learnedXStep}u between each object column (snap to this grid)
-  ▸ Obstacle density:       ~${learnedDensity} spikes per 300 units of level
-  ▸ Ceiling obstacles:      ${hasCeiling ? 'YES — include ceiling obstacles in your level' : 'No — ground-only level, no ceiling'}
-  ▸ Obstacle clusters:      ~${avgClusters} clusters of 2–4 obstacles in sequence
-  ▸ Safe zones:             ~${avgSafeZones} safe stretches (4+ open blocks) per level
+CRITICAL: Study the training examples below. Copy their coordinate values exactly.
+Do NOT invent your own Y values — use what you see in the training data.
 
-📋 RAW EXAMPLE DATA (study coordinate patterns from these real levels):
+📐 AGGREGATED LEARNED VALUES (averages across all ${trainingExamples.length} example(s)):
+  Ground block Y:    ${learnedGroundY}  ← USE THIS for all floor/ground blocks
+  Spike Y:           ${learnedSpikeY}  ← USE THIS for all spikes sitting on ground
+  Orb/pad Y:         ${learnedOrbY}  ← USE THIS for orbs in mid-air
+  X grid step:       ${learnedXStep}u  ← USE THIS spacing between object columns
+  Obstacle density:  ~${learnedDensity} spikes per 300u
+  Ceiling used:      ${hasCeiling ? 'YES — include ceiling obstacles' : 'NO — ground-only style'}
+  Avg clusters:      ~${avgClusters} consecutive obstacle groups
+  Avg safe zones:    ~${avgSafeZones} open stretches per level
+
+📋 ACTUAL TRAINING LEVEL DATA (real GD object strings — learn the pattern):
 ${snippets}
 
-⚠️ MANDATORY: Use Y=${learnedGroundY} for ALL ground blocks. Use Y=${learnedSpikeY} for ALL spikes on ground. Use Y=${learnedOrbY} for orbs. Use ${learnedXStep}u X grid. Match the density and rhythm you see above.
-╔══════════════════════════════════════════════════════════════╗
-║                     END TRAINING DATA                        ║
+⚠️ MANDATORY RULES FROM TRAINING:
+1. Use Y=${learnedGroundY} for every ground/floor block
+2. Use Y=${learnedSpikeY} for every spike placed on the ground
+3. Use Y=${learnedOrbY} for orbs in the air
+4. Space objects ${learnedXStep}u apart on the X axis
+5. Match the obstacle density and rhythm you see in the examples above
+6. Copy the EXACT same object types you see in the training data
 ╚══════════════════════════════════════════════════════════════╝`;
   }
 
-  return `You are an expert Geometry Dash 2.2 level architect. Generate a complete, playable, well-structured GD level as a raw object string.${trainingBlock}
+  // Compose the full system prompt
+  return `You are a Geometry Dash 2.2 level generator. Your ONLY output is a raw GD level string.${trainingBlock}
 
-═══ CRITICAL FORMAT RULE ═══
-Output ONLY a raw semicolon-separated GD object string. No XML, no markdown, no backticks, no explanation, no line breaks.
-Each object: property_id,value,property_id,value,... — objects separated by semicolons.
-Start immediately with the first object. End with a semicolon.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT — READ THIS FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Output ONLY the raw level object string. No explanations, no markdown, no code blocks, no XML.
+Format: each object is comma-separated key-value pairs. Objects separated by semicolons.
+Object format: 1,<typeID>,2,<x>,3,<y>[,4,1][,5,1][,6,<degrees>];
+Start with the first object immediately. End the string with a semicolon.
 
-═══ PROPERTY IDs ═══
-1=ObjectTypeID  2=X_position  3=Y_position  4=FlipH(1=yes)  5=FlipV(1=yes)  6=Rotation(deg)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GD COORDINATE SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1 block = 30 units. The grid snaps to multiples of 30.
+Y=75  → absolute bottom (never place objects here)
+Y=105 → ground level (center of floor blocks)
+Y=135 → 1 block above ground (spike tops, pad surface)
+Y=165 → 2 blocks above ground
+Y=195 → 3 blocks above ground
+Y=225 → 4 blocks above ground
+Y=255 → 5 blocks above ground (near max cube jump height)
+Y=285 → 6 blocks (low ceiling territory)
+Y=315 → 7 blocks (standard ceiling height)
+X axis: player spawns around X=0. First objects at X=105. Each column +30u.
+X=105,135,165,195,225... → every 30u is one grid column.
 
-═══ COORDINATE SYSTEM ═══
-ONE BLOCK = 30 GD units. Ground center = Y=105. Heights: +1block=Y135, +2=Y165, +3=Y195, +4=Y225.
-X axis: first object at X=105. Each step = +30u. Ground must be CONTINUOUS from start to end.
-${trainingExamples.length > 0 ? `
-⚡ TRAINING OVERRIDE: Use learned Y values from your training data above.
-Ground = Y=${(() => { const a=trainingExamples.map(e=>e.analysis).filter(Boolean); return a.length?Math.round(a.reduce((s,x)=>s+x.groundYMode,0)/a.length):105; })()}, Spikes = Y=${(() => { const a=trainingExamples.map(e=>e.analysis).filter(Boolean); return a.length?Math.round(a.reduce((s,x)=>s+x.spikeYMode,0)/a.length):135; })()}, Orbs = Y=${(() => { const a=trainingExamples.map(e=>e.analysis).filter(Boolean); return a.length?Math.round(a.reduce((s,x)=>s+x.orbYMode,0)/a.length):165; })()}` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OBJECT TYPE IDs (property key "1")
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GROUND/PLATFORM BLOCKS:
+  1  = Standard solid block (most common floor/platform tile)
+  2  = Block variant B (same behavior, different look)
+  39 = Slope block (angled — use rotation 6,45 or 6,315)
 
-═══ VALID OBJECT IDs ═══
-GROUND/PLATFORM BLOCKS: 1=solid square  2=block variant  39=angled slope
-DEADLY (must sit on top of a block): 3=spike↑  4=spike→  180=big spike↑
-  Downward spike (on ceiling): use property 5,1 (flip vertical)
-PADS (on ground block surface, activate on touch): 35=yellow pad  67=pink pad  140=red pad
-ORBS (mid-air, reachable): 36=yellow orb  84=blue orb  141=pink orb  1022=red orb
-PORTALS: 13=ship  14=ball  15=UFO  16=wave  17=robot  18=spider  45=grav-up  46=grav-down
+SPIKES / HAZARDS:
+  3   = Spike pointing UP (place at Y=135 on top of Y=105 ground block)
+  4   = Spike pointing RIGHT (rotate 90° for other dirs: 6,90 / 6,180 / 6,270)
+  180 = Big spike (takes 2 vertical units — place at Y=135, tip at Y=165+)
+  ⚠️  Spike rules: EVERY spike must have a solid block directly beneath it.
+      spike Y must equal (block_below_Y + 30).
 
-═══ MANDATORY STRUCTURE ═══
-1. LAY CONTINUOUS GROUND: blocks (obj 1) at the learned/default Y for EVERY X from 105 to end.
-2. ADD OBSTACLES ON TOP: spikes at learned spike-Y, stacked blocks, etc.
-3. ADD ORBS/PADS at learned orb-Y heights.
-4. CREATE RHYTHM: safe zones (4–6 clear blocks) → obstacle cluster (2–5) → safe zone → cluster.
+YELLOW/PINK JUMP PADS (activate when player lands on them):
+  35  = Yellow pad → normal jump boost. Place on top of ground block.
+        Example: ground at Y=105, pad at Y=135 on same X.
+  67  = Pink pad → bigger jump boost.
+  140 = Red pad → gravity flip pad.
 
-═══ WORKING EXAMPLES ═══
-Safe zone then spike group (adapt Y values to learned values):
-  1,1,2,105,3,105;1,1,2,135,3,105;1,1,2,165,3,105;1,1,2,195,3,105;1,3,2,225,3,135;1,3,2,255,3,135;1,1,2,285,3,105;
+ORBS (player must TAP when touching — mid-air collectibles):
+  36   = Yellow orb → one jump boost. Best at Y=165–195 above gaps.
+  84   = Blue orb → gravity flip. Use in pairs.
+  141  = Pink orb → big jump (like pink pad but mid-air).
+  1022 = Red orb → gravity reversal. Use sparingly.
+  ⚠️  Orb placement: Orbs must be in locations the player CAN REACH during a jump arc.
+      For cube: place orbs at Y=150–210, horizontally 30–90u before an obstacle.
 
-Jump over spike with orb:
-  1,1,2,105,3,105;1,36,2,165,3,165;1,1,2,195,3,105;1,3,2,225,3,135;1,1,2,255,3,105;
+PORTALS (walk-through triggers, placed in player path):
+  13 = Ship portal    14 = Ball portal    15 = UFO portal
+  16 = Wave portal    17 = Robot portal   18 = Spider portal
+  45 = Gravity flip (up)    46 = Gravity flip (down)
+  11 = Normal size          12 = Mini size
+  ⚠️  After EVERY portal: leave 90u (3 blocks) of safe open space before next obstacle.
 
-═══ LEVEL SPEC ═══
-Mode: ${modeMap[gameMode]}
-Difficulty: ${diffMap[diff]}
-Styles: ${styleList}
-Name: "${levelName}"
-Target objects: ${Math.floor(levelLength*0.9)}–${levelLength}
-${prompt ? `Creative direction: "${prompt}"` : ''}
+PROPERTY KEYS (used with objects):
+  1 = Object type ID    2 = X position    3 = Y position
+  4 = Flip horizontal (value: 1)    5 = Flip vertical (value: 1)
+  6 = Rotation in degrees (45, 90, 135, 180, 225, 270, 315)
+  7 = Z-layer    20 = Color channel 1    21 = Color channel 2
 
-═══ CHECKLIST ═══
-✓ Continuous ground blocks at correct Y
-✓ All spikes have a block beneath them (never floating)
-✓ Orbs placed at reachable heights
-✓ Safe zones every 5–8 obstacles
-✓ Object count in target range
-✓ Logically completable`;
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODE: ${mode.desc}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHYSICS: ${mode.physics}
+GROUND/CEILING: ${mode.ground}
+OBSTACLES: ${mode.obstacles}
+
+WORKING EXAMPLES FOR ${mode.desc}:
+${mode.examples.join('\n')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LEVEL STRUCTURE RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RULE 1 — CONTINUOUS GROUND:
+  Every X position from start to end MUST have a ground block at Y=105.
+  No gaps in the floor. Even under obstacles, the floor block must exist.
+  Pattern: 1,1,2,105,3,105;1,1,2,135,3,105;1,1,2,165,3,105;... (every 30u)
+
+RULE 2 — OBSTACLE ANCHORING:
+  EVERY spike must sit on TOP of a solid block.
+  If spike is at X=225 Y=135 → there MUST be a block at X=225 Y=105.
+  Stacked spike: block at Y=105, block at Y=135, spike at Y=165.
+  FORBIDDEN: spike at Y=135 with NO block at Y=105 on the same X.
+
+RULE 3 — RHYTHM AND BREATHING ROOM:
+  Pattern: [4–6 safe ground blocks] → [2–4 obstacle objects] → [4–6 safe blocks] → repeat
+  Safe zone = ground blocks only, no spikes/walls above them.
+  A level with NO safe zones is impossible to play.
+
+RULE 4 — REACHABLE ORBS:
+  Orbs placed mid-air must be reachable during normal jump arc.
+  Cube jump arc: peaks at roughly Y=255 when jumping from Y=105 floor.
+  Good orb zone: Y=150–210, 30–60u before an obstacle.
+  BAD: orb at Y=300 (unreachable), orb at Y=105 (on the floor, useless).
+
+RULE 5 — OBJECT COUNT:
+  Target ${Math.floor(levelLength*0.85)}–${levelLength} total objects.
+  Ground blocks count toward this total.
+  A 90-object level needs ~45 ground blocks + ~45 gameplay objects.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DIFFICULTY: ${diffMap[diff]}
+STYLE ELEMENTS: ${styleList}
+LEVEL NAME: "${levelName}"
+${prompt ? `CREATIVE DIRECTION: "${prompt}"` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FULL WORKED EXAMPLE OF CORRECT LEVEL STRUCTURE
+(study this before generating — this is how a good level looks)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SECTION 1: Safe intro (5 ground blocks, no obstacles)
+1,1,2,105,3,105;1,1,2,135,3,105;1,1,2,165,3,105;1,1,2,195,3,105;1,1,2,225,3,105;
+// SECTION 2: Single spike challenge
+1,1,2,255,3,105;1,3,2,255,3,135;1,1,2,285,3,105;1,1,2,315,3,105;
+// SECTION 3: Yellow orb over gap + spike
+1,1,2,345,3,105;1,36,2,375,3,180;1,1,2,405,3,105;1,3,2,405,3,135;1,1,2,435,3,105;
+// SECTION 4: Yellow pad jump over double spike
+1,1,2,465,3,105;1,35,2,465,3,135;1,1,2,495,3,105;1,1,2,525,3,105;1,3,2,555,3,135;1,1,2,555,3,105;1,3,2,585,3,135;1,1,2,585,3,105;1,1,2,615,3,105;1,1,2,645,3,105;
+// SECTION 5: Block wall (must orb over)
+1,1,2,675,3,105;1,36,2,675,3,210;1,1,2,705,3,105;1,1,2,705,3,135;1,1,2,705,3,165;1,1,2,735,3,105;1,1,2,765,3,105;1,1,2,795,3,105;
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRE-OUTPUT CHECKLIST (verify before outputting)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Every X column has a Y=105 ground block
+✓ Every spike has a solid block directly below it (spikeY - 30 = blockY)
+✓ Orbs are at Y=150–220 and horizontally reachable
+✓ Safe zones exist every 5–8 obstacles
+✓ Object count is ${Math.floor(levelLength*0.85)}–${levelLength}
+✓ No objects below Y=105 or above Y=345
+✓ Level is logically completable from start to end
+✓ Output contains ONLY the object string — no text before or after`;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1526,7 +1742,37 @@ function drawPreview(objects) {
 function downloadGMD() {
   if(!generatedLevelString) return;
   const name = document.getElementById('levelName').value.trim()||'AI Level';
-  const gmd = `<?xml version="1.0"?>\n<plist version="1.0" gjver="2.0">\n<dict>\n<k>kCEK</k><i>4</i>\n<k>k1</k><i>1</i>\n<k>k2</k><s>${esc(name)}</s>\n<k>k3</k><s>Made with GD Level Forge</s>\n<k>k4</k><s>${esc(generatedLevelString)}</s>\n<k>k5</k><s>GD Level Forge AI</s>\n<k>k6</k><i>0</i>\n<k>k7</k><i>0</i>\n<k>k8</k><i>10</i>\n<k>k13</k><t />\n<k>k21</k><i>2</i>\n<k>k23</k><i>0</i>\n<k>k45</k><i>0</i>\n<k>k46</k><i>0</i>\n<k>k47</k><t />\n<k>k48</k><i>0</i>\n<k>k50</k><i>35</i>\n<k>k60</k><i>0</i>\n<k>k69</k><t />\n<k>k80</k><i>0</i>\n<k>k87</k><i>0</i>\n<k>k88</k><i>0</i>\n</dict>\n</plist>`;
+  // k8=0 means "built-in song 0" (Stereo Madness). k45=1 = use custom song, but we leave it off.
+  // We deliberately omit k8 (song ID) and k45 (custom song toggle) so GD uses default/none.
+  // This avoids any licensed song being auto-assigned.
+  const gmd = [
+    '<?xml version="1.0"?>',
+    '<plist version="1.0" gjver="2.0">',
+    '<dict>',
+    '<k>kCEK</k><i>4</i>',
+    '<k>k1</k><i>1</i>',                              // level ID
+    `<k>k2</k><s>${esc(name)}</s>`,                   // level name
+    '<k>k3</k><s>Made with GD Level Forge — gdlevelforge.html</s>', // description
+    `<k>k4</k><s>${esc(generatedLevelString)}</s>`,   // level data (k4)
+    '<k>k5</k><s>Player</s>',                          // author
+    '<k>k6</k><i>0</i>',                              // difficulty
+    '<k>k7</k><i>0</i>',                              // stars
+    '<k>k13</k><t />',                                 // verified
+    '<k>k21</k><i>2</i>',                             // object count field
+    '<k>k23</k><i>0</i>',
+    '<k>k45</k><i>0</i>',                             // custom song = 0 (use official track)
+    '<k>k46</k><i>0</i>',
+    '<k>k47</k><t />',
+    '<k>k48</k><i>0</i>',
+    '<k>k50</k><i>35</i>',                            // binary version
+    '<k>k60</k><i>0</i>',
+    '<k>k69</k><t />',
+    '<k>k80</k><i>0</i>',
+    '<k>k87</k><i>0</i>',
+    '<k>k88</k><i>0</i>',
+    '</dict>',
+    '</plist>'
+  ].join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([gmd],{type:'application/xml'}));
   a.download = name.replace(/[^a-z0-9_\- ]/gi,'_')+'.gmd';
