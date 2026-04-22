@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GD Level Forge V6</title>
+<title>GD Level Forge</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -455,24 +455,38 @@ footer{text-align:center;margin-top:50px;font-size:10px;font-weight:600;color:va
 
 <script>
 // ═══════════════════════════════════════════════════════
-//  PERSISTENT STORAGE (localStorage)
+//  PERSISTENT STORAGE (localStorage) — v3
 // ═══════════════════════════════════════════════════════
 const STORAGE_KEY = 'gdlevelforge_training_v2';
 
 function saveTrainingToStorage() {
   try {
-    // Store lightweight version — store full string up to 8000 chars per example
     const toSave = trainingExamples.map(ex => ({
       name: ex.name,
-      string: ex.string.slice(0, 8000), // cap at 8KB per example for storage
-      objects: ex.objects.slice(0, 300), // cap objects stored
+      // Store full string — no artificial cap. Browsers allow 5MB+ per key.
+      string: ex.string,
+      // Don't store parsed objects — we re-parse on load from the string (always fresh)
       analysis: ex.analysis,
-      addedAt: ex.addedAt || Date.now()
+      addedAt: ex.addedAt || Date.now(),
+      skippedCount: ex.skippedCount || 0,
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     flashSave();
   } catch(e) {
-    console.warn('Could not save training to localStorage:', e);
+    // If storage is full, try saving with truncated strings
+    try {
+      const toSave = trainingExamples.map(ex => ({
+        name: ex.name,
+        string: ex.string.slice(0, 20000),
+        analysis: ex.analysis,
+        addedAt: ex.addedAt || Date.now(),
+        skippedCount: ex.skippedCount || 0,
+      }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      flashSave();
+    } catch(e2) {
+      console.warn('Could not save training to localStorage (storage full?):', e2);
+    }
   }
 }
 
@@ -481,10 +495,15 @@ function loadTrainingFromStorage() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return parsed.map(ex => ({
-      ...ex,
-      objects: ex.objects || parseLevelString(ex.string)
-    }));
+    // Always re-parse objects from the stored string so they're always fresh and complete
+    return parsed.map(ex => {
+      const objects = parseLevelString(ex.string || '');
+      // Re-run analysis if missing or if we have objects now
+      const analysis = (ex.analysis && ex.analysis.totalObjects > 0)
+        ? ex.analysis
+        : (objects.length > 0 ? analyzeLevelDeep(objects, ex.name) : ex.analysis);
+      return { ...ex, objects, analysis };
+    });
   } catch(e) {
     console.warn('Could not load training from localStorage:', e);
     return [];
@@ -495,6 +514,8 @@ function clearAllMemory() {
   if (!confirm(`Clear all ${trainingExamples.length} training example(s) from memory?\n\nThis cannot be undone.`)) return;
   trainingExamples = [];
   localStorage.removeItem(STORAGE_KEY);
+  // Also clear old storage keys from previous versions
+  localStorage.removeItem('gdlevelforge_training_v1');
   renderExamplesList();
   updateMemoryStatus();
   showTrainingBanner();
@@ -936,104 +957,60 @@ async function extractLevelStringFromGMD(xml) {
   } catch(e) { return null; }
 }
 
-// Known valid GD object IDs — used to filter out garbage
-const KNOWN_OBJ_IDS = new Set([
-  '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20',
-  '21','22','23','24','25','26','28','29','30','31','32','33','34','35','36','37','38','39','40',
-  '45','46','47','48','49','50','51','52','53','54','55','56','57','58','59','60',
-  '67','68','69','70','80','81','84','85','99','100','101','108','111','112',
-  '115','116','117','118','119','120','121','122','123','124','125','126','127','128','129','130',
-  '131','132','133','134','135','136','137','138','139','140','141','142','143','144','145',
-  '147','148','149','150','151','152','153','154','155','156','157','158','159','160',
-  '161','162','163','164','165','166','167','168','169','170','171','172','173','174',
-  '175','176','177','178','179','180','181','182','183','184','185','186','187','188','189','190',
-  '191','192','193','194','195','196','197','198','199','200',
-  '201','202','203','204','205','206','207','208','209','210','211','212','213','214','215',
-  '221','222','223','224','225','226','227','228','229','230',
-  '241','242','243','244','245','246','247','248','249','250',
-  '251','252','253','254','255','256','257','258','259','260',
-  '275','276','277','278','279','280','281','282','283','284','285','286','287','288','289','290',
-  '295','296','297','298','299','300',
-  '303','304','305','306','307','308','309','310',
-  '316','317','318','319','320','321','322','323','324','325',
-  '338','339','340','341','342','343','344','345','346','347','348','349','350',
-  '355','356','357','358','359','360','362','363','364','365','366','367','368','369','370',
-  '376','377','378','379','380','381','382','383','384','385',
-  '391','392','393','394','395','396','397','398','399','400',
-  '456','457','458','459','460','461','462','463','464','465','466','467','468','469','470',
-  '500','501','502','503','504','505','506','507','508','509','510',
-  '579','580','581','582','583','584','585','586','587','588','589','590',
-  '660','661','662','663','664','665','666','667','668','669','670',
-  '725','726','727','728','729','730',
-  '740','741','742','743','744','745','746',
-  '899','900','901','902','903','904','905','906','907','908','909','910',
-  '1005','1006','1007','1008','1009','1010','1011','1012','1013','1014','1015',
-  '1020','1021','1022','1023','1024','1025','1026','1027','1028','1029','1030',
-  '1105','1106','1107','1108','1109','1110',
-  '1265','1266','1267','1268','1269','1270','1271','1272','1273','1274','1275','1276','1277','1278','1279','1280',
-  '1333','1334','1335','1336','1337','1338','1339','1340',
-  '1530','1531','1532','1533','1534','1535',
-  '1582','1583','1584','1585','1586','1587','1588','1589','1590',
-  '1614','1615','1616','1617','1618','1619','1620',
-  '1700','1701','1702','1703','1704','1705','1706','1707','1708','1709','1710',
-  '1750','1751','1752','1753','1754','1755','1756','1757','1758','1759','1760',
-  '1816','1817','1818','1819','1820','1821','1822','1823','1824','1825','1826','1827','1828','1829','1830',
-  '1831','1832','1833','1834','1835','1836','1837','1838','1839','1840',
-  '1899','1900','1901','1902','1903','1904','1905','1906','1907','1908','1909','1910',
-  '1913','1914','1915','1916','1917','1918','1919','1920',
-  '1930','1931','1932','1933','1934','1935',
-  '1952','1953','1954','1955','1956','1957','1958','1959','1960',
-]);
-
+// ═══════════════════════════════════════════════════════
+//  PARSE LEVEL STRING — handles all real GD formats
+// ═══════════════════════════════════════════════════════
 function parseLevelString(str) {
-  const parts = str.split(';');
+  if (!str || str.length < 5) return [];
   const objects = [];
-  for (const obj of parts) {
-    const trimmed = obj.trim();
-    if (!trimmed || trimmed.length < 5) continue;
-    const kvs = trimmed.split(',');
-    if (kvs.length < 4) continue; // need at least type + x + y
 
-    // GD objects always start with key "1" = object type ID
-    // But sometimes older formats or decorations might not — we'll try both
-    const firstKey = kvs[0]?.trim();
-    const firstVal = kvs[1]?.trim();
+  // GD level strings may start with a header block separated by ';'
+  // The header is NOT an object — it starts with kA or similar non-numeric keys
+  // Real objects always contain the pair: ...,1,<numericID>,...,2,<x>,...,3,<y>,...
+  const parts = str.split(';');
 
-    // Fast path: starts with 1,<numericID> — standard GD object
-    if (firstKey === '1' && firstVal && !isNaN(parseInt(firstVal))) {
-      const idNum = parseInt(firstVal);
-      if (idNum <= 0 || idNum > 9999) continue;
+  for (const part of parts) {
+    const raw = part.trim();
+    if (!raw || raw.length < 7) continue;
 
-      const props = {};
-      for (let i = 0; i < kvs.length - 1; i += 2) {
-        const k = kvs[i]?.trim(), v = kvs[i+1]?.trim();
-        if (!k || v === undefined || v === null || v === '') continue;
-        // Accept numeric keys only (skip old-style string keys like kA13)
-        if (/^\d+$/.test(k)) props[k] = v;
+    // Split into key-value tokens
+    const tokens = raw.split(',');
+    if (tokens.length < 6) continue; // need at least 3 key-value pairs
+
+    // Scan tokens as pairs to find all numeric key-value entries
+    const props = {};
+    let hasNonNumericKey = false;
+    for (let i = 0; i < tokens.length - 1; i += 2) {
+      const k = tokens[i]?.trim();
+      const v = tokens[i+1]?.trim();
+      if (!k || v === undefined || v === null || v === '') continue;
+      if (/^\d+$/.test(k)) {
+        props[k] = v;
+      } else {
+        // Non-numeric key means this is a header/metadata block, not an object
+        hasNonNumericKey = true;
+        break;
       }
-      // Must have at minimum: object type (1), x (2), y (3)
-      if (!props['1'] || !props['2'] || !props['3']) continue;
-      // Y must be in reasonable GD range (0–1500)
-      const y = parseFloat(props['3']);
-      if (isNaN(y) || y < 0 || y > 1500) continue;
-      objects.push(props);
     }
-    // Slow path: object doesn't start with key 1 — scan for it
-    else {
-      const props = {};
-      for (let i = 0; i < kvs.length - 1; i += 2) {
-        const k = kvs[i]?.trim(), v = kvs[i+1]?.trim();
-        if (!k || v === undefined || v === '') continue;
-        if (/^\d+$/.test(k)) props[k] = v;
-      }
-      if (!props['1'] || !props['2'] || !props['3']) continue;
-      const idNum = parseInt(props['1']);
-      if (isNaN(idNum) || idNum <= 0 || idNum > 9999) continue;
-      const y = parseFloat(props['3']);
-      if (isNaN(y) || y < 0 || y > 1500) continue;
-      objects.push(props);
-    }
+
+    // Skip if it's a header block (has non-numeric keys like kA1, kS38, etc.)
+    if (hasNonNumericKey) continue;
+
+    // Must have object type (key 1), X position (key 2), Y position (key 3)
+    if (!props['1'] || !props['2'] || !props['3']) continue;
+
+    const idNum = parseInt(props['1']);
+    if (isNaN(idNum) || idNum <= 0 || idNum > 9999) continue;
+
+    const x = parseFloat(props['2']);
+    const y = parseFloat(props['3']);
+    if (isNaN(x) || isNaN(y)) continue;
+    // Y sanity check — GD levels stay within 0–1500 range
+    if (y < -100 || y > 2000) continue;
+
+    objects.push(props);
   }
+
   return objects;
 }
 
@@ -1043,42 +1020,44 @@ function parseLevelString(str) {
 async function feedExample(name, levelString) {
   if (levelString.trim().startsWith('<?xml') || levelString.trim().startsWith('<plist') || levelString.includes('<k>k4</k>')) {
     const extracted = await extractLevelStringFromGMD(levelString);
-    if (!extracted) { alert(`Could not extract a level string from the GMD data.\n\nMake sure it's a valid Geometry Dash .gmd file. Very old GD versions may use unsupported encoding.`); return; }
-    levelString = extracted;
-  }
-  const clean = levelString.trim();
-  if (!clean || clean.length < 15) { alert('Level string is too short or invalid.'); return; }
-
-  // For very long strings, parse only first 5000 chars worth for analysis but store full
-  const objects = parseLevelString(clean);
-  const validCount = objects.length;
-  if (validCount < 3) {
-    // Try to parse raw without our strict filter — maybe it's a valid but unusual format
-    const rawParts = clean.split(';').filter(s=>s.trim() && s.includes(','));
-    if (rawParts.length < 3) {
-      alert(`Could not parse as a valid GD level string.\n\nParsed ${validCount} valid objects from ${rawParts.length} entries.\nExpected format: 1,1,2,105,3,105;1,1,2,135,3,105;...`);
+    if (!extracted) {
+      alert(`Could not extract a level string from the GMD file.\n\nMake sure it's a valid Geometry Dash .gmd file exported from the game.\nVery old GD versions or non-standard exports may not be supported.`);
       return;
     }
+    levelString = extracted;
   }
 
-  const sig = clean.slice(0,80);
-  if (trainingExamples.some(e => e.string.slice(0,80) === sig)) { alert('This example has already been fed.'); return; }
+  const clean = levelString.trim();
+  if (!clean || clean.length < 10) { alert('Level string is too short or invalid.'); return; }
+
+  const objects = parseLevelString(clean);
+  const rawParts = clean.split(';').filter(s => s.trim().length > 3);
+
+  console.log(`[GD Level Forge] Feeding "${name}": ${rawParts.length} raw segments → ${objects.length} parsed objects`);
+
+  if (objects.length < 3) {
+    const sample = rawParts.slice(0,2).join(' | ');
+    alert(`Could only parse ${objects.length} valid objects from ${rawParts.length} segments.\n\nSample data: ${sample}\n\nThis can happen with decoration-heavy levels. Try a level with platforms and spikes.`);
+    return;
+  }
+
+  // Deduplicate by first 100 chars
+  const sig = clean.slice(0, 100);
+  if (trainingExamples.some(e => e.string.slice(0, 100) === sig)) {
+    alert('This example has already been fed.'); return;
+  }
 
   const analysis = analyzeLevelDeep(objects, name);
-  const totalRaw = clean.split(';').filter(s=>s.trim()).length;
-  const skipped = totalRaw - validCount;
+  const skipped = rawParts.length - objects.length;
 
-  trainingExamples.push({ name, string: clean, objects, analysis, addedAt: Date.now(),
-    skippedCount: skipped });
+  console.log(`[GD Level Forge] Analysis for "${name}": groundY=${analysis?.groundYMode}, spikeY=${analysis?.spikeYMode}, orbY=${analysis?.orbYMode}, xStep=${analysis?.xStep}u, ${objects.length} objects`);
+
+  trainingExamples.push({ name, string: clean, objects, analysis, addedAt: Date.now(), skippedCount: skipped });
   saveTrainingToStorage();
   renderExamplesList();
   updateMemoryStatus();
   showTrainingBanner();
   updateKnowledgePanel();
-
-  if (skipped > 0) {
-    console.log(`[GD Level Forge] "${name}": ${validCount} objects parsed, ${skipped} unknown/decoration objects skipped (triggers, BG deco, etc.)`);
-  }
 }
 
 function removeExample(idx) {
@@ -1305,54 +1284,93 @@ function buildPrompt(cfg) {
     const avgClusters    = allAnalyses.length ? Math.round(allAnalyses.reduce((s,a)=>s+a.clusterCount,0)/allAnalyses.length) : 3;
     const avgSafeZones   = allAnalyses.length ? Math.round(allAnalyses.reduce((s,a)=>s+a.safeZoneCount,0)/allAnalyses.length) : 2;
 
-    // Re-encode ACTUAL parsed objects (not raw string bytes) so the AI sees real GD syntax
+    // Build rich annotated training snippets from real parsed objects
+    const OBJNAMES={'1':'block','2':'block','39':'slope','3':'spike','4':'spike-side',
+      '180':'BigSpike','35':'YPad','67':'PPad','140':'RPad',
+      '36':'YOrb','84':'BOrb','141':'POrb','1022':'ROrb',
+      '13':'ShipPortal','14':'BallPortal','15':'UFOPortal','16':'WavePortal',
+      '17':'RobotPortal','18':'SpiderPortal','45':'GravUp','46':'GravDown'};
+
     const snippets = trainingExamples.slice(0,3).map((ex,i)=>{
       const a = ex.analysis || {};
-      // Get first 40 parsed objects re-encoded — these are ground+gameplay objects
-      const reencoded = reencodeObjects(ex.objects, 40);
-      // Also get a sample from the middle of the level (more interesting section)
-      const midStart = Math.floor(ex.objects.length * 0.35);
-      const midSnippet = reencodeObjects(ex.objects.slice(midStart, midStart+20), 20);
-      return `--- TRAINING EXAMPLE ${i+1}: "${ex.name}" ---
-Stats: ${ex.objects.length} objects, ~${a.maxLength||'?'} blocks long, groundY=${a.groundYMode||105}, spikeY=${a.spikeYMode||'?'}, orbY=${a.orbYMode||'?'}, xStep=${a.xStep||30}u
-LEVEL START (first 40 objects — study X/Y values and spacing):
-${reencoded}
-LEVEL MID-SECTION (objects around 35% mark — study obstacle patterns):
-${midSnippet}`;
-    }).join('\n\n');
+      const objs = ex.objects;
+      if (!objs || objs.length === 0) return '--- EXAMPLE '+(i+1)+': "'+ex.name+'" (no objects) ---';
 
-    trainingBlock = `
+      // Sort objects by X for coherent reading
+      const sorted = [...objs].sort((oa,ob)=>parseFloat(oa[2]||0)-parseFloat(ob[2]||0));
 
-╔══════════════════════════════════════════════════════════════╗
-║  TRAINING DATA — ${trainingExamples.length} REAL GD LEVEL(S) TO LEARN FROM  ║
-╚══════════════════════════════════════════════════════════════╝
+      // Build column map: X -> list of objects
+      const byX = {};
+      sorted.forEach(o => {
+        const gx = Math.round(parseFloat(o[2]||0)/30)*30;
+        if (!byX[gx]) byX[gx] = [];
+        byX[gx].push(o);
+      });
+      const allXs = Object.keys(byX).map(Number).sort((a,b)=>a-b);
 
-CRITICAL: Study the training examples below. Copy their coordinate values exactly.
-Do NOT invent your own Y values — use what you see in the training data.
+      // 3 windows: start, mid, end
+      const windows = [
+        ['START', allXs.slice(0, 30)],
+        ['MID',   allXs.slice(Math.floor(allXs.length*0.4), Math.floor(allXs.length*0.4)+20)],
+        ['END',   allXs.slice(-15)],
+      ];
 
-📐 AGGREGATED LEARNED VALUES (averages across all ${trainingExamples.length} example(s)):
-  Ground block Y:    ${learnedGroundY}  ← USE THIS for all floor/ground blocks
-  Spike Y:           ${learnedSpikeY}  ← USE THIS for all spikes sitting on ground
-  Orb/pad Y:         ${learnedOrbY}  ← USE THIS for orbs in mid-air
-  X grid step:       ${learnedXStep}u  ← USE THIS spacing between object columns
-  Obstacle density:  ~${learnedDensity} spikes per 300u
-  Ceiling used:      ${hasCeiling ? 'YES — include ceiling obstacles' : 'NO — ground-only style'}
-  Avg clusters:      ~${avgClusters} consecutive obstacle groups
-  Avg safe zones:    ~${avgSafeZones} open stretches per level
+      let out = '=== EXAMPLE '+(i+1)+': "'+ex.name+'" ===\n';
+      out += 'objects='+objs.length+' groundY='+(a.groundYMode||'?')+' spikeY='+(a.spikeYMode||'?')+' orbY='+(a.orbYMode||'?')+' xStep='+(a.xStep||30)+'u density='+(a.density||'?')+'/300u\n\n';
 
-📋 ACTUAL TRAINING LEVEL DATA (real GD object strings — learn the pattern):
-${snippets}
+      windows.forEach(([label, xs]) => {
+        if (!xs.length) return;
+        out += '['+label+' X='+xs[0]+'..'+xs[xs.length-1]+']\n';
+        xs.forEach(gx => {
+          const cols = byX[gx] || [];
+          const desc = cols.map(o => {
+            const nm = OBJNAMES[o[1]] || ('id'+o[1]);
+            let s = nm+'@Y='+o[3];
+            if(o[5]==='1') s+='(flipV)';
+            if(o[4]==='1') s+='(flipH)';
+            if(o[6]) s+='(rot'+o[6]+')';
+            return s;
+          }).join('+');
+          out += '  X='+gx+': '+desc+'\n';
+        });
+        // Raw GD string for this window
+        const rawObjs = xs.flatMap(gx => byX[gx]||[]).slice(0,40);
+        out += '  [RAW] '+reencodeObjects(rawObjs, 40)+'\n\n';
+      });
+      return out;
+    }).join('\n');
 
-⚠️ MANDATORY RULES FROM TRAINING:
-1. Use Y=${learnedGroundY} for every ground/floor block
-2. Use Y=${learnedSpikeY} for every spike placed on the ground
-3. Use Y=${learnedOrbY} for orbs in the air
-4. Space objects ${learnedXStep}u apart on the X axis
-5. Match the obstacle density and rhythm you see in the examples above
-6. Copy the EXACT same object types you see in the training data
-╚══════════════════════════════════════════════════════════════╝`;
+    // Build the training block using string concatenation (NOT template literals)
+    // so variables are guaranteed to interpolate correctly
+    trainingBlock =
+      '\n\n' +
+      '╔══════════════════════════════════════════════════════════════════╗\n' +
+      '║  TRAINING DATA — '+trainingExamples.length+' REAL GD LEVEL(S) — COPY THESE PATTERNS ║\n' +
+      '╚══════════════════════════════════════════════════════════════════╝\n' +
+      '\n' +
+      'MANDATORY: These are REAL Geometry Dash levels. Your generated level MUST\n' +
+      'use the EXACT same coordinate values shown below. Do NOT invent Y values.\n' +
+      '\n' +
+      'EXACT VALUES TO USE:\n' +
+      '  groundBlockY = '+learnedGroundY+'   <- use for EVERY floor/platform block\n' +
+      '  spikeY       = '+learnedSpikeY+'   <- use for EVERY spike on ground\n' +
+      '  orbY         = '+learnedOrbY+'   <- use for mid-air orbs\n' +
+      '  xGridStep    = '+learnedXStep+'u   <- advance X by this per column\n' +
+      '  density      = ~'+learnedDensity+' spikes per 300u\n' +
+      '  ceiling      = '+(hasCeiling?'YES — replicate ceiling obstacles':'NO — ground-only')+'\n' +
+      '  clusterSize  = '+avgClusters+' obstacles then '+avgSafeZones+' safe columns\n' +
+      '\n' +
+      'ANNOTATED LEVEL DATA (study column-by-column, then copy the [RAW] strings):\n' +
+      snippets +
+      '\n' +
+      'GENERATION CONTRACT:\n' +
+      '1. Every X column: groundBlock at Y='+learnedGroundY+'\n' +
+      '2. Spikes at Y='+learnedSpikeY+' — always on top of a ground block at same X\n' +
+      '3. Orbs at Y='+learnedOrbY+' — reachable during a jump\n' +
+      '4. X increments of '+learnedXStep+'u (X=105,'+(105+learnedXStep)+','+(105+learnedXStep*2)+'...)\n' +
+      '5. Pattern: '+avgClusters+' obstacles then '+avgSafeZones+' clear safe columns, repeat\n' +
+      '╚══════════════════════════════════════════════════════════════════╝';
   }
-
   // Compose the full system prompt
   return `You are a Geometry Dash 2.2 level generator. Your ONLY output is a raw GD level string.${trainingBlock}
 
@@ -1780,34 +1798,21 @@ function drawPreview(objects) {
 function downloadGMD() {
   if(!generatedLevelString) return;
   const name = document.getElementById('levelName').value.trim()||'AI Level';
-  // k8=0 means "built-in song 0" (Stereo Madness). k45=1 = use custom song, but we leave it off.
-  // We deliberately omit k8 (song ID) and k45 (custom song toggle) so GD uses default/none.
-  // This avoids any licensed song being auto-assigned.
+  // k1 (level ID) is completely omitted — no ID = no Globed players, no song conflict.
+  // k8 (song ID) omitted — GD won't auto-assign Stereo Madness or any official track.
+  // k45 (custom song flag) omitted — prevents defaulting back to song 0.
+  // Minimal GMD = GD imports it cleanly as a local level with no online associations.
   const gmd = [
     '<?xml version="1.0"?>',
     '<plist version="1.0" gjver="2.0">',
     '<dict>',
     '<k>kCEK</k><i>4</i>',
-    '<k>k1</k><i>1</i>',                              // level ID
-    `<k>k2</k><s>${esc(name)}</s>`,                   // level name
-    '<k>k3</k><s>Made with GD Level Forge — gdlevelforge.html</s>', // description
-    `<k>k4</k><s>${esc(generatedLevelString)}</s>`,   // level data (k4)
-    '<k>k5</k><s>Player</s>',                          // author
-    '<k>k6</k><i>0</i>',                              // difficulty
-    '<k>k7</k><i>0</i>',                              // stars
-    '<k>k13</k><t />',                                 // verified
-    '<k>k21</k><i>2</i>',                             // object count field
-    '<k>k23</k><i>0</i>',
-    '<k>k45</k><i>0</i>',                             // custom song = 0 (use official track)
-    '<k>k46</k><i>0</i>',
-    '<k>k47</k><t />',
-    '<k>k48</k><i>0</i>',
-    '<k>k50</k><i>35</i>',                            // binary version
-    '<k>k60</k><i>0</i>',
-    '<k>k69</k><t />',
-    '<k>k80</k><i>0</i>',
-    '<k>k87</k><i>0</i>',
-    '<k>k88</k><i>0</i>',
+    `<k>k2</k><s>${esc(name)}</s>`,
+    '<k>k3</k><s>Made with GD Level Forge</s>',
+    `<k>k4</k><s>${esc(generatedLevelString)}</s>`,
+    '<k>k5</k><s>Player</s>',
+    '<k>k13</k><t />',
+    '<k>k21</k><i>2</i>',
     '</dict>',
     '</plist>'
   ].join('\n');
@@ -1842,21 +1847,38 @@ function showError(msg){ const b=document.getElementById('errorBox'); b.textCont
 (function init() {
   switchProvider('openai');
 
-  // Load persistent training
+  // Migrate old v2 data to v3 if v3 doesn't exist yet
+  if (!localStorage.getItem(STORAGE_KEY)) {
+    const oldData = localStorage.getItem('gdlevelforge_training_v2');
+    if (oldData) {
+      try {
+        const old = JSON.parse(oldData);
+        // Re-save under new key (loadTrainingFromStorage will re-parse objects)
+        localStorage.setItem(STORAGE_KEY, oldData);
+        console.log('[GD Level Forge] Migrated v2 training data to v3.');
+      } catch(e) { /* ignore */ }
+    }
+  }
+
+  // Load training — loadTrainingFromStorage now always re-parses objects from the string
   trainingExamples = loadTrainingFromStorage();
+
   if (trainingExamples.length) {
-    // Re-run analysis on loaded examples in case analysis is missing
-    trainingExamples = trainingExamples.map(ex => {
-      if (!ex.analysis && ex.objects && ex.objects.length) {
-        ex.analysis = analyzeLevelDeep(ex.objects, ex.name);
-      }
-      return ex;
-    });
+    // Filter out any examples that couldn't parse properly
+    const before = trainingExamples.length;
+    trainingExamples = trainingExamples.filter(ex =>
+      ex.objects && ex.objects.length >= 3 && ex.name
+    );
+    if (trainingExamples.length < before) {
+      console.log(`[GD Level Forge] Filtered out ${before - trainingExamples.length} unparseable examples.`);
+      saveTrainingToStorage(); // re-save cleaned list
+    }
+
     renderExamplesList();
     updateMemoryStatus();
     showTrainingBanner();
     updateKnowledgePanel();
-    console.log(`[GD Level Forge] Loaded ${trainingExamples.length} training example(s) from localStorage.`);
+    console.log(`[GD Level Forge] Loaded ${trainingExamples.length} training example(s). Objects parsed: ${trainingExamples.map(e=>e.objects.length).join(', ')}`);
   } else {
     updateMemoryStatus();
   }
