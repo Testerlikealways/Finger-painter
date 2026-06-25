@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Larpercrate - Demonlist</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --card: #252525;
+            --accent: #c026d3;
+            --accent2: #22d3ee;
+            --text: #e2e8f0;
+            --border: #444;
+        }
+        
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        header {
+            background: #111;
+            border-bottom: 3px solid var(--accent);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .top-nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+        
+        .main-nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+        }
+        
+        .main-nav a:hover { color: var(--accent2); }
+        
+        .planned {
+            color: #777;
+            font-size: 0.85rem;
+            pointer-events: none;
+            cursor: default;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .content {
+            flex: 1;
+        }
+        
+        .hero {
+            background: var(--card);
+            padding: 80px 40px;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            border: 2px solid var(--accent);
+        }
+        
+        .hero h1 {
+            font-size: 3.2rem;
+            margin-bottom: 16px;
+            color: var(--accent2);
+        }
+        
+        .top-demon {
+            background: var(--card);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 8px 25px rgba(192, 38, 211, 0.2);
+        }
+        
+        .rank-badge {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .level-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: white;
+            margin: 10px 0;
+        }
+        
+        .info {
+            font-size: 1.3rem;
+            color: #94a3b8;
+            margin: 8px 0;
+        }
+        
+        .proof-btn {
+            margin-top: 20px;
+            background: var(--accent2);
+            color: #000;
+            padding: 12px 28px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #777;
+            border-top: 1px solid #333;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-nav">
+            <div class="logo">LARPERCRATE</div>
+            <nav class="main-nav">
+                <a href="#">Home</a>
+                <a href="demonlist.html">Demonlist</a>
+                <span class="planned">Levels (Planned Soon)</span>
+                <span class="planned">Players (Planned Soon)</span>
+                <span class="planned">Submit (Planned Soon)</span>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <div class="hero">
+                <h1>Welcome to Larpercrate</h1>
+                <p style="font-size:1.4rem; max-width:700px; margin:0 auto;">
+                    The hardest Geometry Dash Demonlist. No excuses. Only records.
+                </p>
+                <a href="demonlist.html" style="margin-top:30px; display:inline-block; background:var(--accent); color:white; padding:14px 32px; font-size:1.2rem; border-radius:6px; text-decoration:none; font-weight:bold;">
+                    CHECK THE FULL DEMONLIST
+                </a>
+            </div>
+
+            <h2 style="margin:30px 0 15px; color:var(--accent2); text-align:center;">#1 DEMON</h2>
+            
+            <div class="top-demon">
+                <div class="rank-badge">#1</div>
+                <div class="level-name">Stereo Madness</div>
+                <div class="info">by <strong>RobTop</strong></div>
+                <div class="info">Verified by <strong>EL Hemp</strong></div>
+                <div class="info" style="font-size:1.5rem; color:var(--accent2); margin:15px 0;">
+                    420 points
+                </div>
+                <button onclick="window.open('https://www.youtube.com/watch?v=v1EwbEIov6Y&pp=ygUWc3Rlcm8gbWFkbmVzcyB2ZXJpZmllZA%3D%3D', '_blank')" class="proof-btn">
+                    PROOF
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar"></div>
+    </div>
+
+    <footer class="footer">
+        <p>© Copyright 2017-2026 larpercrate.com • All rights reserved</p>
+        <p>Larpercrate and the Demonlist are in no way affiliated with RobTop Games AB ®</p>
+    </footer>
+</body>
+</html>
