@@ -9,6 +9,7 @@ Larpercrate is a fan-made demon list project inspired by Pointercrate, built ent
 
 ## Built With
 - HTML
+- Base64 encoded assets/data
 
 ## Status
 Active development
