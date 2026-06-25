@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Neon Page</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        height: 100vh;
+        background: #0f0f0f;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .card {
+        background: #181818;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        width: 350px;
+        box-shadow: 0 0 30px #00ffff55;
+    }
+
+    h1 {
+        color: cyan;
+        margin-bottom: 15px;
+    }
+
+    p {
+        color: #aaa;
+        margin-bottom: 25px;
+    }
+
+    button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 50px;
+        background: cyan;
+        color: black;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        transform: scale(1.1);
+        background: white;
+    }
+
+    #message {
+        margin-top: 20px;
+        color: #00ff88;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>⚡ Random Site</h1>
+    <p>Just a tiny HTML experiment lol</p>
+
+    <button onclick="changeText()">Click me</button>
+
+    <div id="message"></div>
+</div>
+
+
+<script>
+function changeText() {
+    const texts = [
+        "🔥 You found the secret button",
+        "🥶 Certified cool moment",
+        "🚀 HTML go brrrr",
+        "💻 Coding powers activated"
+    ];
+
+    let random = Math.floor(Math.random() * texts.length);
+
+    document.getElementById("message").innerHTML = texts[random];
+}
+</script>
+
+</body>
+</html>
