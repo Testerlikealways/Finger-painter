@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Run - Larpercrate</title>
+
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --card: #252525;
+            --accent: #c026d3;
+            --accent2: #22d3ee;
+            --text: #e2e8f0;
+            --border: #444;
+        }
+        
+        * { 
+            margin:0; 
+            padding:0; 
+            box-sizing:border-box; 
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        header {
+            background:#111;
+            border-bottom:3px solid var(--accent);
+            padding:15px 20px;
+            position:sticky;
+            top:0;
+            z-index:100;
+        }
+
+        .top-nav {
+            max-width:1400px;
+            margin:auto;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .logo {
+            font-size:28px;
+            font-weight:bold;
+            color:var(--accent);
+            letter-spacing:1px;
+        }
+
+        .main-nav a, .main-nav span {
+            margin:0 15px;
+            text-decoration:none;
+            color:var(--text);
+            font-weight:500;
+        }
+
+        .main-nav a:hover {
+            color:var(--accent2);
+        }
+
+        .current {
+            color:var(--accent2);
+            font-weight:600;
+        }
+
+        .planned {
+            color:#777;
+            font-size:.85rem;
+            pointer-events:none;
+        }
+
+        .container {
+            max-width:900px;
+            margin:40px auto;
+            padding:0 20px;
+        }
+
+        .form-card {
+            background:var(--card);
+            border:2px solid var(--accent);
+            border-radius:12px;
+            padding:40px;
+        }
+
+        h1 {
+            color:var(--accent2);
+            margin-bottom:20px;
+            text-align:center;
+        }
+
+        .email-info {
+            text-align:center;
+            color:#94a3b8;
+            margin-bottom:30px;
+            font-size:1.1rem;
+        }
+
+        .requirements {
+            font-size:1.1rem;
+            color:#e2e8f0;
+            margin-top:20px;
+        }
+
+        .requirements p {
+            margin:12px 0;
+        }
+
+        .notice {
+            text-align:center;
+            margin-top:30px;
+            color:#94a3b8;
+        }
+
+        .footer {
+            text-align:center;
+            padding:40px 20px;
+            color:#777;
+            border-top:1px solid #333;
+            margin-top:80px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="top-nav">
+        <div class="logo">LARPERCRATE</div>
+
+        <nav class="main-nav">
+            <a href="index.html">Home</a>
+            <a href="demonlist.html">Demonlist</a>
+            <span class="planned">Levels (Planned Soon)</span>
+            <span class="planned">Players (Planned Soon)</span>
+            <span class="current">Submit</span>
+        </nav>
+    </div>
+</header>
+
+
+<div class="container">
+
+    <div class="form-card">
+
+        <h1>Submit Your Run</h1>
+
+        <div class="email-info">
+            Send your full submission to:
+            <br>
+            <strong>larpercrate@gmail.com</strong>
+        </div>
+
+
+        <div class="requirements">
+
+            <p>Include:</p>
+
+            <p>• Level Name</p>
+            <p>• Geometry Dash Username</p>
+            <p>• YouTube / TikTok Username</p>
+            <p>• Video Proof (YouTube or TikTok link)</p>
+            <p>• Percentage Achieved (example: 100% / 69%)</p>
+            <p>• Extra Notes (timestamps, details, etc.)</p>
+
+        </div>
+
+
+        <div class="notice">
+            Make sure your proof is clear and your video is available for verification.
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<footer class="footer">
+
+    <p>© Copyright 2017-2026 larpercrate.com • All rights reserved</p>
+
+    <p>
+        Larpercrate and the Demonlist are in no way affiliated with RobTop Games AB ®
+    </p>
+
+</footer>
+
+
+</body>
+</html>
