@@ -13,3 +13,10 @@ Larpercrate is a fan-made demon list project inspired by Pointercrate, built ent
 
 ## Status
 Active development
+
+## Links
+larpercrate.vercel.app
+
+## Socials
+Tiktok: _dommy._
+Youtube: yYoiink
