@@ -267,55 +267,53 @@ return;
 }
 
 
-
 let text=document.getElementById("text").value;
 let color=document.getElementById("color").value;
 
-let size=
-Number(document.getElementById("size").value).toFixed(1);
+let size=Number(document.getElementById("size").value).toFixed(1);
 
 
 let extra="";
 
 
-if(bold.checked)
+if(document.getElementById("bold").checked)
 extra+=',"bold":true';
 
-if(underline.checked)
+if(document.getElementById("underline").checked)
 extra+=',"underlined":true';
 
-if(italic.checked)
+if(document.getElementById("italic").checked)
 extra+=',"italic":true';
 
 
-
-let shadow=
-shadow.checked
-?",shadow:1b"
-:",shadow:0b";
-
+let shadowNBT =
+document.getElementById("shadow").checked
+? ",shadow:1b"
+: ",shadow:0b";
 
 
-let nbt=
+let billboard =
+document.getElementById("billboard").value;
 
-`{text:{"text":"${text}","color":"${color}"${extra}},billboard:"${billboard.value}"${shadow},transformation:{translation:[0f,0f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}`;
 
+let nbt =
+
+`{text:'{"text":"${text}","color":"${color}"${extra}}',billboard:"${billboard}"${shadowNBT},transformation:{translation:[0f,0f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}`;
 
 
 if(mode==="summon"){
 
-output.value=
+document.getElementById("output").value =
 `/summon minecraft:text_display ~ ~ ~ ${nbt}`;
 
 }
 
 else{
 
-output.value=
+document.getElementById("output").value =
 `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
 
 }
-
 
 }
 
