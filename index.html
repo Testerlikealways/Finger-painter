@@ -13,7 +13,7 @@ body{
     padding:40px;
 }
 .box{
-    width:470px;
+    width:520px;
     background:#161b22;
     padding:25px;
     border-radius:20px;
@@ -32,21 +32,14 @@ input,select,button,textarea{
     color:white;
     box-sizing:border-box;
 }
-input[type="checkbox"]{
-    width:auto;
-}
-label{
-    display:block;
-    margin-top:10px;
-}
+input[type="checkbox"]{ width:auto; }
+label{ display:block; margin-top:10px; }
 button{
     cursor:pointer;
     background:#238636;
     font-weight:bold;
 }
-.copy{
-    background:#1f6feb;
-}
+.copy{ background:#1f6feb; }
 .preview{
     margin-top:20px;
     background:black;
@@ -55,12 +48,14 @@ button{
     text-align:center;
     font-size:40px;
     word-break:break-word;
+    min-height:60px;
 }
 textarea{
-    height:180px;
+    height:220px;
     color:#7ee787;
     font-family:monospace;
     resize:vertical;
+    white-space:pre-wrap;
 }
 .error{
     color:#ff5555;
@@ -78,18 +73,6 @@ textarea{
     gap:8px;
     align-items:center;
     margin-top:12px;
-}
-.batch-row input{
-    margin-top:0;
-}
-.batch-row button{
-    width:auto;
-    padding:8px 14px;
-    margin-top:0;
-    flex-shrink:0;
-}
-#batchList{
-    margin-top:10px;
 }
 .batch-item{
     display:flex;
@@ -114,204 +97,163 @@ textarea{
 <div class="box">
 <h1>Text Display Generator</h1>
 
-<input id="text" value="Common" maxlength="100">
+<input id="text" value="Common" maxlength="200">
 <div class="error" id="textError"></div>
 
 <select id="color">
-<option value="white">White</option>
-<option value="green" selected>Green</option>
-<option value="gold">Gold</option>
-<option value="red">Red</option>
-<option value="blue">Blue</option>
-<option value="yellow">Yellow</option>
+    <option value="white">White</option>
+    <option value="green" selected>Green</option>
+    <option value="gold">Gold</option>
+    <option value="red">Red</option>
+    <option value="blue">Blue</option>
+    <option value="yellow">Yellow</option>
+    <option value="light_purple">Light Purple</option>
+    <option value="dark_green">Dark Green</option>
 </select>
 
 <input id="size" type="number" value="2.1" step="0.1" min="0.1" max="50">
-<div class="hint">Scale must be greater than 0</div>
+<div class="hint">Scale (recommended 1.0 – 4.0)</div>
 
-<label>
-<input id="bold" type="checkbox" checked>
-Bold
-</label>
-<label>
-<input id="shadow" type="checkbox" checked>
-Shadow
-</label>
+<label><input id="bold" type="checkbox" checked> Bold</label>
+<label><input id="shadow" type="checkbox" checked> Shadow</label>
 
 <select id="billboard">
-<option value="center">Center</option>
-<option value="fixed">Fixed</option>
+    <option value="center">Center</option>
+    <option value="fixed">Fixed</option>
+    <option value="vertical">Vertical</option>
 </select>
 
 <select id="mode">
-<option value="summon">Summon</option>
-<option value="merge">Merge nearest</option>
+    <option value="summon">Summon</option>
+    <option value="merge" selected>Merge nearest</option>
 </select>
 
 <div class="preview" id="preview">Common</div>
 
-<button onclick="generate()">Generate</button>
-<button class="copy" onclick="copyCommand()">Copy</button>
+<button onclick="generate()">Generate Command</button>
+<button class="copy" onclick="copyCommand()">Copy Command</button>
+
 <textarea id="output" readonly></textarea>
 
 <div class="batch-row">
-<button onclick="addToBatch()" style="width:100%;background:#8957e5;">Add current settings to batch</button>
+    <button onclick="addToBatch()" style="width:100%;background:#8957e5;">Add to Batch</button>
 </div>
 <div id="batchList"></div>
-<button id="copyAllBtn" class="copy" style="display:none;margin-top:14px;" onclick="copyAllBatch()">Copy all commands</button>
+<button id="copyAllBtn" class="copy" style="display:none;margin-top:14px;" onclick="copyAllBatch()">Copy All Commands</button>
 </div>
 
 <script>
-const colors={
-white:"#ffffff",
-green:"#55ff55",
-gold:"#ffaa00",
-red:"#ff5555",
-blue:"#5555ff",
-yellow:"#ffff55"
+const colors = {
+    white: "#ffffff", green: "#55ff55", gold: "#ffaa00", red: "#ff5555",
+    blue: "#5555ff", yellow: "#ffff55", light_purple: "#ff55ff", dark_green: "#00aa00"
 };
 
 let batch = [];
 
-function escapeForJsonAndNbt(str){
-    // Escape backslashes first, then double quotes (for the JSON text component),
-    // then single quotes (since the whole json string is wrapped in '...' for NBT).
+function escapeForJsonAndNbt(str) {
     return str
         .replace(/\\/g, "\\\\")
         .replace(/"/g, '\\"')
         .replace(/'/g, "\\'");
 }
 
-function getSize(){
+function getSize() {
     let raw = Number(document.getElementById("size").value);
-    if(!raw || raw <= 0 || isNaN(raw)){
-        return null;
-    }
-    return raw.toFixed(1);
+    return (raw && raw > 0 && !isNaN(raw)) ? raw.toFixed(2) : null;
 }
 
-function updatePreview(){
-    let p = document.getElementById("preview");
-    let text = document.getElementById("text").value;
+function updatePreview() {
+    const p = document.getElementById("preview");
+    const text = document.getElementById("text").value.trim();
     p.innerText = text || "(empty)";
     p.style.color = colors[document.getElementById("color").value];
     p.style.fontWeight = document.getElementById("bold").checked ? "bold" : "normal";
-
+    
     let size = Number(document.getElementById("size").value);
-    if(size && size > 0){
-        // scale preview font relative to the base 40px, capped so it stays on screen
-        let px = Math.min(Math.max(40 * (size / 2.1), 14), 120);
+    if (size > 0) {
+        let px = Math.min(Math.max(40 * (size / 2.1), 14), 140);
         p.style.fontSize = px + "px";
     }
-
-    validateText();
 }
 
-function validateText(){
-    let text = document.getElementById("text").value;
-    let err = document.getElementById("textError");
-    if(text.trim() === ""){
-        err.innerText = "Text cannot be empty";
-        return false;
-    }
-    err.innerText = "";
-    return true;
-}
-
-document.querySelectorAll("input,select")
-.forEach(e=>{
-e.addEventListener("input",updatePreview);
-e.addEventListener("change",updatePreview);
-});
-
-function buildNbt(){
-    if(!validateText()){
+function buildNbt() {
+    const textEl = document.getElementById("text");
+    if (!textEl.value.trim()) {
+        document.getElementById("textError").innerText = "Text cannot be empty";
         return null;
     }
-    let size = getSize();
-    if(size === null){
-        document.getElementById("textError").innerText = "Size must be a number greater than 0";
-        return null;
-    }
+    document.getElementById("textError").innerText = "";
 
-    let rawText = document.getElementById("text").value;
-    let text = escapeForJsonAndNbt(rawText);
-    let color = document.getElementById("color").value;
+    const size = getSize();
+    if (!size) return null;
 
-    let jsonExtra = "";
-    if(document.getElementById("bold").checked){
-        jsonExtra += ',"bold":true';
-    }
+    const rawText = textEl.value;
+    const escapedText = escapeForJsonAndNbt(rawText);
+    const color = document.getElementById("color").value;
+    const bold = document.getElementById("bold").checked ? ',"bold":true' : '';
+    const shadow = document.getElementById("shadow").checked ? "1b" : "0b";
+    const billboard = document.getElementById("billboard").value;
 
-    let shadow = document.getElementById("shadow").checked ? "1b" : "0b";
-    let billboard = document.getElementById("billboard").value;
-
-    return `{text:'{"text":"${text}","color":"${color}"${jsonExtra}}',billboard:"${billboard}",shadow:${shadow},transformation:{translation:[0f,0f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}`;
+    return `{text:'{"text":"${escapedText}","color":"${color}"${bold}}',billboard:"${billboard}",shadow:${shadow},transformation:{translation:[0f,0.5f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}`;
 }
 
-function buildCommand(nbt){
-    let mode = document.getElementById("mode").value;
-    if(mode === "summon"){
-        return `/summon minecraft:text_display ~ ~ ~ ${nbt}`;
-    }
-    return `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
+function buildCommand(nbt) {
+    return document.getElementById("mode").value === "summon"
+        ? `/summon minecraft:text_display ~ ~ ~ ${nbt}`
+        : `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
 }
 
-function generate(){
-    let nbt = buildNbt();
-    if(nbt === null){
-        document.getElementById("output").value = "";
-        return;
-    }
+function generate() {
+    const nbt = buildNbt();
+    if (!nbt) return;
     document.getElementById("output").value = buildCommand(nbt);
 }
 
-function copyCommand(){
-    let val = document.getElementById("output").value;
-    if(!val){
-        generate();
-        val = document.getElementById("output").value;
-    }
-    if(!val) return;
-    navigator.clipboard.writeText(val);
+function copyCommand() {
+    const output = document.getElementById("output");
+    if (!output.value) generate();
+    navigator.clipboard.writeText(output.value);
 }
 
-function addToBatch(){
-    let nbt = buildNbt();
-    if(nbt === null) return;
-    let command = buildCommand(nbt);
-    let label = document.getElementById("text").value;
+function addToBatch() {
+    const nbt = buildNbt();
+    if (!nbt) return;
+    const command = buildCommand(nbt);
+    const label = document.getElementById("text").value.trim() || "Unnamed";
     batch.push({label, command});
     renderBatch();
 }
 
-function removeFromBatch(index){
+function removeFromBatch(index) {
     batch.splice(index, 1);
     renderBatch();
 }
 
-function renderBatch(){
-    let list = document.getElementById("batchList");
+function renderBatch() {
+    const list = document.getElementById("batchList");
     list.innerHTML = "";
     batch.forEach((item, i) => {
-        let row = document.createElement("div");
+        const row = document.createElement("div");
         row.className = "batch-item";
-        let span = document.createElement("span");
-        span.innerText = item.label;
-        let btn = document.createElement("button");
-        btn.innerText = "Remove";
-        btn.onclick = () => removeFromBatch(i);
-        row.appendChild(span);
-        row.appendChild(btn);
+        row.innerHTML = `
+            <span>${item.label}</span>
+            <button onclick="removeFromBatch(${i})">Remove</button>
+        `;
         list.appendChild(row);
     });
     document.getElementById("copyAllBtn").style.display = batch.length ? "block" : "none";
 }
 
-function copyAllBatch(){
-    let all = batch.map(item => item.command).join("\n");
+function copyAllBatch() {
+    const all = batch.map(item => item.command).join("\n");
     navigator.clipboard.writeText(all);
 }
+
+// Event listeners
+document.querySelectorAll("input,select").forEach(el => {
+    el.addEventListener("input", updatePreview);
+    el.addEventListener("change", updatePreview);
+});
 
 updatePreview();
 </script>
