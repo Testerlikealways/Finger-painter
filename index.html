@@ -15,7 +15,7 @@ body {
 }
 
 .container {
-    width:450px;
+    width:460px;
     background:#161b22;
     padding:25px;
     border-radius:20px;
@@ -65,12 +65,17 @@ button:hover {
     background:#2ea043;
 }
 
+.copy {
+    background:#1f6feb;
+}
+
 textarea {
-    height:140px;
+    height:160px;
     color:#7ee787;
 }
 </style>
 </head>
+
 
 <body>
 
@@ -78,9 +83,12 @@ textarea {
 
 <h1>Text Display Generator</h1>
 
+
 <input id="text" placeholder="Text" value="Shop">
 
+
 <select id="color">
+
 <option value="black">Black</option>
 <option value="dark_blue">Dark Blue</option>
 <option value="dark_green">Dark Green</option>
@@ -97,94 +105,232 @@ textarea {
 <option value="light_purple">Light Purple</option>
 <option value="yellow">Yellow</option>
 <option value="white" selected>White</option>
+
 </select>
 
-<input id="size" type="number" value="2.1" step="0.1">
+
+<input id="size" type="number" value="2.1" step="0.1" min="0.1" placeholder="Size">
+
 
 <div class="checkbox">
-<label><input id="bold" type="checkbox"> Bold</label>
-<label><input id="underline" type="checkbox"> Underlined</label>
-<label><input id="italic" type="checkbox"> Cursive / Italic</label>
+
+<label>
+<input id="bold" type="checkbox" checked>
+Bold
+</label>
+
+<br>
+
+<label>
+<input id="underline" type="checkbox">
+Underlined
+</label>
+
+<br>
+
+<label>
+<input id="italic" type="checkbox">
+Cursive / Italic
+</label>
+
 </div>
 
+
 <select id="billboard">
+
 <option value="center">Center</option>
 <option value="fixed">Fixed</option>
 <option value="vertical">Vertical</option>
 <option value="horizontal">Horizontal</option>
+
 </select>
+
+
+<select id="mode">
+
+<option value="summon">
+Summon New Text Display
+</option>
+
+<option value="merge">
+Merge Nearest Text Display
+</option>
+
+</select>
+
 
 <div class="preview" id="preview">
 Shop
 </div>
 
-<button onclick="generate()">Generate</button>
+
+<button onclick="generate()">
+Generate Command
+</button>
+
+
+<button class="copy" onclick="copyCommand()">
+Copy Command
+</button>
+
 
 <textarea id="output" readonly></textarea>
+
 
 </div>
 
 
+
 <script>
 
-const inputs=document.querySelectorAll("input,select");
+const colors = {
 
-inputs.forEach(x=>{
-    x.addEventListener("input",update);
-    x.addEventListener("change",update);
+black:"#000000",
+dark_blue:"#0000AA",
+dark_green:"#00AA00",
+dark_aqua:"#00AAAA",
+dark_red:"#AA0000",
+dark_purple:"#AA00AA",
+gold:"#FFAA00",
+gray:"#AAAAAA",
+dark_gray:"#555555",
+blue:"#5555FF",
+green:"#55FF55",
+aqua:"#55FFFF",
+red:"#FF5555",
+light_purple:"#FF55FF",
+yellow:"#FFFF55",
+white:"#FFFFFF"
+
+};
+
+
+
+document.querySelectorAll("input,select").forEach(e=>{
+
+e.addEventListener("input",updatePreview);
+e.addEventListener("change",updatePreview);
+
 });
 
 
-function update(){
 
-let text=document.getElementById("text").value;
-let color=document.getElementById("color").value;
+document.getElementById("size").addEventListener("change",function(){
+
+this.value = Number(this.value).toFixed(1);
+
+});
+
+
+
+function updatePreview(){
 
 let preview=document.getElementById("preview");
 
-preview.innerText=text;
-preview.style.color=color.replace("_"," ");
+preview.innerText=document.getElementById("text").value;
 
-preview.style.fontWeight=
-document.getElementById("bold").checked ? "bold":"normal";
+preview.style.color =
+colors[document.getElementById("color").value];
 
-preview.style.textDecoration=
-document.getElementById("underline").checked ? "underline":"none";
 
-preview.style.fontStyle=
-document.getElementById("italic").checked ? "italic":"normal";
+preview.style.fontWeight =
+document.getElementById("bold").checked
+? "bold"
+: "normal";
+
+
+preview.style.textDecoration =
+document.getElementById("underline").checked
+? "underline"
+: "none";
+
+
+preview.style.fontStyle =
+document.getElementById("italic").checked
+? "italic"
+: "normal";
 
 }
 
 
+
 function generate(){
 
-let text=document.getElementById("text").value;
-let color=document.getElementById("color").value;
-let size=document.getElementById("size").value;
+
+let text =
+document.getElementById("text").value;
+
+
+let color =
+document.getElementById("color").value;
+
+
+let size =
+Number(document.getElementById("size").value).toFixed(1);
+
+
 
 let extra="";
+
 
 if(document.getElementById("bold").checked)
 extra+=',"bold":true';
 
+
 if(document.getElementById("underline").checked)
 extra+=',"underlined":true';
+
 
 if(document.getElementById("italic").checked)
 extra+=',"italic":true';
 
 
-let command=
-`/summon minecraft:text_display ~ ~ ~ {text:{"text":"${text}","color":"${color}"${extra}},billboard:"${document.getElementById("billboard").value}",transformation:{translation:[0f,0f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}`;
 
-document.getElementById("output").value=command;
+let nbt =
+
+`{text:{"text":"${text}","color":"${color}"${extra}},billboard:"${document.getElementById("billboard").value}",transformation:{translation:[0f,0f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}`;
+
+
+
+let command;
+
+
+if(document.getElementById("mode").value==="summon"){
+
+command =
+`/summon minecraft:text_display ~ ~ ~ ${nbt}`;
 
 }
 
-update();
+else {
+
+command =
+`/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
+
+}
+
+
+
+document.getElementById("output").value=command;
+
+
+}
+
+
+
+function copyCommand(){
+
+navigator.clipboard.writeText(
+document.getElementById("output").value
+);
+
+}
+
+
+updatePreview();
 
 </script>
+
 
 </body>
 </html>
