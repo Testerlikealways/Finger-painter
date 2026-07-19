@@ -4,70 +4,17 @@
 <meta charset="UTF-8">
 <title>Minecraft Text Display Generator</title>
 <style>
-body{
-    background:#0d1117;
-    color:white;
-    font-family:Arial,sans-serif;
-    display:flex;
-    justify-content:center;
-    padding:40px;
-}
-.box{
-    width:520px;
-    background:#161b22;
-    padding:25px;
-    border-radius:20px;
-}
-h1{
-    text-align:center;
-    color:#58a6ff;
-}
-input,select,button,textarea{
-    width:100%;
-    margin-top:12px;
-    padding:12px;
-    border-radius:10px;
-    border:none;
-    background:#21262d;
-    color:white;
-    box-sizing:border-box;
-}
-input[type="checkbox"]{ width:auto; }
-label{ display:block; margin-top:10px; }
-button{
-    cursor:pointer;
-    background:#238636;
-    font-weight:bold;
-}
-.copy{ background:#1f6feb; }
-.preview{
-    margin-top:20px;
-    background:black;
-    padding:25px;
-    border-radius:12px;
-    text-align:center;
-    font-size:40px;
-    word-break:break-word;
-    min-height:60px;
-}
-textarea{
-    height:220px;
-    color:#7ee787;
-    font-family:monospace;
-    resize:vertical;
-    white-space:pre-wrap;
-}
-.error{
-    color:#ff5555;
-    font-size:13px;
-    margin-top:6px;
-    min-height:16px;
-}
-.hint{
-    color:#8b949e;
-    font-size:12px;
-    margin-top:4px;
-}
+body{background:#0d1117;color:white;font-family:Arial,sans-serif;display:flex;justify-content:center;padding:40px;}
+.box{width:520px;background:#161b22;padding:25px;border-radius:20px;}
+h1{text-align:center;color:#58a6ff;}
+input,select,button,textarea{width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;background:#21262d;color:white;box-sizing:border-box;}
+input[type="checkbox"]{width:auto;}
+label{display:block;margin-top:10px;}
+button{cursor:pointer;background:#238636;font-weight:bold;}
+.copy{background:#1f6feb;}
+.preview{margin-top:20px;background:black;padding:25px;border-radius:12px;text-align:center;font-size:40px;word-break:break-word;min-height:60px;}
+textarea{height:200px;color:#7ee787;font-family:monospace;resize:vertical;white-space:pre-wrap;}
+.error{color:#ff5555;font-size:13px;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -84,19 +31,15 @@ textarea{
     <option value="red">Red</option>
     <option value="blue">Blue</option>
     <option value="yellow">Yellow</option>
-    <option value="light_purple">Light Purple</option>
 </select>
 
 <input id="size" type="number" value="2.1" step="0.1" min="0.1" max="50">
-<div class="hint">Scale (recommended 1.0 – 4.0)</div>
-
 <label><input id="bold" type="checkbox" checked> Bold</label>
 <label><input id="shadow" type="checkbox" checked> Shadow</label>
 
 <select id="billboard">
     <option value="center">Center</option>
     <option value="fixed">Fixed</option>
-    <option value="vertical">Vertical</option>
 </select>
 
 <select id="mode">
@@ -106,63 +49,33 @@ textarea{
 
 <div class="preview" id="preview">Common</div>
 
-<button onclick="generate()">Generate Command</button>
-<button class="copy" onclick="copyCommand()">Copy Command</button>
-
+<button onclick="generate()">Generate</button>
+<button class="copy" onclick="copyCommand()">Copy</button>
 <textarea id="output" readonly></textarea>
 </div>
 
 <script>
-const colors = {
-    white: "#ffffff", green: "#55ff55", gold: "#ffaa00", red: "#ff5555",
-    blue: "#5555ff", yellow: "#ffff55", light_purple: "#ff55ff"
-};
-
-function escapeForJsonAndNbt(str) {
-    return str
-        .replace(/\\/g, "\\\\")
-        .replace(/"/g, '\\"')
-        .replace(/'/g, "\\'");
-}
-
-function getSize() {
-    let raw = Number(document.getElementById("size").value);
-    return (raw && raw > 0 && !isNaN(raw)) ? raw.toFixed(2) : null;
-}
-
-function updatePreview() {
-    const p = document.getElementById("preview");
-    const text = document.getElementById("text").value.trim();
-    p.innerText = text || "(empty)";
-    p.style.color = colors[document.getElementById("color").value];
-    p.style.fontWeight = document.getElementById("bold").checked ? "bold" : "normal";
-    
-    let size = Number(document.getElementById("size").value);
-    if (size > 0) {
-        let px = Math.min(Math.max(40 * (size / 2.1), 14), 140);
-        p.style.fontSize = px + "px";
-    }
+function escapeText(str) {
+    return str.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
 function buildNbt() {
-    if (!document.getElementById("text").value.trim()) {
+    const text = document.getElementById("text").value.trim();
+    if (!text) {
         document.getElementById("textError").innerText = "Text cannot be empty";
         return null;
     }
     document.getElementById("textError").innerText = "";
 
-    const size = getSize();
-    if (!size) return null;
-
-    const rawText = document.getElementById("text").value;
-    const escapedText = escapeForJsonAndNbt(rawText);
     const color = document.getElementById("color").value;
     const bold = document.getElementById("bold").checked ? ',"bold":true' : '';
     const shadow = document.getElementById("shadow").checked ? "1b" : "0b";
     const billboard = document.getElementById("billboard").value;
+    const size = Number(document.getElementById("size").value) || 2.1;
 
-    // Simplified transformation - removed right_rotation
-    return `{text:'{"text":"${escapedText}","color":"${color}"${bold}}',billboard:"${billboard}",shadow:${shadow},transformation:{translation:[0f,0.5f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f]}}`;
+    const jsonText = `{"text":"${escapeText(text)}","color":"${color}"${bold}}`;
+
+    return `{text:'${jsonText}',billboard:"${billboard}",shadow:${shadow},transformation:{translation:[0f,0.5f,0f],scale:[${size}f,${size}f,${size}f]}}`;
 }
 
 function buildCommand(nbt) {
@@ -173,8 +86,7 @@ function buildCommand(nbt) {
 
 function generate() {
     const nbt = buildNbt();
-    if (!nbt) return;
-    document.getElementById("output").value = buildCommand(nbt);
+    if (nbt) document.getElementById("output").value = buildCommand(nbt);
 }
 
 function copyCommand() {
@@ -183,13 +95,9 @@ function copyCommand() {
     navigator.clipboard.writeText(output.value);
 }
 
-// Event listeners
-document.querySelectorAll("input,select").forEach(el => {
-    el.addEventListener("input", updatePreview);
-    el.addEventListener("change", updatePreview);
-});
-
-updatePreview();
+document.querySelectorAll("input,select").forEach(el => el.addEventListener("input", () => {
+    document.getElementById("preview").innerText = document.getElementById("text").value || "(empty)";
+}));
 </script>
 </body>
 </html>
