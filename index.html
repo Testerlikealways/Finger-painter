@@ -8,7 +8,7 @@
 body{
     background:#0d1117;
     color:white;
-    font-family:Arial, sans-serif;
+    font-family:Arial,sans-serif;
     display:flex;
     justify-content:center;
     padding:40px;
@@ -19,7 +19,6 @@ body{
     background:#161b22;
     padding:25px;
     border-radius:20px;
-    box-shadow:0 0 30px #000;
 }
 
 h1{
@@ -37,22 +36,13 @@ input,select,button,textarea{
     color:white;
 }
 
-label{
-    display:block;
-    margin-top:10px;
-}
-
 input[type="checkbox"]{
     width:auto;
 }
 
-.preview{
-    margin-top:20px;
-    background:black;
-    padding:25px;
-    border-radius:12px;
-    text-align:center;
-    font-size:40px;
+label{
+    display:block;
+    margin-top:10px;
 }
 
 button{
@@ -65,8 +55,17 @@ button{
     background:#1f6feb;
 }
 
+.preview{
+    margin-top:20px;
+    background:black;
+    padding:25px;
+    border-radius:12px;
+    text-align:center;
+    font-size:40px;
+}
+
 textarea{
-    height:160px;
+    height:180px;
     color:#7ee787;
 }
 </style>
@@ -80,26 +79,16 @@ textarea{
 <h1>Text Display Generator</h1>
 
 
-<input id="text" value="Shop" placeholder="Text">
+<input id="text" value="Common">
 
 
 <select id="color">
 <option value="white">White</option>
-<option value="gray">Gray</option>
-<option value="dark_gray">Dark Gray</option>
-<option value="black">Black</option>
-<option value="red">Red</option>
-<option value="dark_red">Dark Red</option>
+<option value="green" selected>Green</option>
 <option value="gold">Gold</option>
-<option value="yellow">Yellow</option>
-<option value="green">Green</option>
-<option value="dark_green">Dark Green</option>
-<option value="aqua">Aqua</option>
-<option value="dark_aqua">Dark Aqua</option>
+<option value="red">Red</option>
 <option value="blue">Blue</option>
-<option value="dark_blue">Dark Blue</option>
-<option value="light_purple">Light Purple</option>
-<option value="dark_purple">Dark Purple</option>
+<option value="yellow">Yellow</option>
 </select>
 
 
@@ -111,15 +100,6 @@ textarea{
 Bold
 </label>
 
-<label>
-<input id="underline" type="checkbox">
-Underlined
-</label>
-
-<label>
-<input id="italic" type="checkbox">
-Cursive / Italic
-</label>
 
 <label>
 <input id="shadow" type="checkbox" checked>
@@ -128,36 +108,34 @@ Shadow
 
 
 <select id="billboard">
-<option value="center">Center</option>
-<option value="fixed">Fixed</option>
-<option value="vertical">Vertical</option>
-<option value="horizontal">Horizontal</option>
+
+<option value="center">
+Center
+</option>
+
+<option value="fixed">
+Fixed
+</option>
+
 </select>
 
 
 <select id="mode">
 
 <option value="summon">
-Summon Text Display
+Summon
 </option>
 
 <option value="merge">
-Merge Nearest Text Display
-</option>
-
-<option value="shadowon">
-Shadow ON (20 blocks)
-</option>
-
-<option value="shadowoff">
-Shadow OFF (20 blocks)
+Merge nearest
 </option>
 
 </select>
 
 
+
 <div class="preview" id="preview">
-Shop
+Common
 </div>
 
 
@@ -166,8 +144,8 @@ Generate
 </button>
 
 
-<button class="copy" onclick="copy()">
-Copy Command
+<button class="copy" onclick="copyCommand()">
+Copy
 </button>
 
 
@@ -181,154 +159,137 @@ Copy Command
 <script>
 
 
-const mcColors={
+const colors={
 
 white:"#ffffff",
-gray:"#aaaaaa",
-dark_gray:"#555555",
-black:"#000000",
-red:"#ff5555",
-dark_red:"#aa0000",
-gold:"#ffaa00",
-yellow:"#ffff55",
 green:"#55ff55",
-dark_green:"#00aa00",
-aqua:"#55ffff",
-dark_aqua:"#00aaaa",
+gold:"#ffaa00",
+red:"#ff5555",
 blue:"#5555ff",
-dark_blue:"#0000aa",
-light_purple:"#ff55ff",
-dark_purple:"#aa00aa"
+yellow:"#ffff55"
 
 };
 
 
 
-document.querySelectorAll("input,select").forEach(e=>{
-e.addEventListener("input",preview);
-e.addEventListener("change",preview);
-});
-
-
-
-document.getElementById("size").addEventListener("change",function(){
-this.value=Number(this.value).toFixed(1);
-});
-
-
-
-function preview(){
+function updatePreview(){
 
 let p=document.getElementById("preview");
 
 p.innerText=document.getElementById("text").value;
 
 p.style.color=
-mcColors[document.getElementById("color").value];
+colors[document.getElementById("color").value];
 
 p.style.fontWeight=
 document.getElementById("bold").checked
-?"bold":"normal";
-
-p.style.textDecoration=
-document.getElementById("underline").checked
-?"underline":"none";
-
-p.style.fontStyle=
-document.getElementById("italic").checked
-?"italic":"normal";
+?"bold"
+:"normal";
 
 }
+
+
+
+document.querySelectorAll("input,select")
+.forEach(e=>{
+e.addEventListener("input",updatePreview);
+e.addEventListener("change",updatePreview);
+});
 
 
 
 function generate(){
 
-let mode=document.getElementById("mode").value;
+
+let text=
+document.getElementById("text").value;
 
 
-if(mode==="shadowon"){
+let color=
+document.getElementById("color").value;
 
-document.getElementById("output").value=
-"/data merge entity @e[type=minecraft:text_display,distance=..20] {shadow:1b}";
 
-return;
+let size=
+Number(document.getElementById("size").value)
+.toFixed(1);
+
+
+
+let jsonExtra="";
+
+
+if(document.getElementById("bold").checked){
+
+jsonExtra+=',"bold":true';
 
 }
 
 
-if(mode==="shadowoff"){
 
-document.getElementById("output").value=
-"/data merge entity @e[type=minecraft:text_display,distance=..20] {shadow:0b}";
+let shadow=
 
-return;
-
-}
-
-
-let text=document.getElementById("text").value;
-let color=document.getElementById("color").value;
-
-let size=Number(document.getElementById("size").value).toFixed(1);
-
-
-let extra="";
-
-
-if(document.getElementById("bold").checked)
-extra+=',"bold":true';
-
-if(document.getElementById("underline").checked)
-extra+=',"underlined":true';
-
-if(document.getElementById("italic").checked)
-extra+=',"italic":true';
-
-
-let shadowNBT =
 document.getElementById("shadow").checked
-? ",shadow:1b"
-: ",shadow:0b";
+
+? "1b"
+
+: "0b";
 
 
-let billboard =
+
+let billboard=
+
 document.getElementById("billboard").value;
+
 
 
 let nbt =
 
-`{text:'{"text":"${text}","color":"${color}"${extra}}',billboard:"${billboard}"${shadowNBT},transformation:{translation:[0f,0f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}`;
+`{text:'{"text":"${text}","color":"${color}"${jsonExtra}}',billboard:"${billboard}",shadow:${shadow},transformation:{translation:[0f,0f,0f],scale:[${size}f,${size}f,${size}f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}`;
+
+
+
+
+let mode=
+document.getElementById("mode").value;
+
 
 
 if(mode==="summon"){
 
-document.getElementById("output").value =
+document.getElementById("output").value=
+
 `/summon minecraft:text_display ~ ~ ~ ${nbt}`;
 
 }
 
 else{
 
-document.getElementById("output").value =
+document.getElementById("output").value=
+
 `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
 
 }
 
+
+
 }
 
 
 
-function copy(){
+function copyCommand(){
 
 navigator.clipboard.writeText(
+
 document.getElementById("output").value
+
 );
 
 }
 
 
-preview();
+
+updatePreview();
+
 
 </script>
 
