@@ -27,7 +27,7 @@
 <body>
 <div class="box">
     <h1>Text Display Generator (1.21.11)</h1>
-    <p class="note">Full Minecraft Colors + Fixed SNBT</p>
+    <p class="note">Full Colors • Position: ~ ~ ~</p>
 
     <input id="text" value="Common" maxlength="200">
     <div class="error" id="textError"></div>
@@ -98,7 +98,7 @@ function buildNbt() {
 
 function buildCommand(nbt) {
     return document.getElementById("mode").value === "summon"
-        ? `/summon minecraft:text_display ~ ~1 ~ ${nbt}`
+        ? `/summon minecraft:text_display ~ ~ ~ ${nbt}`   // Changed to ~ ~ ~
         : `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
 }
 
@@ -117,7 +117,6 @@ function copyCommand() {
 document.querySelectorAll("input, select").forEach(e => {
     e.addEventListener("input", () => {
         document.getElementById("preview").innerText = document.getElementById("text").value || "(empty)";
-        document.getElementById("preview").style.color = getComputedStyle(document.getElementById("color")).color || "#ffffff";
     });
 });
 
