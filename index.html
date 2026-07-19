@@ -4,54 +4,63 @@
 <meta charset="UTF-8">
 <title>Minecraft Text Display Generator</title>
 <style>
-body{background:#0d1117;color:white;font-family:Arial,sans-serif;display:flex;justify-content:center;padding:40px;}
-.box{width:520px;background:#161b22;padding:25px;border-radius:20px;}
-h1{text-align:center;color:#58a6ff;}
-input,select,button,textarea{width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none;background:#21262d;color:white;box-sizing:border-box;}
-input[type="checkbox"]{width:auto;}
-label{display:block;margin-top:10px;}
-button{cursor:pointer;background:#238636;font-weight:bold;}
-.copy{background:#1f6feb;}
-.preview{margin-top:20px;background:black;padding:25px;border-radius:12px;text-align:center;font-size:40px;word-break:break-word;min-height:60px;}
-textarea{height:200px;color:#7ee787;font-family:monospace;resize:vertical;white-space:pre-wrap;}
-.error{color:#ff5555;font-size:13px;margin-top:6px;}
+    body { background:#0d1117; color:white; font-family:Arial,sans-serif; display:flex; justify-content:center; padding:40px; }
+    .box { width:520px; background:#161b22; padding:25px; border-radius:20px; }
+    h1 { text-align:center; color:#58a6ff; }
+    input, select, button, textarea { 
+        width:100%; margin-top:12px; padding:12px; border-radius:10px; 
+        border:none; background:#21262d; color:white; box-sizing:border-box; 
+    }
+    input[type="checkbox"] { width:auto; }
+    label { display:block; margin-top:10px; }
+    button { cursor:pointer; background:#238636; font-weight:bold; }
+    .copy { background:#1f6feb; }
+    .preview { 
+        margin-top:20px; background:black; padding:25px; border-radius:12px; 
+        text-align:center; font-size:40px; word-break:break-word; min-height:60px; 
+    }
+    textarea { height:210px; color:#7ee787; font-family:monospace; resize:vertical; }
+    .error { color:#ff5555; font-size:13px; margin-top:6px; min-height:20px; }
 </style>
 </head>
 <body>
 <div class="box">
-<h1>Text Display Generator</h1>
+    <h1>Text Display Generator</h1>
 
-<input id="text" value="Common" maxlength="200">
-<div class="error" id="textError"></div>
+    <input id="text" value="Common" maxlength="200">
+    <div class="error" id="textError"></div>
 
-<select id="color">
-    <option value="white">White</option>
-    <option value="green" selected>Green</option>
-    <option value="gold">Gold</option>
-    <option value="red">Red</option>
-    <option value="blue">Blue</option>
-    <option value="yellow">Yellow</option>
-</select>
+    <select id="color">
+        <option value="white">White</option>
+        <option value="green" selected>Green</option>
+        <option value="gold">Gold</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="yellow">Yellow</option>
+        <option value="light_purple">Purple</option>
+    </select>
 
-<input id="size" type="number" value="2.1" step="0.1" min="0.1" max="50">
-<label><input id="bold" type="checkbox" checked> Bold</label>
-<label><input id="shadow" type="checkbox" checked> Shadow</label>
+    <input id="size" type="number" value="2.0" step="0.1" min="0.1" max="10">
+    <label><input id="bold" type="checkbox" checked> Bold</label>
+    <label><input id="shadow" type="checkbox" checked> Shadow</label>
 
-<select id="billboard">
-    <option value="center">Center</option>
-    <option value="fixed">Fixed</option>
-</select>
+    <select id="billboard">
+        <option value="center">Center</option>
+        <option value="fixed">Fixed</option>
+        <option value="vertical">Vertical</option>
+    </select>
 
-<select id="mode">
-    <option value="summon">Summon</option>
-    <option value="merge" selected>Merge nearest</option>
-</select>
+    <select id="mode">
+        <option value="summon" selected>Summon (Recommended)</option>
+        <option value="merge">Merge nearest</option>
+    </select>
 
-<div class="preview" id="preview">Common</div>
+    <div class="preview" id="preview">Common</div>
 
-<button onclick="generate()">Generate</button>
-<button class="copy" onclick="copyCommand()">Copy</button>
-<textarea id="output" readonly></textarea>
+    <button onclick="generate()">Generate Command</button>
+    <button class="copy" onclick="copyCommand()">Copy Command</button>
+
+    <textarea id="output" readonly></textarea>
 </div>
 
 <script>
@@ -60,9 +69,9 @@ function escapeText(str) {
 }
 
 function buildNbt() {
-    const text = document.getElementById("text").value.trim();
-    if (!text) {
-        document.getElementById("textError").innerText = "Text cannot be empty";
+    const rawText = document.getElementById("text").value.trim();
+    if (!rawText) {
+        document.getElementById("textError").innerText = "Text cannot be empty!";
         return null;
     }
     document.getElementById("textError").innerText = "";
@@ -71,33 +80,43 @@ function buildNbt() {
     const bold = document.getElementById("bold").checked ? ',"bold":true' : '';
     const shadow = document.getElementById("shadow").checked ? "1b" : "0b";
     const billboard = document.getElementById("billboard").value;
-    const size = Number(document.getElementById("size").value) || 2.1;
+    const size = parseFloat(document.getElementById("size").value) || 2.0;
 
-    const jsonText = `{"text":"${escapeText(text)}","color":"${color}"${bold}}`;
+    const jsonComponent = `{"text":"${escapeText(rawText)}","color":"${color}"${bold}}`;
 
-    return `{text:'${jsonText}',billboard:"${billboard}",shadow:${shadow},transformation:{translation:[0f,0.5f,0f],scale:[${size}f,${size}f,${size}f]}}`;
+    // Minimal but working transformation
+    return `{text:'${jsonComponent}',billboard:"${billboard}",shadow:${shadow},transformation:{translation:[0f,0.5f,0f],scale:[${size}f,${size}f,${size}f]}}`;
 }
 
 function buildCommand(nbt) {
-    return document.getElementById("mode").value === "summon"
-        ? `/summon minecraft:text_display ~ ~ ~ ${nbt}`
-        : `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
+    if (document.getElementById("mode").value === "summon") {
+        return `/summon minecraft:text_display ~ ~1 ~ ${nbt}`;
+    } else {
+        return `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
+    }
 }
 
 function generate() {
     const nbt = buildNbt();
-    if (nbt) document.getElementById("output").value = buildCommand(nbt);
+    if (nbt) {
+        document.getElementById("output").value = buildCommand(nbt);
+    }
 }
 
 function copyCommand() {
-    const output = document.getElementById("output");
-    if (!output.value) generate();
-    navigator.clipboard.writeText(output.value);
+    const ta = document.getElementById("output");
+    if (!ta.value) generate();
+    navigator.clipboard.writeText(ta.value);
 }
 
-document.querySelectorAll("input,select").forEach(el => el.addEventListener("input", () => {
-    document.getElementById("preview").innerText = document.getElementById("text").value || "(empty)";
-}));
+// Live preview
+document.querySelectorAll("input, select").forEach(el => {
+    el.addEventListener("input", () => {
+        document.getElementById("preview").innerText = document.getElementById("text").value || "(empty)";
+    });
+});
+
+generate(); // initial generate
 </script>
 </body>
 </html>
