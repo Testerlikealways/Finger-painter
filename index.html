@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Minecraft Text Display Generator - 1.21.11 Paper</title>
+<title>Minecraft Text Display Generator - 1.21.11</title>
 <style>
     body { background:#0d1117; color:white; font-family:Arial,sans-serif; display:flex; justify-content:center; padding:40px; }
     .box { width:540px; background:#161b22; padding:25px; border-radius:20px; }
@@ -27,7 +27,7 @@
 <body>
 <div class="box">
     <h1>Text Display Generator (1.21.11)</h1>
-    <p class="note">Optimized for Paper 1.21.11</p>
+    <p class="note">Full Minecraft Colors + Fixed SNBT</p>
 
     <input id="text" value="Common" maxlength="200">
     <div class="error" id="textError"></div>
@@ -35,11 +35,20 @@
     <select id="color">
         <option value="white">White</option>
         <option value="green" selected>Green</option>
+        <option value="dark_green">Dark Green</option>
         <option value="gold">Gold</option>
-        <option value="red">Red</option>
-        <option value="blue">Blue</option>
         <option value="yellow">Yellow</option>
-        <option value="light_purple">Purple</option>
+        <option value="red">Red</option>
+        <option value="dark_red">Dark Red</option>
+        <option value="blue">Blue</option>
+        <option value="dark_blue">Dark Blue</option>
+        <option value="light_purple">Light Purple</option>
+        <option value="dark_purple">Dark Purple</option>
+        <option value="aqua">Aqua</option>
+        <option value="dark_aqua">Dark Aqua</option>
+        <option value="gray">Gray</option>
+        <option value="dark_gray">Dark Gray</option>
+        <option value="black">Black</option>
     </select>
 
     <input id="size" type="number" value="2.0" step="0.1" min="0.1" max="10">
@@ -80,7 +89,6 @@ function buildNbt() {
     const billboard = document.getElementById("billboard").value;
     const size = parseFloat(document.getElementById("size").value) || 2.0;
 
-    // New SNBT format for 1.21+
     let textNbt = `{text:"${raw.replace(/\\/g,'\\\\').replace(/"/g,'\\"')}",color:"${color}"`;
     if (bold) textNbt += ",bold:true";
     textNbt += "}";
@@ -89,17 +97,14 @@ function buildNbt() {
 }
 
 function buildCommand(nbt) {
-    if (document.getElementById("mode").value === "summon") {
-        return `/summon minecraft:text_display ~ ~1 ~ ${nbt}`;
-    }
-    return `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
+    return document.getElementById("mode").value === "summon"
+        ? `/summon minecraft:text_display ~ ~1 ~ ${nbt}`
+        : `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
 }
 
 function generate() {
     const nbt = buildNbt();
-    if (nbt) {
-        document.getElementById("output").value = buildCommand(nbt);
-    }
+    if (nbt) document.getElementById("output").value = buildCommand(nbt);
 }
 
 function copyCommand() {
@@ -109,9 +114,12 @@ function copyCommand() {
 }
 
 // Live preview
-document.querySelectorAll("input, select").forEach(e => e.addEventListener("input", () => {
-    document.getElementById("preview").innerText = document.getElementById("text").value || "(empty)";
-}));
+document.querySelectorAll("input, select").forEach(e => {
+    e.addEventListener("input", () => {
+        document.getElementById("preview").innerText = document.getElementById("text").value || "(empty)";
+        document.getElementById("preview").style.color = getComputedStyle(document.getElementById("color")).color || "#ffffff";
+    });
+});
 
 generate();
 </script>
