@@ -7,17 +7,17 @@
     body { background:#0d1117; color:white; font-family:Arial,sans-serif; display:flex; justify-content:center; padding:40px; }
     .box { width:540px; background:#161b22; padding:25px; border-radius:20px; }
     h1 { text-align:center; color:#58a6ff; }
-    input, select, button, textarea { 
-        width:100%; margin-top:12px; padding:12px; border-radius:10px; 
-        border:none; background:#21262d; color:white; box-sizing:border-box; 
+    input, select, button, textarea {
+        width:100%; margin-top:12px; padding:12px; border-radius:10px;
+        border:none; background:#21262d; color:white; box-sizing:border-box;
     }
     input[type="checkbox"] { width:auto; }
     label { display:block; margin-top:10px; }
     button { cursor:pointer; background:#238636; font-weight:bold; }
     .copy { background:#1f6feb; }
-    .preview { 
-        margin-top:20px; background:black; padding:25px; border-radius:12px; 
-        text-align:center; font-size:40px; word-break:break-word; min-height:70px; 
+    .preview {
+        margin-top:20px; background:black; padding:25px; border-radius:12px;
+        text-align:center; font-size:40px; word-break:break-word; min-height:70px;
     }
     textarea { height:260px; color:#7ee787; font-family:monospace; resize:vertical; }
     .error { color:#ff5555; font-size:13px; margin-top:6px; min-height:20px; }
@@ -28,10 +28,8 @@
 <div class="box">
     <h1>Text Display Generator (1.21.11)</h1>
     <p class="note">Full Colors • Position: ~ ~ ~</p>
-
     <input id="text" value="Common" maxlength="200">
     <div class="error" id="textError"></div>
-
     <select id="color">
         <option value="white">White</option>
         <option value="green" selected>Green</option>
@@ -50,30 +48,24 @@
         <option value="dark_gray">Dark Gray</option>
         <option value="black">Black</option>
     </select>
-
     <input id="size" type="number" value="2.0" step="0.1" min="0.1" max="10">
     <label><input id="bold" type="checkbox" checked> Bold</label>
+    <label><input id="underline" type="checkbox"> Underline</label>
     <label><input id="shadow" type="checkbox" checked> Shadow</label>
-
     <select id="billboard">
         <option value="center">Center</option>
         <option value="fixed">Fixed</option>
         <option value="vertical">Vertical</option>
     </select>
-
     <select id="mode">
         <option value="summon" selected>Summon</option>
         <option value="merge">Merge nearest</option>
     </select>
-
     <div class="preview" id="preview">Common</div>
-
     <button onclick="generate()">Generate Command</button>
     <button class="copy" onclick="copyCommand()">Copy Command</button>
-
     <textarea id="output" readonly></textarea>
 </div>
-
 <script>
 function buildNbt() {
     const raw = document.getElementById("text").value.trim();
@@ -82,15 +74,16 @@ function buildNbt() {
         return null;
     }
     document.getElementById("textError").innerText = "";
-
     const color = document.getElementById("color").value;
     const bold = document.getElementById("bold").checked;
+    const underline = document.getElementById("underline").checked;
     const shadow = document.getElementById("shadow").checked ? "1b" : "0b";
     const billboard = document.getElementById("billboard").value;
     const size = parseFloat(document.getElementById("size").value) || 2.0;
 
     let textNbt = `{text:"${raw.replace(/\\/g,'\\\\').replace(/"/g,'\\"')}",color:"${color}"`;
     if (bold) textNbt += ",bold:true";
+    if (underline) textNbt += ",underlined:true";
     textNbt += "}";
 
     return `{text:${textNbt},billboard:"${billboard}",shadow:${shadow},transformation:{translation:[0f,0.5f,0f],scale:[${size}f,${size}f,${size}f]}}`;
@@ -98,7 +91,7 @@ function buildNbt() {
 
 function buildCommand(nbt) {
     return document.getElementById("mode").value === "summon"
-        ? `/summon minecraft:text_display ~ ~ ~ ${nbt}`   // Changed to ~ ~ ~
+        ? `/summon minecraft:text_display ~ ~ ~ ${nbt}`
         : `/data merge entity @e[type=minecraft:text_display,sort=nearest,limit=1] ${nbt}`;
 }
 
@@ -116,7 +109,15 @@ function copyCommand() {
 // Live preview
 document.querySelectorAll("input, select").forEach(e => {
     e.addEventListener("input", () => {
-        document.getElementById("preview").innerText = document.getElementById("text").value || "(empty)";
+        const preview = document.getElementById("preview");
+        const text = document.getElementById("text").value || "(empty)";
+        preview.innerText = text;
+        
+        // Dynamic underline preview
+        preview.style.textDecoration = document.getElementById("underline").checked ? "underline" : "none";
+        
+        // Optional: show bold in preview too
+        preview.style.fontWeight = document.getElementById("bold").checked ? "bold" : "normal";
     });
 });
 
