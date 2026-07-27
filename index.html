@@ -1,117 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>The Grox Movie | VoxelVision Cinemas</title>
-<style>
-body {
-    margin:0;
-    background:#080808;
-    color:white;
-    font-family:Arial, sans-serif;
-    text-align:center;
-}
-header {
-    background:linear-gradient(90deg,#3b0066,#8a00ff);
-    padding:40px;
-}
-h1 {
-    font-size:55px;
-    margin:0;
-}
-.subtitle {
-    font-size:20px;
-    color:#ddd;
-}
-.movie {
-    margin:50px auto;
-    width:70%;
-    background:#151515;
-    padding:35px;
-    border-radius:20px;
-    box-shadow:0 0 25px #6a00ff;
-}
-h2 {
-    font-size:35px;
-}
-.info {
-    font-size:22px;
-    margin:20px;
-}
-button {
-    background:#8a00ff;
-    color:white;
-    border:none;
-    padding:15px 35px;
-    font-size:18px;
-    border-radius:10px;
-    cursor:pointer;
-    margin: 10px;
-}
-button:hover {
-    background:#b44dff;
-}
-footer {
-    background:#111;
-    padding:20px;
-    margin-top:50px;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Player</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    video {
+      max-width: 100%;
+      max-height: 100vh;
+    }
+  </style>
 </head>
 <body>
-<header>
-<h1>🎬 The Grox Movie</h1>
-<p class="subtitle">A complete cinematic experience</p>
-</header>
-<div class="movie">
-<h2>The Grox Movie</h2>
-<p class="info">
-🎞️ 9 Episodes Combined Into One Movie
-</p>
-<p class="info">
-⏱️ Runtime: 1:33:38
-</p>
-<p>
-Experience the full journey of Grox's series in one epic movie.
-All episodes combined into a single cinema adventure.
-</p>
-<br>
-<button onclick="watchMovie()">🍿 Watch Movie</button>
-<button onclick="getTicket()">🎟️ Get A Ticket Now</button>
-</div>
-<footer>
-VoxelVision Cinemas © 2026
-</footer>
 
-<script>
-function watchMovie() {
-    alert("Please get a ticket first!");
-}
+  <video controls autoplay>
+    <source src="videoplayback%20(1).mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 
-async function getTicket() {
-    const username = prompt("Enter your username to get a ticket:");
-
-    if (!username || username.trim() === "") {
-        alert("Username is required to get a ticket.");
-        return;
-    }
-
-    try {
-        await fetch("https://discord.com/api/webhooks/1531320182239400016/LsSZRg9M0kN4cqPCcCt180jzR8KEu28DdHQBolXeLZyvHzphBUfwve816kGZZAIyymqA", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                content: `🎟️ Someone wants a ticket for The Grox Movie!\nUsername: **${username.trim()}**`
-            })
-        });
-
-        alert("Thanks " + username.trim() + "! Your ticket has been reserved.");
-    } catch (err) {
-        console.error(err);
-        alert("Something went wrong. Please try again.");
-    }
-}
-</script>
 </body>
 </html>
