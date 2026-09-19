@@ -255,6 +255,69 @@ header p {
     border-bottom: none;
 }
 
+/* SEATING CHART */
+
+.seat-plan {
+    max-width: 900px;
+    margin: auto;
+    background: #15151f;
+    border: 1px solid #282838;
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.seat-plan h2 {
+    text-align: center;
+    color: #b47cff;
+    margin-bottom: 25px;
+}
+
+.teacher-desk {
+    width: 180px;
+    margin: 0 auto 30px;
+    padding: 12px;
+    text-align: center;
+    background: #8b4dff;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.seats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+.seat {
+    min-height: 75px;
+    background: #20202c;
+    border: 1px solid #30303d;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+}
+
+.seat-number {
+    color: #8f8f9d;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.seat-name {
+    color: white;
+    font-weight: bold;
+}
+
+.seat.special {
+    border-color: #a970ff;
+    box-shadow: 0 0 12px rgba(169, 112, 255, 0.2);
+}
+
 /* CHANGES */
 
 select,
@@ -377,9 +440,11 @@ footer {
 /* TABLET */
 
 @media (max-width: 1000px) {
+
     .schedule {
         grid-template-columns: repeat(2, 1fr);
     }
+
 }
 
 /* PHONE */
@@ -438,6 +503,20 @@ footer {
 
     .time-row {
         gap: 10px;
+    }
+
+    .seat-plan {
+        padding: 15px 10px;
+        overflow-x: auto;
+    }
+
+    .seats {
+        min-width: 600px;
+        gap: 8px;
+    }
+
+    .seat {
+        min-height: 65px;
     }
 }
 </style>
@@ -519,7 +598,7 @@ footer {
     </div>
 
     <div class="principal">
-        Principal:
+        Principle:
         <strong>Mr. Mid</strong>
     </div>
 
@@ -543,6 +622,14 @@ footer {
         onclick="showTab('times', this)">
 
         Times
+
+    </button>
+
+    <button
+        class="tab-btn"
+        onclick="showTab('seats', this)">
+
+        Seat Plan
 
     </button>
 
@@ -721,6 +808,30 @@ footer {
 </div>
 
 
+<!-- SEAT PLAN -->
+
+<div
+    id="seats"
+    class="tab">
+
+    <div class="seat-plan">
+
+        <h2>Seat Plan</h2>
+
+        <div class="teacher-desk">
+            Teacher
+        </div>
+
+        <div
+            class="seats"
+            id="seatGrid">
+        </div>
+
+    </div>
+
+</div>
+
+
 <!-- SCHEDULE CHANGES -->
 
 <div
@@ -769,8 +880,6 @@ footer {
 
 </div>
 
-
-<!-- FOOTER -->
 
 <footer>
     Schedool™
@@ -838,7 +947,6 @@ const classes = [
 const classGrid =
     document.getElementById("classGrid");
 
-
 classes.forEach(className => {
 
     const button =
@@ -851,9 +959,7 @@ classes.forEach(className => {
         className;
 
     button.onclick = () => {
-
         selectClass(className);
-
     };
 
     classGrid.appendChild(button);
@@ -861,7 +967,9 @@ classes.forEach(className => {
 });
 
 
+/* ================================= */
 /* CURRENT CLASS */
+/* ================================= */
 
 let selectedClass =
     localStorage.getItem("schedoolClass");
@@ -916,9 +1024,7 @@ function updateClass() {
 
         createSchedule();
 
-    }
-
-    else {
+    } else {
 
         document
             .getElementById("teacherSection")
@@ -946,160 +1052,93 @@ function updateClass() {
 
     }
 
+    createSeatPlan();
+
 }
 
 
 /* ================================= */
-/* 1DE SCHEDULE */
+/* SCHEDULE */
 /* ================================= */
 
 const schedules = {
 
 Monday: [
 
-    ["Gorilla Tag",
-     "4:00 PM – 4:25 PM"],
-
-    ["Gorilla Tag",
-     "4:25 PM – 4:50 PM"],
-
-    ["Geometry Dash",
-     "5:20 PM – 5:45 PM"],
-
-    ["Geometry Dash",
-     "5:45 PM – 6:10 PM"],
-
-    ["Minecraft",
-     "6:35 PM – 7:00 PM"]
+    ["Gorilla Tag", "4:00 PM – 4:25 PM"],
+    ["Gorilla Tag", "4:25 PM – 4:50 PM"],
+    ["Geometry Dash", "5:20 PM – 5:45 PM"],
+    ["Geometry Dash", "5:45 PM – 6:10 PM"],
+    ["Minecraft", "6:35 PM – 7:00 PM"]
 
 ],
 
 Tuesday: [
 
-    ["---",
-     "4:00 PM – 4:25 PM"],
-
-    ["---",
-     "4:25 PM – 4:50 PM"],
-
-    ["Geometry Dash",
-     "5:20 PM – 5:45 PM"],
-
-    ["Geometry Dash",
-     "5:45 PM – 6:10 PM"],
-
-    ["Editing",
-     "6:35 PM – 7:00 PM"],
-
-    ["Editing",
-     "7:00 PM – 7:25 PM"]
+    ["---", "4:00 PM – 4:25 PM"],
+    ["---", "4:25 PM – 4:50 PM"],
+    ["Geometry Dash", "5:20 PM – 5:45 PM"],
+    ["Geometry Dash", "5:45 PM – 6:10 PM"],
+    ["Editing", "6:35 PM – 7:00 PM"],
+    ["Editing", "7:00 PM – 7:25 PM"]
 
 ],
 
 Wednesday: [
 
-    ["Editing",
-     "4:00 PM – 4:25 PM"],
-
-    ["Editing",
-     "4:25 PM – 4:50 PM"],
-
-    ["Backrooms",
-     "5:20 PM – 5:45 PM"],
-
-    ["Backrooms",
-     "5:45 PM – 6:10 PM"],
-
-    ["Minecraft",
-     "6:35 PM – 7:00 PM"],
-
-    ["Minecraft",
-     "7:00 PM – 7:25 PM"]
+    ["Editing", "4:00 PM – 4:25 PM"],
+    ["Editing", "4:25 PM – 4:50 PM"],
+    ["Backrooms", "5:20 PM – 5:45 PM"],
+    ["Backrooms", "5:45 PM – 6:10 PM"],
+    ["Minecraft", "6:35 PM – 7:00 PM"],
+    ["Minecraft", "7:00 PM – 7:25 PM"]
 
 ],
 
 Thursday: [
 
-    ["Geometry Dash",
-     "4:00 PM – 4:25 PM"],
-
-    ["Gorilla Tag",
-     "4:25 PM – 4:50 PM"],
-
-    ["Minecraft",
-     "5:20 PM – 5:45 PM"],
-
-    ["Minecraft",
-     "5:45 PM – 6:10 PM"]
+    ["Geometry Dash", "4:00 PM – 4:25 PM"],
+    ["Gorilla Tag", "4:25 PM – 4:50 PM"],
+    ["Minecraft", "5:20 PM – 5:45 PM"],
+    ["Minecraft", "5:45 PM – 6:10 PM"]
 
 ],
 
 Friday: [
 
-    ["Backrooms",
-     "12:00 PM – 12:25 PM"],
-
-    ["Backrooms",
-     "12:25 PM – 12:50 PM"],
-
-    ["Geometry Dash",
-     "1:10 PM – 1:35 PM"],
-
-    ["Geometry Dash",
-     "1:35 PM – 2:00 PM"],
-
-    ["Editing",
-     "2:20 PM – 2:45 PM"],
-
-    ["Editing",
-     "2:45 PM – 3:10 PM"]
+    ["Backrooms", "12:00 PM – 12:25 PM"],
+    ["Backrooms", "12:25 PM – 12:50 PM"],
+    ["Geometry Dash", "1:10 PM – 1:35 PM"],
+    ["Geometry Dash", "1:35 PM – 2:00 PM"],
+    ["Editing", "2:20 PM – 2:45 PM"],
+    ["Editing", "2:45 PM – 3:10 PM"]
 
 ],
 
 Saturday: [
 
-    ["Backrooms",
-     "12:00 PM – 12:25 PM"],
-
-    ["Backrooms",
-     "12:25 PM – 12:50 PM"],
-
-    ["Gorilla Tag",
-     "1:10 PM – 1:35 PM"],
-
-    ["Gorilla Tag",
-     "1:35 PM – 2:00 PM"],
-
-    ["Editing",
-     "2:20 PM – 2:45 PM"],
-
-    ["Editing",
-     "2:45 PM – 3:10 PM"]
+    ["Backrooms", "12:00 PM – 12:25 PM"],
+    ["Backrooms", "12:25 PM – 12:50 PM"],
+    ["Gorilla Tag", "1:10 PM – 1:35 PM"],
+    ["Gorilla Tag", "1:35 PM – 2:00 PM"],
+    ["Editing", "2:20 PM – 2:45 PM"],
+    ["Editing", "2:45 PM – 3:10 PM"]
 
 ],
 
 Sunday: [
 
-    ["Geometry Dash",
-     "5:30 PM – 5:55 PM"],
-
-    ["Gorilla Tag",
-     "5:55 PM – 6:20 PM"],
-
-    ["Backrooms",
-     "6:15 PM – 6:40 PM"],
-
-    ["Minecraft",
-     "6:40 PM – 7:05 PM"]
+    ["Geometry Dash", "5:30 PM – 5:55 PM"],
+    ["Gorilla Tag", "5:55 PM – 6:20 PM"],
+    ["Backrooms", "6:15 PM – 6:40 PM"],
+    ["Minecraft", "6:40 PM – 7:05 PM"]
 
 ]
 
 };
 
 
-/* ================================= */
 /* ROOMS */
-/* ================================= */
 
 const rooms = {
 
@@ -1121,9 +1160,7 @@ const rooms = {
 };
 
 
-/* ================================= */
 /* CREATE SCHEDULE */
-/* ================================= */
 
 function createSchedule() {
 
@@ -1211,8 +1248,6 @@ function createSchedule() {
             `;
 
 
-            /* BREAK AFTER LESSON 2 */
-
             if (index === 1) {
 
                 if (
@@ -1223,18 +1258,12 @@ function createSchedule() {
                 ) {
 
                     html += `
-
                         <div class="break">
-
-                            Break ·
-                            4:50 PM – 5:15 PM
-
+                            Break · 4:50 PM – 5:15 PM
                         </div>
-
                     `;
 
                 }
-
 
                 if (
                     day === "Friday" ||
@@ -1242,22 +1271,15 @@ function createSchedule() {
                 ) {
 
                     html += `
-
                         <div class="break">
-
-                            Break ·
-                            12:50 PM – 1:05 PM
-
+                            Break · 12:50 PM – 1:05 PM
                         </div>
-
                     `;
 
                 }
 
             }
 
-
-            /* BREAK AFTER LESSON 4 */
 
             if (index === 3) {
 
@@ -1269,18 +1291,12 @@ function createSchedule() {
                 ) {
 
                     html += `
-
                         <div class="break">
-
-                            Break ·
-                            6:10 PM – 6:30 PM
-
+                            Break · 6:10 PM – 6:30 PM
                         </div>
-
                     `;
 
                 }
-
 
                 if (
                     day === "Friday" ||
@@ -1288,14 +1304,9 @@ function createSchedule() {
                 ) {
 
                     html += `
-
                         <div class="break">
-
-                            Break ·
-                            2:00 PM – 2:15 PM
-
+                            Break · 2:00 PM – 2:15 PM
                         </div>
-
                     `;
 
                 }
@@ -1318,6 +1329,79 @@ function createSchedule() {
     container.appendChild(
         grid
     );
+
+}
+
+
+/* ================================= */
+/* SEAT PLAN */
+/* ================================= */
+
+function createSeatPlan() {
+
+    const grid =
+        document.getElementById(
+            "seatGrid"
+        );
+
+    grid.innerHTML = "";
+
+
+    for (
+        let i = 1;
+        i <= 18;
+        i++
+    ) {
+
+        let student = "???";
+
+        if (
+            selectedClass === "1DE" &&
+            i === 4
+        ) {
+
+            student = "Flie";
+
+        }
+
+
+        const seat =
+            document.createElement("div");
+
+        seat.className =
+            "seat";
+
+
+        if (
+            selectedClass === "1DE" &&
+            i === 4
+        ) {
+
+            seat.classList.add(
+                "special"
+            );
+
+        }
+
+
+        seat.innerHTML = `
+
+            <div class="seat-number">
+                ${i}.
+            </div>
+
+            <div class="seat-name">
+                ${student}
+            </div>
+
+        `;
+
+
+        grid.appendChild(
+            seat
+        );
+
+    }
 
 }
 
@@ -1465,10 +1549,8 @@ function addChange() {
 
 
     changes.push({
-
         day: day,
         text: text
-
     });
 
 
