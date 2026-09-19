@@ -34,6 +34,8 @@ header p {
     margin-top: 5px;
 }
 
+/* CLASS BAR */
+
 .class-bar {
     max-width: 1200px;
     margin: 0 auto 20px;
@@ -41,6 +43,7 @@ header p {
     border: 1px solid #282838;
     padding: 15px;
     border-radius: 14px;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -66,6 +69,8 @@ header p {
     background: #9d68ff;
 }
 
+/* TEACHER */
+
 .teacher {
     text-align: center;
     margin: 15px 0 25px;
@@ -82,6 +87,18 @@ header p {
     font-weight: bold;
     margin-top: 4px;
 }
+
+.principal {
+    margin-top: 10px;
+    color: #aaa;
+    font-size: 15px;
+}
+
+.principal strong {
+    color: #c59cff;
+}
+
+/* TABS */
 
 .tabs {
     display: flex;
@@ -113,6 +130,8 @@ header p {
 .tab.active {
     display: block;
 }
+
+/* SCHEDULE */
 
 .schedule {
     max-width: 1200px;
@@ -181,6 +200,8 @@ header p {
     border-bottom: 1px dashed #333;
 }
 
+/* NO SCHEDULE */
+
 .no-schedule {
     max-width: 700px;
     margin: 40px auto;
@@ -199,6 +220,8 @@ header p {
 .no-schedule p {
     color: #888;
 }
+
+/* TIMES */
 
 .time-section,
 .changes {
@@ -231,6 +254,8 @@ header p {
 .time-row:last-child {
     border-bottom: none;
 }
+
+/* CHANGES */
 
 select,
 textarea,
@@ -274,6 +299,8 @@ textarea {
     cursor: pointer;
 }
 
+/* FOOTER */
+
 footer {
     text-align: center;
     color: #666;
@@ -289,20 +316,30 @@ footer {
     inset: 0;
     background: #0d0d14;
     z-index: 9999;
+
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 20px;
+    align-items: flex-start;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 25px 15px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .class-selection-box {
     width: 100%;
     max-width: 650px;
+
     background: #15151f;
     border: 1px solid #282838;
     border-radius: 18px;
+
     padding: 30px;
     text-align: center;
+
+    margin: auto 0;
 }
 
 .class-selection-box h1 {
@@ -325,14 +362,19 @@ footer {
     background: #20202c;
     border: 1px solid #30303d;
     color: white;
+
     padding: 13px 8px;
     border-radius: 10px;
+
     cursor: pointer;
+    margin: 0;
 }
 
 .class-option:hover {
     background: #8b4dff;
 }
+
+/* TABLET */
 
 @media (max-width: 1000px) {
     .schedule {
@@ -340,7 +382,10 @@ footer {
     }
 }
 
+/* PHONE */
+
 @media (max-width: 650px) {
+
     body {
         padding: 12px;
     }
@@ -362,13 +407,37 @@ footer {
         width: 100%;
     }
 
+    #classSelection {
+        padding: 15px 10px;
+        align-items: flex-start;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .class-selection-box {
+        padding: 20px 12px;
+        margin: 0 auto;
+    }
+
     .class-grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding-bottom: 20px;
+    }
+
+    .class-option {
+        padding: 14px 5px;
+        font-size: 14px;
+        min-height: 45px;
     }
 
     .tab-btn {
         flex: 1;
         min-width: 100px;
+    }
+
+    .time-row {
+        gap: 10px;
     }
 }
 </style>
@@ -377,380 +446,726 @@ footer {
 <body>
 
 <!-- CLASS SELECTION -->
+
 <div id="classSelection">
+
     <div class="class-selection-box">
+
         <h1>Schedool™</h1>
+
         <p>Select your class</p>
 
-        <div class="class-grid" id="classGrid"></div>
+        <div
+            class="class-grid"
+            id="classGrid">
+        </div>
+
     </div>
+
 </div>
+
+
+<!-- HEADER -->
 
 <header>
+
     <h1>Schedool™</h1>
+
     <p>Weekly timetable</p>
+
 </header>
 
+
+<!-- CLASS -->
+
 <div class="class-bar">
+
     <div class="class-info">
+
         Class:
-        <strong id="currentClass">1DE</strong>
+        <strong id="currentClass">
+            1DE
+        </strong>
+
     </div>
 
-    <button class="switch-btn" onclick="switchClass()">
+    <button
+        class="switch-btn"
+        onclick="switchClass()">
+
         Switch Class
+
     </button>
+
 </div>
 
-<!-- TEACHER -->
-<div class="teacher" id="teacherSection">
-    <div class="label">Teacher</div>
-    <div class="name" id="teacherName">Mr. Mid</div>
+
+<!-- TEACHER + PRINCIPAL -->
+
+<div
+    class="teacher"
+    id="teacherSection">
+
+    <div class="label">
+        Teacher
+    </div>
+
+    <div
+        class="name"
+        id="teacherName">
+
+        Mr. Mid
+
+    </div>
+
+    <div class="principal">
+        Principal:
+        <strong>Mr. Mid</strong>
+    </div>
+
 </div>
+
+
+<!-- TABS -->
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('schedule', this)">
+
+    <button
+        class="tab-btn active"
+        onclick="showTab('schedule', this)">
+
         Schedule
+
     </button>
 
-    <button class="tab-btn" onclick="showTab('times', this)">
+    <button
+        class="tab-btn"
+        onclick="showTab('times', this)">
+
         Times
+
     </button>
 
-    <button class="tab-btn" onclick="showTab('changes', this)">
+    <button
+        class="tab-btn"
+        onclick="showTab('changes', this)">
+
         Schedule Changes
+
     </button>
+
 </div>
 
-<!-- ================= SCHEDULE ================= -->
 
-<div id="schedule" class="tab active">
+<!-- SCHEDULE -->
+
+<div
+    id="schedule"
+    class="tab active">
+
     <div id="scheduleContent"></div>
-</div>
-
-<!-- ================= TIMES ================= -->
-
-<div id="times" class="tab">
-<div class="time-section">
-
-<div class="time-box">
-<h2>Monday – Thursday</h2>
-
-<div class="time-row"><span>Lesson 1</span><span>4:00 PM – 4:25 PM</span></div>
-<div class="time-row"><span>Lesson 2</span><span>4:25 PM – 4:50 PM</span></div>
-<div class="time-row"><span>Break</span><span>4:50 PM – 5:15 PM</span></div>
-<div class="time-row"><span>Lesson 3</span><span>5:20 PM – 5:45 PM</span></div>
-<div class="time-row"><span>Lesson 4</span><span>5:45 PM – 6:10 PM</span></div>
-<div class="time-row"><span>Break</span><span>6:10 PM – 6:30 PM</span></div>
-<div class="time-row"><span>Lesson 5</span><span>6:35 PM – 7:00 PM</span></div>
-<div class="time-row"><span>Lesson 6</span><span>7:00 PM – 7:25 PM</span></div>
 
 </div>
 
-<div class="time-box">
-<h2>Friday + Saturday</h2>
 
-<div class="time-row"><span>Lesson 1</span><span>12:00 PM – 12:25 PM</span></div>
-<div class="time-row"><span>Lesson 2</span><span>12:25 PM – 12:50 PM</span></div>
-<div class="time-row"><span>Break</span><span>12:50 PM – 1:05 PM</span></div>
-<div class="time-row"><span>Lesson 3</span><span>1:10 PM – 1:35 PM</span></div>
-<div class="time-row"><span>Lesson 4</span><span>1:35 PM – 2:00 PM</span></div>
-<div class="time-row"><span>Break</span><span>2:00 PM – 2:15 PM</span></div>
-<div class="time-row"><span>Lesson 5</span><span>2:20 PM – 2:45 PM</span></div>
-<div class="time-row"><span>Lesson 6</span><span>2:45 PM – 3:10 PM</span></div>
+<!-- TIMES -->
+
+<div
+    id="times"
+    class="tab">
+
+    <div class="time-section">
+
+        <div class="time-box">
+
+            <h2>Monday – Thursday</h2>
+
+            <div class="time-row">
+                <span>Lesson 1</span>
+                <span>4:00 PM – 4:25 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 2</span>
+                <span>4:25 PM – 4:50 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span>4:50 PM – 5:15 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 3</span>
+                <span>5:20 PM – 5:45 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 4</span>
+                <span>5:45 PM – 6:10 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span>6:10 PM – 6:30 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 5</span>
+                <span>6:35 PM – 7:00 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 6</span>
+                <span>7:00 PM – 7:25 PM</span>
+            </div>
+
+        </div>
+
+
+        <div class="time-box">
+
+            <h2>Friday + Saturday</h2>
+
+            <div class="time-row">
+                <span>Lesson 1</span>
+                <span>12:00 PM – 12:25 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 2</span>
+                <span>12:25 PM – 12:50 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span>12:50 PM – 1:05 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 3</span>
+                <span>1:10 PM – 1:35 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 4</span>
+                <span>1:35 PM – 2:00 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span>2:00 PM – 2:15 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 5</span>
+                <span>2:20 PM – 2:45 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 6</span>
+                <span>2:45 PM – 3:10 PM</span>
+            </div>
+
+        </div>
+
+
+        <div class="time-box">
+
+            <h2>Sunday</h2>
+
+            <div class="time-row">
+                <span>Lesson 1</span>
+                <span>5:30 PM – 5:55 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 2</span>
+                <span>5:55 PM – 6:20 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span>5:55 PM – 6:10 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 3</span>
+                <span>6:15 PM – 6:40 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 4</span>
+                <span>6:40 PM – 7:05 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span>7:05 PM – 7:20 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 5</span>
+                <span>7:25 PM – 7:50 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 6</span>
+                <span>7:50 PM – 8:15 PM</span>
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
-<div class="time-box">
-<h2>Sunday</h2>
 
-<div class="time-row"><span>Lesson 1</span><span>5:30 PM – 5:55 PM</span></div>
-<div class="time-row"><span>Lesson 2</span><span>5:55 PM – 6:20 PM</span></div>
-<div class="time-row"><span>Break</span><span>5:55 PM – 6:10 PM</span></div>
-<div class="time-row"><span>Lesson 3</span><span>6:15 PM – 6:40 PM</span></div>
-<div class="time-row"><span>Lesson 4</span><span>6:40 PM – 7:05 PM</span></div>
-<div class="time-row"><span>Break</span><span>7:05 PM – 7:20 PM</span></div>
-<div class="time-row"><span>Lesson 5</span><span>7:25 PM – 7:50 PM</span></div>
-<div class="time-row"><span>Lesson 6</span><span>7:50 PM – 8:15 PM</span></div>
+<!-- SCHEDULE CHANGES -->
 
-</div>
+<div
+    id="changes"
+    class="tab">
 
-</div>
-</div>
+    <div class="changes">
 
-<!-- ================= CHANGES ================= -->
+        <div class="change-form">
 
-<div id="changes" class="tab">
+            <h2>Schedule Changes</h2>
 
-<div class="changes">
+            <select id="changeDay">
 
-<div class="change-form">
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
 
-<h2>Schedule Changes</h2>
+            </select>
 
-<select id="changeDay">
-<option>Monday</option>
-<option>Tuesday</option>
-<option>Wednesday</option>
-<option>Thursday</option>
-<option>Friday</option>
-<option>Saturday</option>
-<option>Sunday</option>
-</select>
+            <textarea
+                id="changeText"
+                placeholder="Example: Lesson 3 changed from Minecraft to Geometry Dash">
+            </textarea>
 
-<textarea
-id="changeText"
-placeholder="Example: Lesson 3 changed from Minecraft to Geometry Dash">
-</textarea>
+            <button
+                class="add-btn"
+                onclick="addChange()">
 
-<button class="add-btn" onclick="addChange()">
-Add Change
-</button>
+                Add Change
 
-</div>
+            </button>
 
-<div id="changeList" class="change-list"></div>
+        </div>
+
+        <div
+            id="changeList"
+            class="change-list">
+        </div>
+
+    </div>
 
 </div>
-</div>
+
+
+<!-- FOOTER -->
 
 <footer>
     Schedool™
 </footer>
 
+
 <script>
 
-/* ================= CLASSES ================= */
+/* ================================= */
+/* CLASSES */
+/* ================================= */
 
 const classes = [
+
     "1DE",
     "1GR",
     "1RG",
+
     "2DE",
     "2GR",
     "2RG",
+
     "3DE",
     "3GR",
     "3RG",
+
     "4DE",
     "4GR",
     "4RG",
+
     "5DE",
     "5GR",
     "5RG",
+
     "6DE",
     "6GR",
     "6RG",
+
     "7DE",
     "7GR",
     "7RG",
+
     "8DE",
     "8GR",
     "8RG",
+
     "9DE",
     "9GR",
     "9RG",
+
     "10DE",
     "10GR",
     "10RG",
+
     "11DE",
     "11GR",
     "11RG",
+
     "12DE"
 ];
 
-let selectedClass = localStorage.getItem("schedoolClass");
 
-const classGrid = document.getElementById("classGrid");
+/* CREATE CLASS BUTTONS */
+
+const classGrid =
+    document.getElementById("classGrid");
+
 
 classes.forEach(className => {
 
-    const button = document.createElement("button");
+    const button =
+        document.createElement("button");
 
-    button.className = "class-option";
-    button.textContent = className;
+    button.className =
+        "class-option";
+
+    button.textContent =
+        className;
 
     button.onclick = () => {
+
         selectClass(className);
+
     };
 
     classGrid.appendChild(button);
+
 });
+
+
+/* CURRENT CLASS */
+
+let selectedClass =
+    localStorage.getItem("schedoolClass");
 
 
 function selectClass(className) {
 
-    selectedClass = className;
+    selectedClass =
+        className;
 
     localStorage.setItem(
         "schedoolClass",
         className
     );
 
-    document.getElementById("classSelection").style.display = "none";
+    document
+        .getElementById("classSelection")
+        .style.display = "none";
 
     updateClass();
+
 }
 
 
 function switchClass() {
 
-    document.getElementById("classSelection").style.display = "flex";
+    document
+        .getElementById("classSelection")
+        .style.display = "flex";
 
 }
 
 
 function updateClass() {
 
-    document.getElementById("currentClass").textContent =
+    document
+        .getElementById("currentClass")
+        .textContent =
         selectedClass;
+
 
     if (selectedClass === "1DE") {
 
-        document.getElementById("teacherName").textContent =
-            "Mr. Mid";
+        document
+            .getElementById("teacherSection")
+            .style.display = "block";
 
-        document.getElementById("teacherSection").style.display =
-            "block";
+        document
+            .getElementById("teacherName")
+            .textContent =
+            "Mr. Mid";
 
         createSchedule();
 
-    } else {
-
-        document.getElementById("teacherSection").style.display =
-            "none";
-
-        document.getElementById("scheduleContent").innerHTML = `
-            <div class="no-schedule">
-                <h2>No official Schedules</h2>
-                <p>
-                    There is currently no official schedule
-                    available for class ${selectedClass}.
-                </p>
-            </div>
-        `;
     }
+
+    else {
+
+        document
+            .getElementById("teacherSection")
+            .style.display = "none";
+
+        document
+            .getElementById("scheduleContent")
+            .innerHTML = `
+
+                <div class="no-schedule">
+
+                    <h2>
+                        No official Schedules
+                    </h2>
+
+                    <p>
+                        There is currently no official
+                        schedule available for class
+                        ${selectedClass}.
+                    </p>
+
+                </div>
+
+            `;
+
+    }
+
 }
 
 
-/* ================= 1DE SCHEDULE ================= */
+/* ================================= */
+/* 1DE SCHEDULE */
+/* ================================= */
 
 const schedules = {
 
 Monday: [
-    ["Gorilla Tag", "4:00 PM – 4:25 PM"],
-    ["Gorilla Tag", "4:25 PM – 4:50 PM"],
-    ["Geometry Dash", "5:20 PM – 5:45 PM"],
-    ["Geometry Dash", "5:45 PM – 6:10 PM"],
-    ["Minecraft", "6:35 PM – 7:00 PM"]
+
+    ["Gorilla Tag",
+     "4:00 PM – 4:25 PM"],
+
+    ["Gorilla Tag",
+     "4:25 PM – 4:50 PM"],
+
+    ["Geometry Dash",
+     "5:20 PM – 5:45 PM"],
+
+    ["Geometry Dash",
+     "5:45 PM – 6:10 PM"],
+
+    ["Minecraft",
+     "6:35 PM – 7:00 PM"]
+
 ],
 
 Tuesday: [
-    ["---", "4:00 PM – 4:25 PM"],
-    ["---", "4:25 PM – 4:50 PM"],
-    ["Geometry Dash", "5:20 PM – 5:45 PM"],
-    ["Geometry Dash", "5:45 PM – 6:10 PM"],
-    ["Editing", "6:35 PM – 7:00 PM"],
-    ["Editing", "7:00 PM – 7:25 PM"]
+
+    ["---",
+     "4:00 PM – 4:25 PM"],
+
+    ["---",
+     "4:25 PM – 4:50 PM"],
+
+    ["Geometry Dash",
+     "5:20 PM – 5:45 PM"],
+
+    ["Geometry Dash",
+     "5:45 PM – 6:10 PM"],
+
+    ["Editing",
+     "6:35 PM – 7:00 PM"],
+
+    ["Editing",
+     "7:00 PM – 7:25 PM"]
+
 ],
 
 Wednesday: [
-    ["Editing", "4:00 PM – 4:25 PM"],
-    ["Editing", "4:25 PM – 4:50 PM"],
-    ["Backrooms", "5:20 PM – 5:45 PM"],
-    ["Backrooms", "5:45 PM – 6:10 PM"],
-    ["Minecraft", "6:35 PM – 7:00 PM"],
-    ["Minecraft", "7:00 PM – 7:25 PM"]
+
+    ["Editing",
+     "4:00 PM – 4:25 PM"],
+
+    ["Editing",
+     "4:25 PM – 4:50 PM"],
+
+    ["Backrooms",
+     "5:20 PM – 5:45 PM"],
+
+    ["Backrooms",
+     "5:45 PM – 6:10 PM"],
+
+    ["Minecraft",
+     "6:35 PM – 7:00 PM"],
+
+    ["Minecraft",
+     "7:00 PM – 7:25 PM"]
+
 ],
 
 Thursday: [
-    ["Geometry Dash", "4:00 PM – 4:25 PM"],
-    ["Gorilla Tag", "4:25 PM – 4:50 PM"],
-    ["Minecraft", "5:20 PM – 5:45 PM"],
-    ["Minecraft", "5:45 PM – 6:10 PM"]
+
+    ["Geometry Dash",
+     "4:00 PM – 4:25 PM"],
+
+    ["Gorilla Tag",
+     "4:25 PM – 4:50 PM"],
+
+    ["Minecraft",
+     "5:20 PM – 5:45 PM"],
+
+    ["Minecraft",
+     "5:45 PM – 6:10 PM"]
+
 ],
 
 Friday: [
-    ["Backrooms", "12:00 PM – 12:25 PM"],
-    ["Backrooms", "12:25 PM – 12:50 PM"],
-    ["Geometry Dash", "1:10 PM – 1:35 PM"],
-    ["Geometry Dash", "1:35 PM – 2:00 PM"],
-    ["Editing", "2:20 PM – 2:45 PM"],
-    ["Editing", "2:45 PM – 3:10 PM"]
+
+    ["Backrooms",
+     "12:00 PM – 12:25 PM"],
+
+    ["Backrooms",
+     "12:25 PM – 12:50 PM"],
+
+    ["Geometry Dash",
+     "1:10 PM – 1:35 PM"],
+
+    ["Geometry Dash",
+     "1:35 PM – 2:00 PM"],
+
+    ["Editing",
+     "2:20 PM – 2:45 PM"],
+
+    ["Editing",
+     "2:45 PM – 3:10 PM"]
+
 ],
 
 Saturday: [
-    ["Backrooms", "12:00 PM – 12:25 PM"],
-    ["Backrooms", "12:25 PM – 12:50 PM"],
-    ["Gorilla Tag", "1:10 PM – 1:35 PM"],
-    ["Gorilla Tag", "1:35 PM – 2:00 PM"],
-    ["Editing", "2:20 PM – 2:45 PM"],
-    ["Editing", "2:45 PM – 3:10 PM"]
+
+    ["Backrooms",
+     "12:00 PM – 12:25 PM"],
+
+    ["Backrooms",
+     "12:25 PM – 12:50 PM"],
+
+    ["Gorilla Tag",
+     "1:10 PM – 1:35 PM"],
+
+    ["Gorilla Tag",
+     "1:35 PM – 2:00 PM"],
+
+    ["Editing",
+     "2:20 PM – 2:45 PM"],
+
+    ["Editing",
+     "2:45 PM – 3:10 PM"]
+
 ],
 
 Sunday: [
-    ["Geometry Dash", "5:30 PM – 5:55 PM"],
-    ["Gorilla Tag", "5:55 PM – 6:20 PM"],
-    ["Backrooms", "6:15 PM – 6:40 PM"],
-    ["Minecraft", "6:40 PM – 7:05 PM"]
+
+    ["Geometry Dash",
+     "5:30 PM – 5:55 PM"],
+
+    ["Gorilla Tag",
+     "5:55 PM – 6:20 PM"],
+
+    ["Backrooms",
+     "6:15 PM – 6:40 PM"],
+
+    ["Minecraft",
+     "6:40 PM – 7:05 PM"]
+
 ]
 
 };
 
 
-/* ================= ROOMS ================= */
+/* ================================= */
+/* ROOMS */
+/* ================================= */
 
 const rooms = {
 
-"Gorilla Tag":
-"Discord Channel Gtag VC",
+    "Gorilla Tag":
+        "Discord Channel Gtag VC",
 
-"Geometry Dash":
-"Discord Channel GD VC",
+    "Geometry Dash":
+        "Discord Channel GD VC",
 
-"Minecraft":
-"Discord Channel Minecraft VC",
+    "Minecraft":
+        "Discord Channel Minecraft VC",
 
-"Backrooms":
-"Discord Channel Backrooms VC",
+    "Backrooms":
+        "Discord Channel Backrooms VC",
 
-"Editing":
-"Discord Channel: Editing VC"
+    "Editing":
+        "Discord Channel: Editing VC"
 
 };
 
 
-/* ================= CREATE SCHEDULE ================= */
+/* ================================= */
+/* CREATE SCHEDULE */
+/* ================================= */
 
 function createSchedule() {
 
     const container =
-        document.getElementById("scheduleContent");
+        document.getElementById(
+            "scheduleContent"
+        );
 
     container.innerHTML = "";
 
     const grid =
         document.createElement("div");
 
-    grid.className = "schedule";
+    grid.className =
+        "schedule";
 
-    Object.entries(schedules).forEach(
-        ([day, lessons]) => {
+
+    Object.entries(schedules)
+        .forEach(([day, lessons]) => {
 
         const dayDiv =
             document.createElement("div");
 
-        dayDiv.className = "day";
+        dayDiv.className =
+            "day";
 
-        let html = `<h2>${day}</h2>`;
+        let html =
+            `<h2>${day}</h2>`;
+
 
         lessons.forEach(
             (lesson, index) => {
 
-            const subject = lesson[0];
-            const time = lesson[1];
+            const subject =
+                lesson[0];
+
+            const time =
+                lesson[1];
+
 
             html += `
+
                 <div class="lesson">
 
                     <div class="lesson-number">
@@ -759,9 +1174,15 @@ function createSchedule() {
 
                     ${
                         subject === "---"
+
                         ?
-                        `<div class="empty">---</div>`
+
+                        `<div class="empty">
+                            ---
+                        </div>`
+
                         :
+
                         `<div class="lesson-name">
                             ${subject}
                         </div>`
@@ -773,16 +1194,24 @@ function createSchedule() {
 
                     ${
                         rooms[subject]
+
                         ?
+
                         `<div class="room">
                             ${rooms[subject]}
                         </div>`
+
                         :
+
                         ""
                     }
 
                 </div>
+
             `;
+
+
+            /* BREAK AFTER LESSON 2 */
 
             if (index === 1) {
 
@@ -794,12 +1223,18 @@ function createSchedule() {
                 ) {
 
                     html += `
+
                         <div class="break">
-                            Break · 4:50 PM – 5:15 PM
+
+                            Break ·
+                            4:50 PM – 5:15 PM
+
                         </div>
+
                     `;
 
                 }
+
 
                 if (
                     day === "Friday" ||
@@ -807,14 +1242,22 @@ function createSchedule() {
                 ) {
 
                     html += `
+
                         <div class="break">
-                            Break · 12:50 PM – 1:05 PM
+
+                            Break ·
+                            12:50 PM – 1:05 PM
+
                         </div>
+
                     `;
 
                 }
 
             }
+
+
+            /* BREAK AFTER LESSON 4 */
 
             if (index === 3) {
 
@@ -826,12 +1269,18 @@ function createSchedule() {
                 ) {
 
                     html += `
+
                         <div class="break">
-                            Break · 6:10 PM – 6:30 PM
+
+                            Break ·
+                            6:10 PM – 6:30 PM
+
                         </div>
+
                     `;
 
                 }
+
 
                 if (
                     day === "Friday" ||
@@ -839,9 +1288,14 @@ function createSchedule() {
                 ) {
 
                     html += `
+
                         <div class="break">
-                            Break · 2:00 PM – 2:15 PM
+
+                            Break ·
+                            2:00 PM – 2:15 PM
+
                         </div>
+
                     `;
 
                 }
@@ -850,42 +1304,76 @@ function createSchedule() {
 
         });
 
-        dayDiv.innerHTML = html;
 
-        grid.appendChild(dayDiv);
+        dayDiv.innerHTML =
+            html;
+
+        grid.appendChild(
+            dayDiv
+        );
 
     });
 
-    container.appendChild(grid);
+
+    container.appendChild(
+        grid
+    );
+
 }
 
 
-/* ================= TABS ================= */
+/* ================================= */
+/* TABS */
+/* ================================= */
 
-function showTab(tabId, button) {
+function showTab(
+    tabId,
+    button
+) {
 
-    document.querySelectorAll(".tab")
+    document
+        .querySelectorAll(".tab")
         .forEach(tab => {
-            tab.classList.remove("active");
+
+            tab.classList.remove(
+                "active"
+            );
+
         });
 
-    document.querySelectorAll(".tab-btn")
+
+    document
+        .querySelectorAll(".tab-btn")
         .forEach(btn => {
-            btn.classList.remove("active");
+
+            btn.classList.remove(
+                "active"
+            );
+
         });
 
-    document.getElementById(tabId)
+
+    document
+        .getElementById(tabId)
         .classList.add("active");
 
-    button.classList.add("active");
+
+    button.classList.add(
+        "active"
+    );
+
 }
 
 
-/* ================= CHANGES ================= */
+/* ================================= */
+/* SCHEDULE CHANGES */
+/* ================================= */
 
 let changes =
     JSON.parse(
-        localStorage.getItem("schedoolChanges") || "[]"
+        localStorage.getItem(
+            "schedoolChanges"
+        ) || "[]"
     );
 
 
@@ -902,23 +1390,33 @@ function saveChanges() {
 function renderChanges() {
 
     const list =
-        document.getElementById("changeList");
+        document.getElementById(
+            "changeList"
+        );
 
     list.innerHTML = "";
+
 
     changes.forEach(
         (change, index) => {
 
         const div =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        div.className = "change";
+        div.className =
+            "change";
+
 
         div.innerHTML = `
+
             <button
                 class="delete-btn"
                 onclick="deleteChange(${index})">
+
                 Delete
+
             </button>
 
             <strong>
@@ -926,11 +1424,17 @@ function renderChanges() {
             </strong>
 
             <p style="margin-top:8px;">
+
                 ${escapeHTML(change.text)}
+
             </p>
+
         `;
 
-        list.appendChild(div);
+
+        list.appendChild(
+            div
+        );
 
     });
 
@@ -940,24 +1444,43 @@ function renderChanges() {
 function addChange() {
 
     const day =
-        document.getElementById("changeDay").value;
+        document
+            .getElementById(
+                "changeDay"
+            )
+            .value;
+
 
     const text =
-        document.getElementById("changeText")
-        .value.trim();
+        document
+            .getElementById(
+                "changeText"
+            )
+            .value
+            .trim();
 
-    if (!text) return;
+
+    if (!text)
+        return;
+
 
     changes.push({
+
         day: day,
         text: text
+
     });
+
 
     saveChanges();
 
     renderChanges();
 
-    document.getElementById("changeText")
+
+    document
+        .getElementById(
+            "changeText"
+        )
         .value = "";
 
 }
@@ -965,7 +1488,10 @@ function addChange() {
 
 function deleteChange(index) {
 
-    changes.splice(index, 1);
+    changes.splice(
+        index,
+        1
+    );
 
     saveChanges();
 
@@ -977,29 +1503,42 @@ function deleteChange(index) {
 function escapeHTML(text) {
 
     const div =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
-    div.textContent = text;
+    div.textContent =
+        text;
 
     return div.innerHTML;
+
 }
 
 
-/* ================= START ================= */
+/* ================================= */
+/* START */
+/* ================================= */
 
 if (selectedClass) {
 
-    document.getElementById("classSelection")
+    document
+        .getElementById(
+            "classSelection"
+        )
         .style.display = "none";
 
     updateClass();
 
 } else {
 
-    document.getElementById("classSelection")
+    document
+        .getElementById(
+            "classSelection"
+        )
         .style.display = "flex";
 
 }
+
 
 renderChanges();
 
