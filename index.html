@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Schedool</title>
+<title>Schedool™</title>
 
 <style>
 * {
@@ -15,13 +15,13 @@
 body {
     font-family: Arial, sans-serif;
     background: #0d0d14;
-    color: #fff;
+    color: white;
     padding: 20px;
 }
 
 header {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 header h1 {
@@ -32,6 +32,55 @@ header h1 {
 header p {
     color: #aaa;
     margin-top: 5px;
+}
+
+.class-bar {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    background: #15151f;
+    border: 1px solid #282838;
+    padding: 15px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.class-info strong {
+    color: #b47cff;
+}
+
+.switch-btn {
+    width: auto;
+    margin: 0;
+    background: #8b4dff;
+    border: none;
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 9px;
+    color: white;
+}
+
+.switch-btn:hover {
+    background: #9d68ff;
+}
+
+.teacher {
+    text-align: center;
+    margin: 15px 0 25px;
+}
+
+.teacher .label {
+    color: #888;
+    font-size: 13px;
+}
+
+.teacher .name {
+    color: #c59cff;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 4px;
 }
 
 .tabs {
@@ -49,7 +98,6 @@ header p {
     padding: 11px 18px;
     border-radius: 10px;
     cursor: pointer;
-    transition: 0.2s;
 }
 
 .tab-btn:hover,
@@ -67,8 +115,10 @@ header p {
 }
 
 .schedule {
+    max-width: 1200px;
+    margin: auto;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 15px;
 }
 
@@ -118,7 +168,7 @@ header p {
 .empty {
     color: #777;
     text-align: center;
-    padding: 15px 5px;
+    padding: 10px 5px;
 }
 
 .break {
@@ -131,12 +181,34 @@ header p {
     border-bottom: 1px dashed #333;
 }
 
-.time-section {
+.no-schedule {
+    max-width: 700px;
+    margin: 40px auto;
+    background: #15151f;
+    border: 1px solid #282838;
+    border-radius: 16px;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.no-schedule h2 {
+    color: #b47cff;
+    margin-bottom: 10px;
+}
+
+.no-schedule p {
+    color: #888;
+}
+
+.time-section,
+.changes {
     max-width: 800px;
     margin: auto;
 }
 
-.time-box {
+.time-box,
+.change-form,
+.change {
     background: #15151f;
     border: 1px solid #282838;
     border-radius: 14px;
@@ -158,18 +230,6 @@ header p {
 
 .time-row:last-child {
     border-bottom: none;
-}
-
-.changes {
-    max-width: 800px;
-    margin: auto;
-}
-
-.change-form {
-    background: #15151f;
-    padding: 20px;
-    border-radius: 14px;
-    border: 1px solid #282838;
 }
 
 select,
@@ -196,20 +256,8 @@ textarea {
     cursor: pointer;
 }
 
-.add-btn:hover {
-    background: #9d68ff;
-}
-
 .change-list {
     margin-top: 15px;
-}
-
-.change {
-    background: #15151f;
-    border: 1px solid #282838;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 10px;
 }
 
 .change strong {
@@ -226,7 +274,67 @@ textarea {
     cursor: pointer;
 }
 
-@media (max-width: 1100px) {
+footer {
+    text-align: center;
+    color: #666;
+    margin-top: 40px;
+    padding: 25px 0 10px;
+    font-size: 13px;
+}
+
+/* CLASS SELECTION */
+
+#classSelection {
+    position: fixed;
+    inset: 0;
+    background: #0d0d14;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.class-selection-box {
+    width: 100%;
+    max-width: 650px;
+    background: #15151f;
+    border: 1px solid #282838;
+    border-radius: 18px;
+    padding: 30px;
+    text-align: center;
+}
+
+.class-selection-box h1 {
+    color: #a970ff;
+    margin-bottom: 8px;
+}
+
+.class-selection-box p {
+    color: #888;
+    margin-bottom: 25px;
+}
+
+.class-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.class-option {
+    background: #20202c;
+    border: 1px solid #30303d;
+    color: white;
+    padding: 13px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.class-option:hover {
+    background: #8b4dff;
+}
+
+@media (max-width: 1000px) {
     .schedule {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -245,8 +353,17 @@ textarea {
         grid-template-columns: 1fr;
     }
 
-    .day {
-        padding: 13px;
+    .class-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .switch-btn {
+        width: 100%;
+    }
+
+    .class-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .tab-btn {
@@ -259,314 +376,56 @@ textarea {
 
 <body>
 
+<!-- CLASS SELECTION -->
+<div id="classSelection">
+    <div class="class-selection-box">
+        <h1>Schedool™</h1>
+        <p>Select your class</p>
+
+        <div class="class-grid" id="classGrid"></div>
+    </div>
+</div>
+
 <header>
-    <h1>Schedool</h1>
+    <h1>Schedool™</h1>
     <p>Weekly timetable</p>
 </header>
 
+<div class="class-bar">
+    <div class="class-info">
+        Class:
+        <strong id="currentClass">1DE</strong>
+    </div>
+
+    <button class="switch-btn" onclick="switchClass()">
+        Switch Class
+    </button>
+</div>
+
+<!-- TEACHER -->
+<div class="teacher" id="teacherSection">
+    <div class="label">Teacher</div>
+    <div class="name" id="teacherName">Mr. Mid</div>
+</div>
+
 <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('schedule', this)">Schedule</button>
-    <button class="tab-btn" onclick="showTab('times', this)">Times</button>
-    <button class="tab-btn" onclick="showTab('changes', this)">Schedule Changes</button>
+    <button class="tab-btn active" onclick="showTab('schedule', this)">
+        Schedule
+    </button>
+
+    <button class="tab-btn" onclick="showTab('times', this)">
+        Times
+    </button>
+
+    <button class="tab-btn" onclick="showTab('changes', this)">
+        Schedule Changes
+    </button>
 </div>
 
 <!-- ================= SCHEDULE ================= -->
 
 <div id="schedule" class="tab active">
-<div class="schedule">
-
-<!-- MONDAY -->
-<div class="day">
-<h2>Monday</h2>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 1</div>
-<div class="lesson-name">Gorilla Tag</div>
-<div class="lesson-time">4:00 PM – 4:25 PM</div>
-<div class="room">Discord Channel Gtag VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 2</div>
-<div class="lesson-name">Gorilla Tag</div>
-<div class="lesson-time">4:25 PM – 4:50 PM</div>
-<div class="room">Discord Channel Gtag VC</div>
-</div>
-
-<div class="break">Break · 4:50 PM – 5:15 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 3</div>
-<div class="lesson-name">Geometry Dash</div>
-<div class="lesson-time">5:20 PM – 5:45 PM</div>
-<div class="room">Discord Channel GD VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 4</div>
-<div class="lesson-name">Geometry Dash</div>
-<div class="lesson-time">5:45 PM – 6:10 PM</div>
-<div class="room">Discord Channel GD VC</div>
-</div>
-</div>
-
-<!-- TUESDAY -->
-<div class="day">
-<h2>Tuesday</h2>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 1</div>
-<div class="empty">---</div>
-<div class="lesson-time">4:00 PM – 4:25 PM</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 2</div>
-<div class="empty">---</div>
-<div class="lesson-time">4:25 PM – 4:50 PM</div>
-</div>
-
-<div class="break">Break · 4:50 PM – 5:15 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 3</div>
-<div class="lesson-name">Geometry Dash</div>
-<div class="lesson-time">5:20 PM – 5:45 PM</div>
-<div class="room">Discord Channel GD VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 4</div>
-<div class="lesson-name">Geometry Dash</div>
-<div class="lesson-time">5:45 PM – 6:10 PM</div>
-<div class="room">Discord Channel GD VC</div>
-</div>
-
-<div class="break">Break · 6:10 PM – 6:30 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 5</div>
-<div class="lesson-name">Editing</div>
-<div class="lesson-time">6:35 PM – 7:00 PM</div>
-<div class="room">Discord Channel: Editing VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 6</div>
-<div class="lesson-name">Editing</div>
-<div class="lesson-time">7:00 PM – 7:25 PM</div>
-<div class="room">Discord Channel: Editing VC</div>
-</div>
-</div>
-
-<!-- WEDNESDAY -->
-<div class="day">
-<h2>Wednesday</h2>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 1</div>
-<div class="lesson-name">Editing</div>
-<div class="lesson-time">4:00 PM – 4:25 PM</div>
-<div class="room">Discord Channel: Editing VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 2</div>
-<div class="lesson-name">Editing</div>
-<div class="lesson-time">4:25 PM – 4:50 PM</div>
-<div class="room">Discord Channel: Editing VC</div>
-</div>
-
-<div class="break">Break · 4:50 PM – 5:15 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 3</div>
-<div class="lesson-name">Backrooms</div>
-<div class="lesson-time">5:20 PM – 5:45 PM</div>
-<div class="room">Discord Channel Backrooms VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 4</div>
-<div class="lesson-name">Backrooms</div>
-<div class="lesson-time">5:45 PM – 6:10 PM</div>
-<div class="room">Discord Channel Backrooms VC</div>
-</div>
-</div>
-
-<!-- THURSDAY -->
-<div class="day">
-<h2>Thursday</h2>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 1</div>
-<div class="lesson-name">Geometry Dash</div>
-<div class="lesson-time">4:00 PM – 4:25 PM</div>
-<div class="room">Discord Channel GD VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 2</div>
-<div class="lesson-name">Gorilla Tag</div>
-<div class="lesson-time">4:25 PM – 4:50 PM</div>
-<div class="room">Discord Channel Gtag VC</div>
-</div>
-
-<div class="break">Break · 4:50 PM – 5:15 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 3</div>
-<div class="lesson-name">Minecraft</div>
-<div class="lesson-time">5:20 PM – 5:45 PM</div>
-<div class="room">Discord Channel Minecraft VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 4</div>
-<div class="lesson-name">Minecraft</div>
-<div class="lesson-time">5:45 PM – 6:10 PM</div>
-<div class="room">Discord Channel Minecraft VC</div>
-</div>
-</div>
-
-<!-- FRIDAY -->
-<div class="day">
-<h2>Friday</h2>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 1</div>
-<div class="lesson-name">Backrooms</div>
-<div class="lesson-time">12:00 PM – 12:25 PM</div>
-<div class="room">Discord Channel Backrooms VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 2</div>
-<div class="lesson-name">Backrooms</div>
-<div class="lesson-time">12:25 PM – 12:50 PM</div>
-<div class="room">Discord Channel Backrooms VC</div>
-</div>
-
-<div class="break">Break · 12:50 PM – 1:05 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 3</div>
-<div class="lesson-name">Geometry Dash</div>
-<div class="lesson-time">1:10 PM – 1:35 PM</div>
-<div class="room">Discord Channel GD VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 4</div>
-<div class="lesson-name">Geometry Dash</div>
-<div class="lesson-time">1:35 PM – 2:00 PM</div>
-<div class="room">Discord Channel GD VC</div>
-</div>
-
-<div class="break">Break · 2:00 PM – 2:15 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 5</div>
-<div class="lesson-name">Editing</div>
-<div class="lesson-time">2:20 PM – 2:45 PM</div>
-<div class="room">Discord Channel: Editing VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 6</div>
-<div class="lesson-name">Editing</div>
-<div class="lesson-time">2:45 PM – 3:10 PM</div>
-<div class="room">Discord Channel: Editing VC</div>
-</div>
-</div>
-
-<!-- SATURDAY -->
-<div class="day">
-<h2>Saturday</h2>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 1</div>
-<div class="lesson-name">Backrooms</div>
-<div class="lesson-time">12:00 PM – 12:25 PM</div>
-<div class="room">Discord Channel Backrooms VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 2</div>
-<div class="lesson-name">Backrooms</div>
-<div class="lesson-time">12:25 PM – 12:50 PM</div>
-<div class="room">Discord Channel Backrooms VC</div>
-</div>
-
-<div class="break">Break · 12:50 PM – 1:05 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 3</div>
-<div class="lesson-name">Gorilla Tag</div>
-<div class="lesson-time">1:10 PM – 1:35 PM</div>
-<div class="room">Discord Channel Gtag VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 4</div>
-<div class="lesson-name">Gorilla Tag</div>
-<div class="lesson-time">1:35 PM – 2:00 PM</div>
-<div class="room">Discord Channel Gtag VC</div>
-</div>
-
-<div class="break">Break · 2:00 PM – 2:15 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 5</div>
-<div class="lesson-name">Editing</div>
-<div class="lesson-time">2:20 PM – 2:45 PM</div>
-<div class="room">Discord Channel: Editing VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 6</div>
-<div class="lesson-name">Editing</div>
-<div class="lesson-time">2:45 PM – 3:10 PM</div>
-<div class="room">Discord Channel: Editing VC</div>
-</div>
-</div>
-
-<!-- SUNDAY -->
-<div class="day">
-<h2>Sunday</h2>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 1</div>
-<div class="lesson-name">Geometry Dash</div>
-<div class="lesson-time">5:30 PM – 5:55 PM</div>
-<div class="room">Discord Channel GD VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 2</div>
-<div class="lesson-name">Gorilla Tag</div>
-<div class="lesson-time">5:55 PM – 6:20 PM</div>
-<div class="room">Discord Channel Gtag VC</div>
-</div>
-
-<div class="break">Break · 5:55 PM – 6:10 PM</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 3</div>
-<div class="lesson-name">Backrooms</div>
-<div class="lesson-time">6:15 PM – 6:40 PM</div>
-<div class="room">Discord Channel Backrooms VC</div>
-</div>
-
-<div class="lesson">
-<div class="lesson-number">Lesson 4</div>
-<div class="lesson-name">Minecraft</div>
-<div class="lesson-time">6:40 PM – 7:05 PM</div>
-<div class="room">Discord Channel Minecraft VC</div>
-</div>
-</div>
-
-</div>
+    <div id="scheduleContent"></div>
 </div>
 
 <!-- ================= TIMES ================= -->
@@ -576,6 +435,7 @@ textarea {
 
 <div class="time-box">
 <h2>Monday – Thursday</h2>
+
 <div class="time-row"><span>Lesson 1</span><span>4:00 PM – 4:25 PM</span></div>
 <div class="time-row"><span>Lesson 2</span><span>4:25 PM – 4:50 PM</span></div>
 <div class="time-row"><span>Break</span><span>4:50 PM – 5:15 PM</span></div>
@@ -584,10 +444,12 @@ textarea {
 <div class="time-row"><span>Break</span><span>6:10 PM – 6:30 PM</span></div>
 <div class="time-row"><span>Lesson 5</span><span>6:35 PM – 7:00 PM</span></div>
 <div class="time-row"><span>Lesson 6</span><span>7:00 PM – 7:25 PM</span></div>
+
 </div>
 
 <div class="time-box">
 <h2>Friday + Saturday</h2>
+
 <div class="time-row"><span>Lesson 1</span><span>12:00 PM – 12:25 PM</span></div>
 <div class="time-row"><span>Lesson 2</span><span>12:25 PM – 12:50 PM</span></div>
 <div class="time-row"><span>Break</span><span>12:50 PM – 1:05 PM</span></div>
@@ -596,10 +458,12 @@ textarea {
 <div class="time-row"><span>Break</span><span>2:00 PM – 2:15 PM</span></div>
 <div class="time-row"><span>Lesson 5</span><span>2:20 PM – 2:45 PM</span></div>
 <div class="time-row"><span>Lesson 6</span><span>2:45 PM – 3:10 PM</span></div>
+
 </div>
 
 <div class="time-box">
 <h2>Sunday</h2>
+
 <div class="time-row"><span>Lesson 1</span><span>5:30 PM – 5:55 PM</span></div>
 <div class="time-row"><span>Lesson 2</span><span>5:55 PM – 6:20 PM</span></div>
 <div class="time-row"><span>Break</span><span>5:55 PM – 6:10 PM</span></div>
@@ -608,6 +472,7 @@ textarea {
 <div class="time-row"><span>Break</span><span>7:05 PM – 7:20 PM</span></div>
 <div class="time-row"><span>Lesson 5</span><span>7:25 PM – 7:50 PM</span></div>
 <div class="time-row"><span>Lesson 6</span><span>7:50 PM – 8:15 PM</span></div>
+
 </div>
 
 </div>
@@ -616,9 +481,11 @@ textarea {
 <!-- ================= CHANGES ================= -->
 
 <div id="changes" class="tab">
+
 <div class="changes">
 
 <div class="change-form">
+
 <h2>Schedule Changes</h2>
 
 <select id="changeDay">
@@ -631,9 +498,15 @@ textarea {
 <option>Sunday</option>
 </select>
 
-<textarea id="changeText" placeholder="Example: Lesson 3 changed from Minecraft to Geometry Dash"></textarea>
+<textarea
+id="changeText"
+placeholder="Example: Lesson 3 changed from Minecraft to Geometry Dash">
+</textarea>
 
-<button class="add-btn" onclick="addChange()">Add Change</button>
+<button class="add-btn" onclick="addChange()">
+Add Change
+</button>
+
 </div>
 
 <div id="changeList" class="change-list"></div>
@@ -641,47 +514,437 @@ textarea {
 </div>
 </div>
 
+<footer>
+    Schedool™
+</footer>
+
 <script>
+
+/* ================= CLASSES ================= */
+
+const classes = [
+    "1DE",
+    "1GR",
+    "1RG",
+    "2DE",
+    "2GR",
+    "2RG",
+    "3DE",
+    "3GR",
+    "3RG",
+    "4DE",
+    "4GR",
+    "4RG",
+    "5DE",
+    "5GR",
+    "5RG",
+    "6DE",
+    "6GR",
+    "6RG",
+    "7DE",
+    "7GR",
+    "7RG",
+    "8DE",
+    "8GR",
+    "8RG",
+    "9DE",
+    "9GR",
+    "9RG",
+    "10DE",
+    "10GR",
+    "10RG",
+    "11DE",
+    "11GR",
+    "11RG",
+    "12DE"
+];
+
+let selectedClass = localStorage.getItem("schedoolClass");
+
+const classGrid = document.getElementById("classGrid");
+
+classes.forEach(className => {
+
+    const button = document.createElement("button");
+
+    button.className = "class-option";
+    button.textContent = className;
+
+    button.onclick = () => {
+        selectClass(className);
+    };
+
+    classGrid.appendChild(button);
+});
+
+
+function selectClass(className) {
+
+    selectedClass = className;
+
+    localStorage.setItem(
+        "schedoolClass",
+        className
+    );
+
+    document.getElementById("classSelection").style.display = "none";
+
+    updateClass();
+}
+
+
+function switchClass() {
+
+    document.getElementById("classSelection").style.display = "flex";
+
+}
+
+
+function updateClass() {
+
+    document.getElementById("currentClass").textContent =
+        selectedClass;
+
+    if (selectedClass === "1DE") {
+
+        document.getElementById("teacherName").textContent =
+            "Mr. Mid";
+
+        document.getElementById("teacherSection").style.display =
+            "block";
+
+        createSchedule();
+
+    } else {
+
+        document.getElementById("teacherSection").style.display =
+            "none";
+
+        document.getElementById("scheduleContent").innerHTML = `
+            <div class="no-schedule">
+                <h2>No official Schedules</h2>
+                <p>
+                    There is currently no official schedule
+                    available for class ${selectedClass}.
+                </p>
+            </div>
+        `;
+    }
+}
+
+
+/* ================= 1DE SCHEDULE ================= */
+
+const schedules = {
+
+Monday: [
+    ["Gorilla Tag", "4:00 PM – 4:25 PM"],
+    ["Gorilla Tag", "4:25 PM – 4:50 PM"],
+    ["Geometry Dash", "5:20 PM – 5:45 PM"],
+    ["Geometry Dash", "5:45 PM – 6:10 PM"],
+    ["Minecraft", "6:35 PM – 7:00 PM"]
+],
+
+Tuesday: [
+    ["---", "4:00 PM – 4:25 PM"],
+    ["---", "4:25 PM – 4:50 PM"],
+    ["Geometry Dash", "5:20 PM – 5:45 PM"],
+    ["Geometry Dash", "5:45 PM – 6:10 PM"],
+    ["Editing", "6:35 PM – 7:00 PM"],
+    ["Editing", "7:00 PM – 7:25 PM"]
+],
+
+Wednesday: [
+    ["Editing", "4:00 PM – 4:25 PM"],
+    ["Editing", "4:25 PM – 4:50 PM"],
+    ["Backrooms", "5:20 PM – 5:45 PM"],
+    ["Backrooms", "5:45 PM – 6:10 PM"],
+    ["Minecraft", "6:35 PM – 7:00 PM"],
+    ["Minecraft", "7:00 PM – 7:25 PM"]
+],
+
+Thursday: [
+    ["Geometry Dash", "4:00 PM – 4:25 PM"],
+    ["Gorilla Tag", "4:25 PM – 4:50 PM"],
+    ["Minecraft", "5:20 PM – 5:45 PM"],
+    ["Minecraft", "5:45 PM – 6:10 PM"]
+],
+
+Friday: [
+    ["Backrooms", "12:00 PM – 12:25 PM"],
+    ["Backrooms", "12:25 PM – 12:50 PM"],
+    ["Geometry Dash", "1:10 PM – 1:35 PM"],
+    ["Geometry Dash", "1:35 PM – 2:00 PM"],
+    ["Editing", "2:20 PM – 2:45 PM"],
+    ["Editing", "2:45 PM – 3:10 PM"]
+],
+
+Saturday: [
+    ["Backrooms", "12:00 PM – 12:25 PM"],
+    ["Backrooms", "12:25 PM – 12:50 PM"],
+    ["Gorilla Tag", "1:10 PM – 1:35 PM"],
+    ["Gorilla Tag", "1:35 PM – 2:00 PM"],
+    ["Editing", "2:20 PM – 2:45 PM"],
+    ["Editing", "2:45 PM – 3:10 PM"]
+],
+
+Sunday: [
+    ["Geometry Dash", "5:30 PM – 5:55 PM"],
+    ["Gorilla Tag", "5:55 PM – 6:20 PM"],
+    ["Backrooms", "6:15 PM – 6:40 PM"],
+    ["Minecraft", "6:40 PM – 7:05 PM"]
+]
+
+};
+
+
+/* ================= ROOMS ================= */
+
+const rooms = {
+
+"Gorilla Tag":
+"Discord Channel Gtag VC",
+
+"Geometry Dash":
+"Discord Channel GD VC",
+
+"Minecraft":
+"Discord Channel Minecraft VC",
+
+"Backrooms":
+"Discord Channel Backrooms VC",
+
+"Editing":
+"Discord Channel: Editing VC"
+
+};
+
+
+/* ================= CREATE SCHEDULE ================= */
+
+function createSchedule() {
+
+    const container =
+        document.getElementById("scheduleContent");
+
+    container.innerHTML = "";
+
+    const grid =
+        document.createElement("div");
+
+    grid.className = "schedule";
+
+    Object.entries(schedules).forEach(
+        ([day, lessons]) => {
+
+        const dayDiv =
+            document.createElement("div");
+
+        dayDiv.className = "day";
+
+        let html = `<h2>${day}</h2>`;
+
+        lessons.forEach(
+            (lesson, index) => {
+
+            const subject = lesson[0];
+            const time = lesson[1];
+
+            html += `
+                <div class="lesson">
+
+                    <div class="lesson-number">
+                        Lesson ${index + 1}
+                    </div>
+
+                    ${
+                        subject === "---"
+                        ?
+                        `<div class="empty">---</div>`
+                        :
+                        `<div class="lesson-name">
+                            ${subject}
+                        </div>`
+                    }
+
+                    <div class="lesson-time">
+                        ${time}
+                    </div>
+
+                    ${
+                        rooms[subject]
+                        ?
+                        `<div class="room">
+                            ${rooms[subject]}
+                        </div>`
+                        :
+                        ""
+                    }
+
+                </div>
+            `;
+
+            if (index === 1) {
+
+                if (
+                    day === "Monday" ||
+                    day === "Tuesday" ||
+                    day === "Wednesday" ||
+                    day === "Thursday"
+                ) {
+
+                    html += `
+                        <div class="break">
+                            Break · 4:50 PM – 5:15 PM
+                        </div>
+                    `;
+
+                }
+
+                if (
+                    day === "Friday" ||
+                    day === "Saturday"
+                ) {
+
+                    html += `
+                        <div class="break">
+                            Break · 12:50 PM – 1:05 PM
+                        </div>
+                    `;
+
+                }
+
+            }
+
+            if (index === 3) {
+
+                if (
+                    day === "Monday" ||
+                    day === "Tuesday" ||
+                    day === "Wednesday" ||
+                    day === "Thursday"
+                ) {
+
+                    html += `
+                        <div class="break">
+                            Break · 6:10 PM – 6:30 PM
+                        </div>
+                    `;
+
+                }
+
+                if (
+                    day === "Friday" ||
+                    day === "Saturday"
+                ) {
+
+                    html += `
+                        <div class="break">
+                            Break · 2:00 PM – 2:15 PM
+                        </div>
+                    `;
+
+                }
+
+            }
+
+        });
+
+        dayDiv.innerHTML = html;
+
+        grid.appendChild(dayDiv);
+
+    });
+
+    container.appendChild(grid);
+}
+
+
+/* ================= TABS ================= */
+
 function showTab(tabId, button) {
-    document.querySelectorAll(".tab").forEach(tab => {
-        tab.classList.remove("active");
-    });
 
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-        btn.classList.remove("active");
-    });
+    document.querySelectorAll(".tab")
+        .forEach(tab => {
+            tab.classList.remove("active");
+        });
 
-    document.getElementById(tabId).classList.add("active");
+    document.querySelectorAll(".tab-btn")
+        .forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+    document.getElementById(tabId)
+        .classList.add("active");
+
     button.classList.add("active");
 }
 
-let changes = JSON.parse(localStorage.getItem("schedoolChanges") || "[]");
+
+/* ================= CHANGES ================= */
+
+let changes =
+    JSON.parse(
+        localStorage.getItem("schedoolChanges") || "[]"
+    );
+
 
 function saveChanges() {
-    localStorage.setItem("schedoolChanges", JSON.stringify(changes));
+
+    localStorage.setItem(
+        "schedoolChanges",
+        JSON.stringify(changes)
+    );
+
 }
 
+
 function renderChanges() {
-    const list = document.getElementById("changeList");
+
+    const list =
+        document.getElementById("changeList");
+
     list.innerHTML = "";
 
-    changes.forEach((change, index) => {
-        const div = document.createElement("div");
+    changes.forEach(
+        (change, index) => {
+
+        const div =
+            document.createElement("div");
+
         div.className = "change";
 
         div.innerHTML = `
-            <button class="delete-btn" onclick="deleteChange(${index})">Delete</button>
-            <strong>${escapeHTML(change.day)}</strong>
-            <p style="margin-top:8px;">${escapeHTML(change.text)}</p>
+            <button
+                class="delete-btn"
+                onclick="deleteChange(${index})">
+                Delete
+            </button>
+
+            <strong>
+                ${escapeHTML(change.day)}
+            </strong>
+
+            <p style="margin-top:8px;">
+                ${escapeHTML(change.text)}
+            </p>
         `;
 
         list.appendChild(div);
+
     });
+
 }
 
+
 function addChange() {
-    const day = document.getElementById("changeDay").value;
-    const text = document.getElementById("changeText").value.trim();
+
+    const day =
+        document.getElementById("changeDay").value;
+
+    const text =
+        document.getElementById("changeText")
+        .value.trim();
 
     if (!text) return;
 
@@ -691,24 +954,55 @@ function addChange() {
     });
 
     saveChanges();
+
     renderChanges();
 
-    document.getElementById("changeText").value = "";
+    document.getElementById("changeText")
+        .value = "";
+
 }
+
 
 function deleteChange(index) {
+
     changes.splice(index, 1);
+
     saveChanges();
+
     renderChanges();
+
 }
 
+
 function escapeHTML(text) {
-    const div = document.createElement("div");
+
+    const div =
+        document.createElement("div");
+
     div.textContent = text;
+
     return div.innerHTML;
 }
 
+
+/* ================= START ================= */
+
+if (selectedClass) {
+
+    document.getElementById("classSelection")
+        .style.display = "none";
+
+    updateClass();
+
+} else {
+
+    document.getElementById("classSelection")
+        .style.display = "flex";
+
+}
+
 renderChanges();
+
 </script>
 
 </body>
