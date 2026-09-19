@@ -362,6 +362,134 @@ textarea {
     cursor: pointer;
 }
 
+/* ================================= */
+/* AUTOCLICKER */
+/* ================================= */
+
+.autoclicker {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.clicker-header {
+    background: #15151f;
+    border: 1px solid #282838;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.clicker-header h2 {
+    color: #b47cff;
+    margin-bottom: 8px;
+}
+
+.click-counter {
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+}
+
+.click-rate {
+    color: #999;
+    margin-top: 5px;
+}
+
+.coconut-area {
+    background: #15151f;
+    border: 1px solid #282838;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.coconut {
+    width: 260px;
+    max-width: 80%;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: transform 0.08s ease;
+    filter: drop-shadow(0 0 18px rgba(169,112,255,0.25));
+}
+
+.coconut:hover {
+    transform: scale(1.04);
+}
+
+.coconut:active {
+    transform: scale(0.92);
+}
+
+.click-hint {
+    color: #777;
+    margin-top: 15px;
+}
+
+.upgrades {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.upgrade {
+    background: #15151f;
+    border: 1px solid #282838;
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+}
+
+.upgrade h3 {
+    color: #c59cff;
+    margin-bottom: 8px;
+}
+
+.upgrade p {
+    color: #888;
+    font-size: 13px;
+    min-height: 38px;
+}
+
+.upgrade button {
+    background: #8b4dff;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.upgrade button:hover {
+    background: #9d68ff;
+}
+
+.upgrade button:disabled {
+    background: #292936;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.reset-game {
+    display: block;
+    width: auto;
+    margin: 20px auto 0;
+    padding: 9px 15px;
+    background: #3a2020;
+    border: 1px solid #573030;
+    cursor: pointer;
+}
+
+.reset-game:hover {
+    background: #4a2525;
+}
+
+.offline-message {
+    color: #b47cff;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
 /* FOOTER */
 
 footer {
@@ -445,6 +573,10 @@ footer {
         grid-template-columns: repeat(2, 1fr);
     }
 
+    .upgrades {
+        grid-template-columns: 1fr 1fr;
+    }
+
 }
 
 /* PHONE */
@@ -517,6 +649,22 @@ footer {
 
     .seat {
         min-height: 65px;
+    }
+
+    .coconut {
+        width: 220px;
+    }
+
+    .coconut-area {
+        padding: 20px 10px;
+    }
+
+    .upgrades {
+        grid-template-columns: 1fr;
+    }
+
+    .click-counter {
+        font-size: 26px;
     }
 }
 </style>
@@ -638,6 +786,14 @@ footer {
         onclick="showTab('changes', this)">
 
         Schedule Changes
+
+    </button>
+
+    <button
+        class="tab-btn"
+        onclick="showTab('autoclicker', this)">
+
+        🥥 Autoclicker
 
     </button>
 
@@ -875,6 +1031,144 @@ footer {
             id="changeList"
             class="change-list">
         </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================================= -->
+<!-- AUTOCLICKER -->
+<!-- ================================= -->
+
+<div
+    id="autoclicker"
+    class="tab">
+
+    <div class="autoclicker">
+
+        <div class="clicker-header">
+
+            <h2>🥥 DrCoconut Clicker</h2>
+
+            <div
+                class="click-counter"
+                id="clickCounter">
+
+                0
+
+            </div>
+
+            <div class="click-rate">
+
+                <span id="clickPower">
+                    1
+                </span>
+                click(s) per click ·
+
+                <span id="autoRate">
+                    0
+                </span>
+                per second
+
+            </div>
+
+            <div
+                class="offline-message"
+                id="offlineMessage">
+            </div>
+
+        </div>
+
+
+        <div class="coconut-area">
+
+            <img
+                id="drCoconut"
+                class="coconut"
+                src="https://raw.githubusercontent.com/Testerlikealways/Finger-painter/main/DrCoconut.png"
+                alt="DrCoconut"
+                draggable="false"
+                onclick="clickCoconut()">
+
+            <div class="click-hint">
+                CLICK DRCOCONUT!
+            </div>
+
+        </div>
+
+
+        <div class="upgrades">
+
+            <div class="upgrade">
+
+                <h3>💪 Stronger Click</h3>
+
+                <p>
+                    Adds +1 click every time
+                    you click DrCoconut.
+                </p>
+
+                <button
+                    id="clickUpgradeButton"
+                    onclick="buyClickUpgrade()">
+
+                    Upgrade · 25
+
+                </button>
+
+            </div>
+
+
+            <div class="upgrade">
+
+                <h3>⚡ Auto Clicker</h3>
+
+                <p>
+                    Automatically generates
+                    clicks every second.
+                </p>
+
+                <button
+                    id="autoUpgradeButton"
+                    onclick="buyAutoClicker()">
+
+                    Buy · 100
+
+                </button>
+
+            </div>
+
+
+            <div class="upgrade">
+
+                <h3>🔥 Auto Power</h3>
+
+                <p>
+                    Makes every auto-clicker
+                    generate +1 more per second.
+                </p>
+
+                <button
+                    id="autoPowerButton"
+                    onclick="buyAutoPower()">
+
+                    Upgrade · 500
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="reset-game"
+            onclick="resetClicker()">
+
+            Reset Clicker Progress
+
+        </button>
 
     </div>
 
@@ -1598,8 +1892,413 @@ function escapeHTML(text) {
 
 
 /* ================================= */
+/* DRCOCONUT AUTOCLICKER */
+/* ================================= */
+
+const coconutSaveKey =
+    "schedoolDrCoconutClicker";
+
+let clicker = {
+
+    clicks: 0,
+
+    clickPower: 1,
+
+    autoClickers: 0,
+
+    autoPower: 1,
+
+    clickUpgradeCost: 25,
+
+    autoClickerCost: 100,
+
+    autoPowerCost: 500,
+
+    lastSaved: Date.now()
+
+};
+
+
+/* LOAD GAME */
+
+function loadClicker() {
+
+    const saved =
+        localStorage.getItem(
+            coconutSaveKey
+        );
+
+    if (saved) {
+
+        try {
+
+            const data =
+                JSON.parse(saved);
+
+            clicker = {
+                ...clicker,
+                ...data
+            };
+
+        } catch {
+
+            console.log(
+                "Could not load DrCoconut save."
+            );
+
+        }
+
+    }
+
+
+    const now =
+        Date.now();
+
+    const elapsed =
+        Math.max(
+            0,
+            Math.min(
+                (now - clicker.lastSaved) / 1000,
+                86400
+            )
+        );
+
+
+    if (
+        clicker.autoClickers > 0 &&
+        elapsed > 5
+    ) {
+
+        const offlineClicks =
+            Math.floor(
+                elapsed *
+                clicker.autoClickers *
+                clicker.autoPower
+            );
+
+        clicker.clicks +=
+            offlineClicks;
+
+
+        const message =
+            document.getElementById(
+                "offlineMessage"
+            );
+
+        message.textContent =
+            `While you were away, DrCoconut earned ${formatNumber(offlineClicks)} clicks!`;
+
+    }
+
+
+    clicker.lastSaved =
+        now;
+
+    saveClicker();
+    updateClickerUI();
+
+}
+
+
+/* SAVE GAME */
+
+function saveClicker() {
+
+    clicker.lastSaved =
+        Date.now();
+
+    localStorage.setItem(
+        coconutSaveKey,
+        JSON.stringify(clicker)
+    );
+
+}
+
+
+/* FORMAT NUMBERS */
+
+function formatNumber(number) {
+
+    if (number < 1000)
+        return Math.floor(number).toString();
+
+    if (number < 1000000)
+        return Math.floor(number).toLocaleString();
+
+    if (number < 1000000000)
+        return (number / 1000000).toFixed(2) + "M";
+
+    if (number < 1000000000000)
+        return (number / 1000000000).toFixed(2) + "B";
+
+    return (number / 1000000000000).toFixed(2) + "T";
+
+}
+
+
+/* MANUAL CLICK */
+
+function clickCoconut() {
+
+    clicker.clicks +=
+        clicker.clickPower;
+
+    updateClickerUI();
+
+    saveClicker();
+
+}
+
+
+/* BUY STRONGER CLICK */
+
+function buyClickUpgrade() {
+
+    if (
+        clicker.clicks <
+        clicker.clickUpgradeCost
+    )
+        return;
+
+
+    clicker.clicks -=
+        clicker.clickUpgradeCost;
+
+    clicker.clickPower +=
+        1;
+
+    clicker.clickUpgradeCost =
+        Math.ceil(
+            clicker.clickUpgradeCost * 1.65
+        );
+
+
+    updateClickerUI();
+    saveClicker();
+
+}
+
+
+/* BUY AUTO CLICKER */
+
+function buyAutoClicker() {
+
+    if (
+        clicker.clicks <
+        clicker.autoClickerCost
+    )
+        return;
+
+
+    clicker.clicks -=
+        clicker.autoClickerCost;
+
+    clicker.autoClickers +=
+        1;
+
+    clicker.autoClickerCost =
+        Math.ceil(
+            clicker.autoClickerCost * 1.35
+        );
+
+
+    updateClickerUI();
+    saveClicker();
+
+}
+
+
+/* BUY AUTO POWER */
+
+function buyAutoPower() {
+
+    if (
+        clicker.clicks <
+        clicker.autoPowerCost
+    )
+        return;
+
+
+    clicker.clicks -=
+        clicker.autoPowerCost;
+
+    clicker.autoPower +=
+        1;
+
+    clicker.autoPowerCost =
+        Math.ceil(
+            clicker.autoPowerCost * 2
+        );
+
+
+    updateClickerUI();
+    saveClicker();
+
+}
+
+
+/* UPDATE UI */
+
+function updateClickerUI() {
+
+    document
+        .getElementById("clickCounter")
+        .textContent =
+        formatNumber(clicker.clicks);
+
+
+    document
+        .getElementById("clickPower")
+        .textContent =
+        clicker.clickPower;
+
+
+    document
+        .getElementById("autoRate")
+        .textContent =
+        clicker.autoClickers *
+        clicker.autoPower;
+
+
+    document
+        .getElementById("clickUpgradeButton")
+        .textContent =
+        `Upgrade · ${formatNumber(clicker.clickUpgradeCost)}`;
+
+
+    document
+        .getElementById("autoUpgradeButton")
+        .textContent =
+        `Buy · ${formatNumber(clicker.autoClickerCost)}`;
+
+
+    document
+        .getElementById("autoPowerButton")
+        .textContent =
+        `Upgrade · ${formatNumber(clicker.autoPowerCost)}`;
+
+
+    document
+        .getElementById("clickUpgradeButton")
+        .disabled =
+        clicker.clicks <
+        clicker.clickUpgradeCost;
+
+
+    document
+        .getElementById("autoUpgradeButton")
+        .disabled =
+        clicker.clicks <
+        clicker.autoClickerCost;
+
+
+    document
+        .getElementById("autoPowerButton")
+        .disabled =
+        clicker.clicks <
+        clicker.autoPowerCost;
+
+}
+
+
+/* AUTO CLICK LOOP */
+
+setInterval(() => {
+
+    if (
+        clicker.autoClickers > 0
+    ) {
+
+        clicker.clicks +=
+            clicker.autoClickers *
+            clicker.autoPower;
+
+        updateClickerUI();
+
+        saveClicker();
+
+    }
+
+}, 1000);
+
+
+/* RESET */
+
+function resetClicker() {
+
+    const confirmed =
+        confirm(
+            "Reset ALL DrCoconut clicker progress?"
+        );
+
+    if (!confirmed)
+        return;
+
+
+    clicker = {
+
+        clicks: 0,
+
+        clickPower: 1,
+
+        autoClickers: 0,
+
+        autoPower: 1,
+
+        clickUpgradeCost: 25,
+
+        autoClickerCost: 100,
+
+        autoPowerCost: 500,
+
+        lastSaved: Date.now()
+
+    };
+
+
+    document
+        .getElementById(
+            "offlineMessage"
+        )
+        .textContent = "";
+
+
+    saveClicker();
+    updateClickerUI();
+
+}
+
+
+/* SAVE WHEN LEAVING */
+
+window.addEventListener(
+    "beforeunload",
+    saveClicker
+);
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if (
+            document.visibilityState ===
+            "hidden"
+        ) {
+
+            saveClicker();
+
+        }
+
+    }
+);
+
+
+/* ================================= */
 /* START */
 /* ================================= */
+
+loadClicker();
+
 
 if (selectedClass) {
 
