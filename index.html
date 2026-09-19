@@ -39,12 +39,13 @@ header {
 }
 
 .container {
-    width: 86%;
-    max-width: 1500px;
+    width: 90%;
+    max-width: 1600px;
     margin: 30px auto;
 }
 
 /* TABS */
+
 .tabs {
     display: flex;
     gap: 8px;
@@ -83,6 +84,8 @@ header {
     display: block;
 }
 
+/* HEADINGS */
+
 h1 {
     font-size: 32px;
     margin-bottom: 8px;
@@ -94,6 +97,7 @@ h1 {
 }
 
 /* SCHEDULE */
+
 .schedule {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -107,10 +111,20 @@ h1 {
     padding: 18px;
 }
 
+.day.weekend {
+    grid-column: span 1;
+}
+
 .day h2 {
     font-size: 20px;
     margin-bottom: 15px;
     color: #a9a1ff;
+}
+
+.day-note {
+    color: #777d8e;
+    font-size: 12px;
+    margin-bottom: 14px;
 }
 
 .lesson {
@@ -154,20 +168,32 @@ h1 {
 }
 
 /* TIMES */
+
+.times-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
 .times-box {
     background: #171a23;
     border: 1px solid #282c38;
     border-radius: 16px;
     padding: 22px;
-    max-width: 650px;
+}
+
+.times-box h2 {
+    color: #a9a1ff;
+    margin-bottom: 15px;
 }
 
 .time-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 5px;
+    padding: 13px 5px;
     border-bottom: 1px solid #282c38;
+    gap: 15px;
 }
 
 .time-row:last-child {
@@ -180,14 +206,126 @@ h1 {
 
 .time-value {
     color: #a9a1ff;
+    text-align: right;
 }
 
 .break-row {
     color: #777d8e;
 }
 
+/* CHANGES */
+
+.change-form {
+    background: #171a23;
+    border: 1px solid #282c38;
+    border-radius: 16px;
+    padding: 22px;
+    max-width: 700px;
+    margin-bottom: 25px;
+}
+
+.change-form label {
+    display: block;
+    color: #858999;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.change-form select,
+.change-form input,
+.change-form textarea {
+    width: 100%;
+    background: #20242f;
+    color: white;
+    border: 1px solid #303442;
+    border-radius: 9px;
+    padding: 12px;
+    margin-bottom: 15px;
+    outline: none;
+}
+
+.change-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.change-form select:focus,
+.change-form input:focus,
+.change-form textarea:focus {
+    border-color: #7c6cff;
+}
+
+.add-button {
+    background: #7c6cff;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.add-button:hover {
+    opacity: 0.85;
+}
+
+.changes-list {
+    display: grid;
+    gap: 12px;
+    max-width: 700px;
+}
+
+.change-card {
+    background: #171a23;
+    border: 1px solid #282c38;
+    border-left: 4px solid #7c6cff;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.change-day {
+    color: #a9a1ff;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.change-text {
+    color: #ddd;
+}
+
+.change-date {
+    color: #666c7c;
+    font-size: 11px;
+    margin-top: 8px;
+}
+
+.delete-button {
+    margin-top: 10px;
+    background: #292d38;
+    color: #aaa;
+    border: none;
+    border-radius: 7px;
+    padding: 7px 10px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background: #343945;
+    color: white;
+}
+
+.empty {
+    color: #666c7c;
+    background: #171a23;
+    border: 1px dashed #303442;
+    border-radius: 12px;
+    padding: 20px;
+}
+
 /* PHONE */
-@media (max-width: 750px) {
+
+@media (max-width: 900px) {
+
     header {
         padding: 18px 5%;
     }
@@ -195,6 +333,29 @@ h1 {
     .container {
         width: 92%;
         margin: 25px auto;
+    }
+
+    .schedule {
+        display: block;
+    }
+
+    .day {
+        margin-bottom: 18px;
+    }
+
+    .times-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .logo {
+        font-size: 24px;
+    }
+
+    .subtitle {
+        display: none;
     }
 
     h1 {
@@ -207,27 +368,20 @@ h1 {
 
     .tab {
         flex: 1;
-    }
-
-    .schedule {
-        display: block;
+        padding: 10px 8px;
     }
 
     .day {
-        margin-bottom: 18px;
         padding: 16px;
     }
 
-    .day h2 {
-        font-size: 19px;
-    }
-
     .time-row {
-        gap: 15px;
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .time-value {
-        text-align: right;
+        text-align: left;
     }
 }
 </style>
@@ -243,7 +397,9 @@ h1 {
 <div class="container">
 
     <!-- TABS -->
+
     <div class="tabs">
+
         <button class="tab active" onclick="showTab('schedule', this)">
             Schedule
         </button>
@@ -251,80 +407,93 @@ h1 {
         <button class="tab" onclick="showTab('times', this)">
             Times
         </button>
+
+        <button class="tab" onclick="showTab('changes', this)">
+            Schedule Changes
+        </button>
+
     </div>
 
 
-    <!-- SCHEDULE TAB -->
+    <!-- ================= SCHEDULE ================= -->
+
     <div id="schedule" class="tab-content active">
 
         <h1>Weekly Schedule</h1>
-        <p class="description">Monday – Friday</p>
+        <p class="description">
+            Monday – Sunday
+        </p>
 
         <div class="schedule">
 
             <!-- MONDAY -->
+
             <div class="day">
+
                 <h2>Monday</h2>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 1</div>
-                    <div class="subject">Minecraft</div>
+                    <div class="subject">Gorilla Tag</div>
                     <div class="time">4:00 PM – 4:25 PM</div>
-                    <div class="room">Room: Discord Channel Minecraft VC</div>
+                    <div class="room">Room: Discord Channel Gtag VC</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 2</div>
-                    <div class="subject">Minecraft</div>
+                    <div class="subject">Gorilla Tag</div>
                     <div class="time">4:25 PM – 4:50 PM</div>
-                    <div class="room">Room: Discord Channel Minecraft VC</div>
+                    <div class="room">Room: Discord Channel Gtag VC</div>
                 </div>
 
                 <div class="break">BREAK • 4:50 PM – 5:15 PM</div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 3</div>
-                    <div class="subject">Gorilla Tag</div>
+                    <div class="subject">Minecraft</div>
                     <div class="time">5:20 PM – 5:45 PM</div>
-                    <div class="room">Room: Discord Channel Gtag VC</div>
+                    <div class="room">Room: Discord Channel Minecraft VC</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 4</div>
-                    <div class="subject">Gorilla Tag</div>
+                    <div class="subject">Geometry Dash</div>
                     <div class="time">5:45 PM – 6:10 PM</div>
-                    <div class="room">Room: Discord Channel Gtag VC</div>
+                    <div class="room">Room: Discord Channel GD VC</div>
                 </div>
 
                 <div class="break">BREAK • 6:10 PM – 6:30 PM</div>
+
             </div>
 
 
             <!-- TUESDAY -->
+
             <div class="day">
+
                 <h2>Tuesday</h2>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 1</div>
-                    <div class="subject">Gorilla Tag</div>
+                    <div class="subject">Backrooms</div>
                     <div class="time">4:00 PM – 4:25 PM</div>
-                    <div class="room">Room: Discord Channel Gtag VC</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 2</div>
-                    <div class="subject">Gorilla Tag</div>
+                    <div class="subject">Backrooms</div>
                     <div class="time">4:25 PM – 4:50 PM</div>
-                    <div class="room">Room: Discord Channel Gtag VC</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
                 </div>
 
                 <div class="break">BREAK • 4:50 PM – 5:15 PM</div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 3</div>
-                    <div class="subject">Geometry Dash</div>
+                    <div class="subject">Gorilla Tag</div>
                     <div class="time">5:20 PM – 5:45 PM</div>
-                    <div class="room">Room: Discord Channel GD VC</div>
+                    <div class="room">Room: Discord Channel Gtag VC</div>
                 </div>
 
                 <div class="lesson">
@@ -335,11 +504,14 @@ h1 {
                 </div>
 
                 <div class="break">BREAK • 6:10 PM – 6:30 PM</div>
+
             </div>
 
 
             <!-- WEDNESDAY -->
+
             <div class="day">
+
                 <h2>Wednesday</h2>
 
                 <div class="lesson">
@@ -360,170 +532,433 @@ h1 {
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 3</div>
-                    <div class="subject">Minecraft</div>
+                    <div class="subject">Editing</div>
                     <div class="time">5:20 PM – 5:45 PM</div>
-                    <div class="room">Room: Discord Channel Minecraft VC</div>
+                    <div class="room">Room: Add room</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 4</div>
-                    <div class="subject">Gorilla Tag</div>
+                    <div class="subject">Editing</div>
                     <div class="time">5:45 PM – 6:10 PM</div>
-                    <div class="room">Room: Discord Channel Gtag VC</div>
+                    <div class="room">Room: Add room</div>
                 </div>
 
                 <div class="break">BREAK • 6:10 PM – 6:30 PM</div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 5</div>
-                    <div class="subject">Gorilla Tag</div>
+                    <div class="subject">Backrooms</div>
                     <div class="time">6:35 PM – 7:00 PM</div>
-                    <div class="room">Room: Discord Channel Gtag VC</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 6</div>
-                    <div class="subject">Geometry Dash</div>
+                    <div class="subject">Backrooms</div>
                     <div class="time">7:00 PM – 7:25 PM</div>
-                    <div class="room">Room: Discord Channel GD VC</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
                 </div>
+
             </div>
 
 
             <!-- THURSDAY -->
+
             <div class="day">
+
                 <h2>Thursday</h2>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 1</div>
-                    <div class="subject">Minecraft</div>
+                    <div class="subject">Editing</div>
                     <div class="time">4:00 PM – 4:25 PM</div>
-                    <div class="room">Room: Discord Channel Minecraft VC</div>
+                    <div class="room">Room: Add room</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 2</div>
-                    <div class="subject">Minecraft</div>
+                    <div class="subject">Editing</div>
                     <div class="time">4:25 PM – 4:50 PM</div>
-                    <div class="room">Room: Discord Channel Minecraft VC</div>
+                    <div class="room">Room: Add room</div>
                 </div>
 
                 <div class="break">BREAK • 4:50 PM – 5:15 PM</div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 3</div>
-                    <div class="subject">Geometry Dash</div>
+                    <div class="subject">Minecraft</div>
                     <div class="time">5:20 PM – 5:45 PM</div>
-                    <div class="room">Room: Discord Channel GD VC</div>
+                    <div class="room">Room: Discord Channel Minecraft VC</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 4</div>
-                    <div class="subject">Gorilla Tag</div>
+                    <div class="subject">Minecraft</div>
                     <div class="time">5:45 PM – 6:10 PM</div>
-                    <div class="room">Room: Discord Channel Gtag VC</div>
+                    <div class="room">Room: Discord Channel Minecraft VC</div>
                 </div>
 
                 <div class="break">BREAK • 6:10 PM – 6:30 PM</div>
+
             </div>
 
 
             <!-- FRIDAY -->
+
             <div class="day">
+
                 <h2>Friday</h2>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 1</div>
                     <div class="subject">Gorilla Tag</div>
-                    <div class="time">4:00 PM – 4:25 PM</div>
+                    <div class="time">12:00 PM – 12:25 PM</div>
                     <div class="room">Room: Discord Channel Gtag VC</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 2</div>
                     <div class="subject">Gorilla Tag</div>
-                    <div class="time">4:25 PM – 4:50 PM</div>
+                    <div class="time">12:25 PM – 12:50 PM</div>
                     <div class="room">Room: Discord Channel Gtag VC</div>
                 </div>
 
-                <div class="break">BREAK • 4:50 PM – 5:15 PM</div>
+                <div class="break">BREAK • 12:50 PM – 1:05 PM</div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 3</div>
                     <div class="subject">Geometry Dash</div>
-                    <div class="time">5:20 PM – 5:45 PM</div>
+                    <div class="time">1:10 PM – 1:35 PM</div>
                     <div class="room">Room: Discord Channel GD VC</div>
                 </div>
 
                 <div class="lesson">
                     <div class="lesson-number">Lesson 4</div>
-                    <div class="subject">Minecraft</div>
-                    <div class="time">5:45 PM – 6:10 PM</div>
-                    <div class="room">Room: Discord Channel Minecraft VC</div>
+                    <div class="subject">Backrooms</div>
+                    <div class="time">1:35 PM – 2:00 PM</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
                 </div>
 
-                <div class="break">BREAK • 6:10 PM – 6:30 PM</div>
+                <div class="break">BREAK • 2:00 PM – 2:15 PM</div>
+
+            </div>
+
+
+            <!-- SATURDAY -->
+
+            <div class="day">
+
+                <h2>Saturday</h2>
+
+                <div class="day-note">
+                    Only when not at Dad's place
+                </div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 1</div>
+                    <div class="subject">Gorilla Tag</div>
+                    <div class="time">12:00 PM – 12:25 PM</div>
+                    <div class="room">Room: Discord Channel Gtag VC</div>
+                </div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 2</div>
+                    <div class="subject">Gorilla Tag</div>
+                    <div class="time">12:25 PM – 12:50 PM</div>
+                    <div class="room">Room: Discord Channel Gtag VC</div>
+                </div>
+
+                <div class="break">BREAK • 12:50 PM – 1:05 PM</div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 3</div>
+                    <div class="subject">Editing</div>
+                    <div class="time">1:10 PM – 1:35 PM</div>
+                    <div class="room">Room: Add room</div>
+                </div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 4</div>
+                    <div class="subject">Editing</div>
+                    <div class="time">1:35 PM – 2:00 PM</div>
+                    <div class="room">Room: Add room</div>
+                </div>
+
+                <div class="break">BREAK • 2:00 PM – 2:15 PM</div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 5</div>
+                    <div class="subject">Backrooms</div>
+                    <div class="time">2:20 PM – 2:45 PM</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
+                </div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 6</div>
+                    <div class="subject">Backrooms</div>
+                    <div class="time">2:45 PM – 3:10 PM</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
+                </div>
+
+            </div>
+
+
+            <!-- SUNDAY -->
+
+            <div class="day">
+
+                <h2>Sunday</h2>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 1</div>
+                    <div class="subject">Backrooms</div>
+                    <div class="time">5:30 PM – 5:55 PM</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
+                </div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 2</div>
+                    <div class="subject">Backrooms</div>
+                    <div class="time">5:55 PM – 6:20 PM</div>
+                    <div class="room">Room: Discord Channel Backrooms VC</div>
+                </div>
+
+                <div class="break">BREAK • 5:55 PM – 6:10 PM</div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 3</div>
+                    <div class="subject">Gorilla Tag</div>
+                    <div class="time">6:15 PM – 6:40 PM</div>
+                    <div class="room">Room: Discord Channel Gtag VC</div>
+                </div>
+
+                <div class="lesson">
+                    <div class="lesson-number">Lesson 4</div>
+                    <div class="subject">Gorilla Tag</div>
+                    <div class="time">6:40 PM – 7:05 PM</div>
+                    <div class="room">Room: Discord Channel Gtag VC</div>
+                </div>
+
+                <div class="break">BREAK • 7:05 PM – 7:20 PM</div>
+
             </div>
 
         </div>
     </div>
 
 
-    <!-- TIMES TAB -->
+    <!-- ================= TIMES ================= -->
+
     <div id="times" class="tab-content">
 
         <h1>Lesson Times</h1>
-        <p class="description">Monday – Friday</p>
+        <p class="description">Different schedules depending on the day</p>
 
-        <div class="times-box">
+        <div class="times-grid">
 
-            <div class="time-row">
-                <span class="time-label">Lesson 1</span>
-                <span class="time-value">4:00 PM – 4:25 PM</span>
+            <!-- MONDAY-THURSDAY -->
+
+            <div class="times-box">
+
+                <h2>Monday – Thursday</h2>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 1</span>
+                    <span class="time-value">4:00 – 4:25 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 2</span>
+                    <span class="time-value">4:25 – 4:50 PM</span>
+                </div>
+
+                <div class="time-row break-row">
+                    <span>Break</span>
+                    <span>4:50 – 5:15 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 3</span>
+                    <span class="time-value">5:20 – 5:45 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 4</span>
+                    <span class="time-value">5:45 – 6:10 PM</span>
+                </div>
+
+                <div class="time-row break-row">
+                    <span>Break</span>
+                    <span>6:10 – 6:30 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 5</span>
+                    <span class="time-value">6:35 – 7:00 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 6</span>
+                    <span class="time-value">7:00 – 7:25 PM</span>
+                </div>
+
             </div>
 
-            <div class="time-row">
-                <span class="time-label">Lesson 2</span>
-                <span class="time-value">4:25 PM – 4:50 PM</span>
+
+            <!-- FRIDAY + SATURDAY -->
+
+            <div class="times-box">
+
+                <h2>Friday + Saturday</h2>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 1</span>
+                    <span class="time-value">12:00 – 12:25 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 2</span>
+                    <span class="time-value">12:25 – 12:50 PM</span>
+                </div>
+
+                <div class="time-row break-row">
+                    <span>Break</span>
+                    <span>12:50 – 1:05 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 3</span>
+                    <span class="time-value">1:10 – 1:35 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 4</span>
+                    <span class="time-value">1:35 – 2:00 PM</span>
+                </div>
+
+                <div class="time-row break-row">
+                    <span>Break</span>
+                    <span>2:00 – 2:15 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 5</span>
+                    <span class="time-value">2:20 – 2:45 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 6</span>
+                    <span class="time-value">2:45 – 3:10 PM</span>
+                </div>
+
             </div>
 
-            <div class="time-row break-row">
-                <span class="time-label">Break</span>
-                <span class="time-value">4:50 PM – 5:15 PM</span>
-            </div>
 
-            <div class="time-row">
-                <span class="time-label">Lesson 3</span>
-                <span class="time-value">5:20 PM – 5:45 PM</span>
-            </div>
+            <!-- SUNDAY -->
 
-            <div class="time-row">
-                <span class="time-label">Lesson 4</span>
-                <span class="time-value">5:45 PM – 6:10 PM</span>
-            </div>
+            <div class="times-box">
 
-            <div class="time-row break-row">
-                <span class="time-label">Break</span>
-                <span class="time-value">6:10 PM – 6:30 PM</span>
-            </div>
+                <h2>Sunday</h2>
 
-            <div class="time-row">
-                <span class="time-label">Lesson 5</span>
-                <span class="time-value">6:35 PM – 7:00 PM</span>
-            </div>
+                <div class="time-row">
+                    <span class="time-label">Lesson 1</span>
+                    <span class="time-value">5:30 – 5:55 PM</span>
+                </div>
 
-            <div class="time-row">
-                <span class="time-label">Lesson 6</span>
-                <span class="time-value">7:00 PM – 7:25 PM</span>
+                <div class="time-row">
+                    <span class="time-label">Lesson 2</span>
+                    <span class="time-value">5:55 – 6:20 PM</span>
+                </div>
+
+                <div class="time-row break-row">
+                    <span>Break</span>
+                    <span>5:55 – 6:10 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 3</span>
+                    <span class="time-value">6:15 – 6:40 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 4</span>
+                    <span class="time-value">6:40 – 7:05 PM</span>
+                </div>
+
+                <div class="time-row break-row">
+                    <span>Break</span>
+                    <span>7:05 – 7:20 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 5</span>
+                    <span class="time-value">7:25 – 7:50 PM</span>
+                </div>
+
+                <div class="time-row">
+                    <span class="time-label">Lesson 6</span>
+                    <span class="time-value">7:50 – 8:15 PM</span>
+                </div>
+
             </div>
 
         </div>
+    </div>
+
+
+    <!-- ================= SCHEDULE CHANGES ================= -->
+
+    <div id="changes" class="tab-content">
+
+        <h1>Schedule Changes</h1>
+
+        <p class="description">
+            Add a note whenever the schedule changes.
+        </p>
+
+        <div class="change-form">
+
+            <label for="changeDay">Which day?</label>
+
+            <select id="changeDay">
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+            </select>
+
+
+            <label for="changeText">What changed?</label>
+
+            <textarea
+                id="changeText"
+                placeholder="Example: Lesson 3 changed from Minecraft to Geometry Dash..."
+            ></textarea>
+
+
+            <button class="add-button" onclick="addChange()">
+                + Add Change
+            </button>
+
+        </div>
+
+
+        <div id="changesList" class="changes-list">
+        </div>
+
     </div>
 
 </div>
 
 
 <script>
+
+/* ================= TABS ================= */
+
 function showTab(tabName, button) {
 
     document.querySelectorAll(".tab-content").forEach(tab => {
@@ -535,8 +970,126 @@ function showTab(tabName, button) {
     });
 
     document.getElementById(tabName).classList.add("active");
+
     button.classList.add("active");
 }
+
+
+/* ================= SCHEDULE CHANGES ================= */
+
+let changes = JSON.parse(
+    localStorage.getItem("schedoolChanges") || "[]"
+);
+
+
+function saveChanges() {
+
+    localStorage.setItem(
+        "schedoolChanges",
+        JSON.stringify(changes)
+    );
+
+}
+
+
+function addChange() {
+
+    const day = document.getElementById("changeDay").value;
+
+    const text = document.getElementById("changeText").value.trim();
+
+    if (!text) {
+        alert("Write what changed first!");
+        return;
+    }
+
+    const change = {
+        day: day,
+        text: text,
+        date: new Date().toLocaleString()
+    };
+
+    changes.unshift(change);
+
+    saveChanges();
+
+    document.getElementById("changeText").value = "";
+
+    displayChanges();
+}
+
+
+function deleteChange(index) {
+
+    changes.splice(index, 1);
+
+    saveChanges();
+
+    displayChanges();
+}
+
+
+function displayChanges() {
+
+    const list = document.getElementById("changesList");
+
+    if (changes.length === 0) {
+
+        list.innerHTML = `
+            <div class="empty">
+                No schedule changes added yet.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    list.innerHTML = changes.map((change, index) => `
+
+        <div class="change-card">
+
+            <div class="change-day">
+                ${escapeHTML(change.day)}
+            </div>
+
+            <div class="change-text">
+                ${escapeHTML(change.text)}
+            </div>
+
+            <div class="change-date">
+                Added: ${escapeHTML(change.date)}
+            </div>
+
+            <button
+                class="delete-button"
+                onclick="deleteChange(${index})"
+            >
+                Delete
+            </button>
+
+        </div>
+
+    `).join("");
+}
+
+
+/* Prevent HTML injection in saved notes */
+
+function escapeHTML(text) {
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+
+/* Load saved changes */
+
+displayChanges();
+
 </script>
 
 </body>
