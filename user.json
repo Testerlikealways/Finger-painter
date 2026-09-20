@@ -1,1 +1,14 @@
-adsasd
+{
+  "users": [
+    {
+      "username": "MrMid",
+      "salt": "6ac4b616a00cf3858ae95eff56d9ee23",
+      "hash": "551ff59ad7f2dca8dd644963d42fe256e5d6734213690924729b63f3f6f4c1aa"
+    },
+    {
+      "username": "Pinny",
+      "salt": "b73c6036613131782d7db0890551d243",
+      "hash": "81bc81d7d6d13d07952c53752f6d3ca23d8aab75f6c62fa463ac21f305938138"
+    }
+  ]
+}
