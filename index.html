@@ -738,8 +738,6 @@ footer{
 
 <body>
 
-<!-- CLASS SELECTION -->
-
 <div id="classSelection">
 
     <div class="class-selection-box">
@@ -758,9 +756,6 @@ footer{
     </div>
 
 </div>
-
-
-<!-- HEADER -->
 
 <header>
 
@@ -802,9 +797,6 @@ footer{
 
 </header>
 
-
-<!-- CLASS -->
-
 <div class="class-bar">
 
     <div class="class-info">
@@ -828,9 +820,6 @@ footer{
     </button>
 
 </div>
-
-
-<!-- TEACHER -->
 
 <div
     class="teacher"
@@ -865,9 +854,6 @@ footer{
     </div>
 
 </div>
-
-
-<!-- TABS -->
 
 <div class="tabs">
 
@@ -918,9 +904,6 @@ footer{
 
 </div>
 
-
-<!-- SCHEDULE -->
-
 <div
     id="schedule"
     class="tab active">
@@ -928,9 +911,6 @@ footer{
     <div id="scheduleContent"></div>
 
 </div>
-
-
-<!-- TIMES -->
 
 <div
     id="times"
@@ -984,7 +964,6 @@ footer{
 
         </div>
 
-
         <div class="time-box">
 
             <h2>Friday + Saturday</h2>
@@ -1031,7 +1010,6 @@ footer{
 
         </div>
 
-
         <div class="time-box">
 
             <h2>Sunday</h2>
@@ -1067,9 +1045,6 @@ footer{
 
 </div>
 
-
-<!-- SEAT PLAN -->
-
 <div
     id="seats"
     class="tab">
@@ -1092,9 +1067,6 @@ footer{
     </div>
 
 </div>
-
-
-<!-- SCHEDULE CHANGES -->
 
 <div
     id="changes"
@@ -1164,9 +1136,6 @@ footer{
 
 </div>
 
-
-<!-- AUTOCLICKER -->
-
 <div
     id="autoclicker"
     class="tab">
@@ -1208,7 +1177,6 @@ footer{
 
         </div>
 
-
         <div class="coconut-area">
 
             <img
@@ -1224,7 +1192,6 @@ footer{
             </div>
 
         </div>
-
 
         <div class="upgrades">
 
@@ -1247,7 +1214,6 @@ footer{
 
             </div>
 
-
             <div class="upgrade">
 
                 <h3>⚡ Auto Clicker</h3>
@@ -1266,7 +1232,6 @@ footer{
                 </button>
 
             </div>
-
 
             <div class="upgrade">
 
@@ -1289,7 +1254,6 @@ footer{
 
         </div>
 
-
         <button
             class="reset-game"
             onclick="resetClicker()">
@@ -1302,11 +1266,9 @@ footer{
 
 </div>
 
-
 <footer>
     Schedool™
 </footer>
-
 
 <script>
 
@@ -1349,7 +1311,6 @@ classes.forEach(className=>{
 let selectedClass=
     localStorage.getItem("schedoolClass");
 
-
 function selectClass(className){
 
     selectedClass=className;
@@ -1367,7 +1328,6 @@ function selectClass(className){
 
 }
 
-
 function switchClass(){
 
     document
@@ -1375,7 +1335,6 @@ function switchClass(){
         .style.display="flex";
 
 }
-
 
 function updateClass(){
 
@@ -1548,7 +1507,6 @@ let currentLanguage=
     localStorage.getItem("schedoolLanguage")
     || "american";
 
-
 const translations={
 
     american:{
@@ -1560,6 +1518,7 @@ const translations={
         times:"Times",
         seats:"Seat Plan",
         changes:"Schedule Changes",
+        autoclicker:"🥥 Autoclicker",
         selectClass:"Select your class",
         translate:"🌐 Translate",
         changeLesson:"Change Lesson",
@@ -1580,6 +1539,7 @@ const translations={
         times:"Times",
         seats:"Seat Plan",
         changes:"Schedule Changes",
+        autoclicker:"🥥 Autoclicker",
         selectClass:"Select your class",
         translate:"🌐 Translate",
         changeLesson:"Change Lesson",
@@ -1600,6 +1560,7 @@ const translations={
         times:"Zeiten",
         seats:"Sitzplan",
         changes:"Stundenplanänderungen",
+        autoclicker:"🥥 Autoclicker",
         selectClass:"Wähle deine Klasse",
         translate:"🌐 Übersetzen",
         changeLesson:"Stunde ändern",
@@ -1626,7 +1587,6 @@ function toggleLanguages(){
 
 }
 
-
 function setLanguage(language){
 
     currentLanguage=language;
@@ -1644,93 +1604,74 @@ function setLanguage(language){
 
 }
 
-
 function applyLanguage(){
 
     const t=
         translations[currentLanguage];
 
-
     document
         .getElementById("weeklyText")
         .textContent=t.weekly;
-
 
     document
         .getElementById("classLabel")
         .textContent=t.classLabel;
 
-
     document
         .querySelector(".switch-btn")
         .textContent=t.switchClass;
-
 
     document
         .getElementById("teacherLabel")
         .textContent=t.teacher;
 
-
     document
         .getElementById("scheduleTab")
         .textContent=t.schedule;
-
 
     document
         .getElementById("timesTab")
         .textContent=t.times;
 
-
     document
         .getElementById("seatsTab")
         .textContent=t.seats;
-
 
     document
         .getElementById("changesTab")
         .textContent=t.changes;
 
-
     document
         .getElementById("autoclickerTab")
-        .textContent=t.autoclicker ||
-        "🥥 Autoclicker";
-
+        .textContent=t.autoclicker;
 
     document
         .getElementById("selectClassText")
         .textContent=t.selectClass;
 
-
     document
         .querySelector(".language-btn")
         .textContent=t.translate;
-
 
     document
         .getElementById("changeButton")
         .textContent=t.changeLesson;
 
-
     document
         .getElementById("resetScheduleButton")
         .textContent=t.resetSchedule;
-
 
     document
         .getElementById("seatPlanTitle")
         .textContent=t.seats;
 
-
     document
         .getElementById("changesTitle")
         .textContent=t.changes;
 
-
     document
         .getElementById("principleLabel")
         .textContent=t.principle;
-
 
     createSchedule();
     updateTimesDisplay();
@@ -1786,7 +1727,6 @@ const timeMap={
 
 };
 
-
 function convertTimeString(time){
 
     if(currentLanguage!=="german")
@@ -1829,7 +1769,6 @@ function createSchedule(){
 
     grid.className="schedule";
 
-
     Object.entries(schedules).forEach(
         ([day,lessons])=>{
 
@@ -1841,7 +1780,6 @@ function createSchedule(){
         let html=
             `<h2>${day}</h2>`;
 
-
         lessons.forEach(
             (lesson,index)=>{
 
@@ -1850,7 +1788,6 @@ function createSchedule(){
 
             const time=
                 convertTimeString(lesson[1]);
-
 
             html+=`
 
@@ -1889,7 +1826,6 @@ function createSchedule(){
 
             `;
 
-
             if(index===1){
 
                 if(
@@ -1913,7 +1849,6 @@ function createSchedule(){
 
                 }
 
-
                 if(
                     ["Friday","Saturday"].includes(day)
                 ){
@@ -1931,7 +1866,6 @@ function createSchedule(){
                 }
 
             }
-
 
             if(index===3){
 
@@ -1956,7 +1890,6 @@ function createSchedule(){
 
                 }
 
-
                 if(
                     ["Friday","Saturday"].includes(day)
                 ){
@@ -1977,13 +1910,11 @@ function createSchedule(){
 
         });
 
-
         dayDiv.innerHTML=html;
 
         grid.appendChild(dayDiv);
 
     });
-
 
     container.appendChild(grid);
 
@@ -2023,10 +1954,22 @@ function createSeatPlan(){
 
     grid.innerHTML="";
 
-
     for(let i=1;i<=18;i++){
 
         let student="???";
+
+        /* SEAT 3 = LUCAS */
+
+        if(
+            selectedClass==="1DE" &&
+            i===3
+        ){
+
+            student="Lucas";
+
+        }
+
+        /* SEAT 4 = FLIE */
 
         if(
             selectedClass==="1DE" &&
@@ -2037,22 +1980,21 @@ function createSeatPlan(){
 
         }
 
-
         const seat=
             document.createElement("div");
 
         seat.className="seat";
 
+        /* HIGHLIGHT LUCAS + FLIE */
 
         if(
             selectedClass==="1DE" &&
-            i===4
+            (i===3 || i===4)
         ){
 
             seat.classList.add("special");
 
         }
-
 
         seat.innerHTML=`
 
@@ -2065,7 +2007,6 @@ function createSeatPlan(){
             </div>
 
         `;
-
 
         grid.appendChild(seat);
 
@@ -2086,18 +2027,15 @@ function showTab(tabId,button){
             tab.classList.remove("active");
         });
 
-
     document
         .querySelectorAll(".tab-btn")
         .forEach(btn=>{
             btn.classList.remove("active");
         });
 
-
     document
         .getElementById(tabId)
         .classList.add("active");
-
 
     button.classList.add("active");
 
@@ -2125,7 +2063,6 @@ function updateLessonOptions(){
     const lessons=
         schedules[day];
 
-
     lessons.forEach(
         (lesson,index)=>{
 
@@ -2146,7 +2083,6 @@ function updateLessonOptions(){
 
 }
 
-
 function addScheduleChange(){
 
     const day=
@@ -2166,27 +2102,22 @@ function addScheduleChange(){
             "changeSubject"
         ).value;
 
-
     if(isNaN(lessonIndex))
         return;
 
-
     schedules[day][lessonIndex][0]=
         subject;
-
 
     localStorage.setItem(
         "schedoolSchedule",
         JSON.stringify(schedules)
     );
 
-
     createSchedule();
     updateLessonOptions();
     renderChanges();
 
 }
-
 
 function renderChanges(){
 
@@ -2197,7 +2128,6 @@ function renderChanges(){
 
     list.innerHTML="";
 
-
     Object.entries(schedules).forEach(
         ([day,lessons])=>{
 
@@ -2206,7 +2136,6 @@ function renderChanges(){
 
             const originalLesson=
                 originalSchedules[day]?.[index];
-
 
             if(
                 originalLesson &&
@@ -2217,7 +2146,6 @@ function renderChanges(){
                     document.createElement("div");
 
                 div.className="change";
-
 
                 div.innerHTML=`
 
@@ -2252,7 +2180,6 @@ function renderChanges(){
 
                 `;
 
-
                 list.appendChild(div);
 
             }
@@ -2260,7 +2187,6 @@ function renderChanges(){
         });
 
     });
-
 
     if(!list.innerHTML){
 
@@ -2287,25 +2213,21 @@ function renderChanges(){
 
 }
 
-
 function resetSingleChange(day,index){
 
     schedules[day][index][0]=
         originalSchedules[day][index][0];
-
 
     localStorage.setItem(
         "schedoolSchedule",
         JSON.stringify(schedules)
     );
 
-
     createSchedule();
     updateLessonOptions();
     renderChanges();
 
 }
-
 
 function resetSchedule(){
 
@@ -2319,25 +2241,21 @@ function resetSchedule(){
 
     }
 
-
     schedules=
         JSON.parse(
             JSON.stringify(originalSchedules)
         );
-
 
     localStorage.setItem(
         "schedoolSchedule",
         JSON.stringify(schedules)
     );
 
-
     createSchedule();
     updateLessonOptions();
     renderChanges();
 
 }
-
 
 function escapeHTML(text){
 
@@ -2378,14 +2296,12 @@ let clicker={
 
 };
 
-
 function loadClicker(){
 
     const saved=
         localStorage.getItem(
             coconutSaveKey
         );
-
 
     if(saved){
 
@@ -2400,10 +2316,8 @@ function loadClicker(){
 
     }
 
-
     const now=
         Date.now();
-
 
     const elapsed=
         Math.max(
@@ -2413,7 +2327,6 @@ function loadClicker(){
                 86400
             )
         );
-
 
     if(
         clicker.autoClickers>0 &&
@@ -2427,10 +2340,8 @@ function loadClicker(){
                 clicker.autoPower
             );
 
-
         clicker.clicks+=
             offlineClicks;
-
 
         document
             .getElementById(
@@ -2441,7 +2352,6 @@ function loadClicker(){
 
     }
 
-
     clicker.lastSaved=now;
 
     saveClicker();
@@ -2449,7 +2359,6 @@ function loadClicker(){
     updateClickerUI();
 
 }
-
 
 function saveClicker(){
 
@@ -2462,7 +2371,6 @@ function saveClicker(){
     );
 
 }
-
 
 function formatNumber(number){
 
@@ -2488,7 +2396,6 @@ function formatNumber(number){
 
 }
 
-
 function clickCoconut(){
 
     clicker.clicks+=
@@ -2499,7 +2406,6 @@ function clickCoconut(){
 
 }
 
-
 function buyClickUpgrade(){
 
     if(
@@ -2508,12 +2414,10 @@ function buyClickUpgrade(){
     )
         return;
 
-
     clicker.clicks-=
         clicker.clickUpgradeCost;
 
     clicker.clickPower++;
-
 
     clicker.clickUpgradeCost=
         Math.ceil(
@@ -2521,12 +2425,10 @@ function buyClickUpgrade(){
             1.65
         );
 
-
     updateClickerUI();
     saveClicker();
 
 }
-
 
 function buyAutoClicker(){
 
@@ -2536,12 +2438,10 @@ function buyAutoClicker(){
     )
         return;
 
-
     clicker.clicks-=
         clicker.autoClickerCost;
 
     clicker.autoClickers++;
-
 
     clicker.autoClickerCost=
         Math.ceil(
@@ -2549,12 +2449,10 @@ function buyAutoClicker(){
             1.35
         );
 
-
     updateClickerUI();
     saveClicker();
 
 }
-
 
 function buyAutoPower(){
 
@@ -2564,12 +2462,10 @@ function buyAutoPower(){
     )
         return;
 
-
     clicker.clicks-=
         clicker.autoPowerCost;
 
     clicker.autoPower++;
-
 
     clicker.autoPowerCost=
         Math.ceil(
@@ -2577,12 +2473,10 @@ function buyAutoPower(){
             2
         );
 
-
     updateClickerUI();
     saveClicker();
 
 }
-
 
 function updateClickerUI(){
 
@@ -2593,19 +2487,16 @@ function updateClickerUI(){
             clicker.clicks
         );
 
-
     document
         .getElementById("clickPower")
         .textContent=
         clicker.clickPower;
-
 
     document
         .getElementById("autoRate")
         .textContent=
         clicker.autoClickers*
         clicker.autoPower;
-
 
     document
         .getElementById(
@@ -2616,7 +2507,6 @@ function updateClickerUI(){
             clicker.clickUpgradeCost
         )}`;
 
-
     document
         .getElementById(
             "autoUpgradeButton"
@@ -2625,7 +2515,6 @@ function updateClickerUI(){
         `Buy · ${formatNumber(
             clicker.autoClickerCost
         )}`;
-
 
     document
         .getElementById(
@@ -2636,7 +2525,6 @@ function updateClickerUI(){
             clicker.autoPowerCost
         )}`;
 
-
     document
         .getElementById(
             "clickUpgradeButton"
@@ -2645,7 +2533,6 @@ function updateClickerUI(){
         clicker.clicks<
         clicker.clickUpgradeCost;
 
-
     document
         .getElementById(
             "autoUpgradeButton"
@@ -2653,7 +2540,6 @@ function updateClickerUI(){
         .disabled=
         clicker.clicks<
         clicker.autoClickerCost;
-
 
     document
         .getElementById(
@@ -2664,7 +2550,6 @@ function updateClickerUI(){
         clicker.autoPowerCost;
 
 }
-
 
 setInterval(()=>{
 
@@ -2683,7 +2568,6 @@ setInterval(()=>{
 
 },1000);
 
-
 function resetClicker(){
 
     if(
@@ -2692,7 +2576,6 @@ function resetClicker(){
         )
     )
         return;
-
 
     clicker={
 
@@ -2714,25 +2597,21 @@ function resetClicker(){
 
     };
 
-
     document
         .getElementById(
             "offlineMessage"
         )
         .textContent="";
 
-
     saveClicker();
     updateClickerUI();
 
 }
 
-
 window.addEventListener(
     "beforeunload",
     saveClicker
 );
-
 
 document.addEventListener(
     "visibilitychange",
