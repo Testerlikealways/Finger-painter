@@ -6,1010 +6,2779 @@
 <title>Schedool™</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#0d0d14;color:white;padding:20px}
-header{text-align:center;margin-bottom:20px}
-header h1{font-size:38px;color:#a970ff}
-header p{color:#aaa;margin-top:5px}
-
-.class-bar{max-width:1200px;margin:0 auto 20px;background:#15151f;border:1px solid #282838;padding:15px;border-radius:14px;display:flex;justify-content:space-between;align-items:center;gap:15px}
-.class-info strong{color:#b47cff}
-.switch-btn{width:auto;margin:0;background:#8b4dff;border:none;cursor:pointer;padding:10px 15px;border-radius:9px;color:white}
-.switch-btn:hover{background:#9d68ff}
-
-.teacher{text-align:center;margin:15px 0 25px}
-.teacher .label{color:#888;font-size:13px}
-.teacher .name{color:#c59cff;font-size:20px;font-weight:bold;margin-top:4px}
-.principal{margin-top:10px;color:#aaa;font-size:15px}
-.principal strong{color:#c59cff}
-
-.tabs{display:flex;justify-content:center;gap:10px;margin-bottom:25px;flex-wrap:wrap}
-.tab-btn{background:#191923;color:#aaa;border:1px solid #292936;padding:11px 18px;border-radius:10px;cursor:pointer}
-.tab-btn:hover,.tab-btn.active{background:#8b4dff;color:white}
-.tab{display:none}.tab.active{display:block}
-
-.schedule{max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
-.day{background:#15151f;border:1px solid #282838;border-radius:14px;padding:15px}
-.day h2{color:#b47cff;font-size:20px;margin-bottom:12px}
-.lesson{background:#20202c;border-radius:10px;padding:10px;margin-bottom:8px;border-left:4px solid #8b4dff}
-.lesson-number{font-size:12px;color:#888}
-.lesson-name{font-weight:bold;margin-top:3px}
-.lesson-time{color:#aaa;font-size:12px;margin-top:4px}
-.room{color:#c59cff;font-size:11px;margin-top:4px}
-.empty{color:#777;text-align:center;padding:10px 5px}
-.break{text-align:center;color:#777;font-size:12px;margin:10px 0;padding:7px;border-top:1px dashed #333;border-bottom:1px dashed #333}
-
-.no-schedule{max-width:700px;margin:40px auto;background:#15151f;border:1px solid #282838;border-radius:16px;padding:40px 20px;text-align:center}
-.no-schedule h2{color:#b47cff;margin-bottom:10px}.no-schedule p{color:#888}
-
-.time-section,.changes{max-width:800px;margin:auto}
-.time-box,.change-form,.change{background:#15151f;border:1px solid #282838;border-radius:14px;padding:20px;margin-bottom:15px}
-.time-box h2{color:#b47cff;margin-bottom:12px}
-.time-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #292936}
-.time-row:last-child{border-bottom:none}
-
-.seat-plan{max-width:900px;margin:auto;background:#15151f;border:1px solid #282838;border-radius:16px;padding:25px}
-.seat-plan h2{text-align:center;color:#b47cff;margin-bottom:25px}
-.teacher-desk{width:180px;margin:0 auto 30px;padding:12px;text-align:center;background:#8b4dff;border-radius:10px;font-weight:bold}
-.seats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-.seat{min-height:75px;background:#20202c;border:1px solid #30303d;border-radius:10px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
-.seat-number{color:#8f8f9d;font-size:12px;margin-bottom:5px}
-.seat-name{color:white;font-weight:bold}
-.seat.special{border-color:#a970ff;box-shadow:0 0 12px rgba(169,112,255,.2)}
-
-select,textarea,button{width:100%;margin-top:10px;padding:11px;border-radius:9px;border:1px solid #30303d;background:#20202c;color:white;font-family:inherit}
-textarea{min-height:100px;resize:vertical}
-.add-btn{background:#8b4dff;border:none;cursor:pointer}
-.change-list{margin-top:15px}
-.change strong{color:#b47cff}
-.delete-btn{width:auto;float:right;margin:0;padding:6px 10px;background:#3a2020;border:none;cursor:pointer}
-.reset-schedule{background:#3a2020;border:1px solid #573030;cursor:pointer}
-.reset-schedule:hover{background:#4a2525}
-
-.autoclicker{max-width:1000px;margin:auto}
-.clicker-header{background:#15151f;border:1px solid #282838;border-radius:16px;padding:20px;text-align:center;margin-bottom:15px}
-.clicker-header h2{color:#b47cff;margin-bottom:8px}
-.click-counter{font-size:32px;font-weight:bold;color:white}
-.click-rate{color:#999;margin-top:5px}
-.coconut-area{background:#15151f;border:1px solid #282838;border-radius:16px;padding:30px;text-align:center;margin-bottom:15px}
-.coconut{width:260px;max-width:80%;cursor:pointer;user-select:none;-webkit-user-drag:none;transition:transform .08s ease;filter:drop-shadow(0 0 18px rgba(169,112,255,.25))}
-.coconut:hover{transform:scale(1.04)}.coconut:active{transform:scale(.92)}
-.click-hint{color:#777;margin-top:15px}
-.upgrades{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-.upgrade{background:#15151f;border:1px solid #282838;border-radius:14px;padding:18px;text-align:center}
-.upgrade h3{color:#c59cff;margin-bottom:8px}
-.upgrade p{color:#888;font-size:13px;min-height:38px}
-.upgrade button{background:#8b4dff;border:none;cursor:pointer;font-weight:bold}
-.upgrade button:hover{background:#9d68ff}
-.upgrade button:disabled{background:#292936;color:#666;cursor:not-allowed}
-.reset-game{display:block;width:auto;margin:20px auto 0;padding:9px 15px;background:#3a2020;border:1px solid #573030;cursor:pointer}
-.offline-message{color:#b47cff;font-size:13px;margin-top:10px}
-
-footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-size:13px}
-
-#classSelection{position:fixed;inset:0;background:#0d0d14;z-index:9999;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;overflow-x:hidden;padding:25px 15px;-webkit-overflow-scrolling:touch}
-.class-selection-box{width:100%;max-width:650px;background:#15151f;border:1px solid #282838;border-radius:18px;padding:30px;text-align:center;margin:auto 0}
-.class-selection-box h1{color:#a970ff;margin-bottom:8px}
-.class-selection-box p{color:#888;margin-bottom:25px}
-.class-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.class-option{background:#20202c;border:1px solid #30303d;color:white;padding:13px 8px;border-radius:10px;cursor:pointer;margin:0}
-.class-option:hover{background:#8b4dff}
-
-@media(max-width:1000px){
-.schedule{grid-template-columns:repeat(2,1fr)}
-.upgrades{grid-template-columns:1fr 1fr}
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
+body{
+    font-family:Arial,sans-serif;
+    background:#0d0d14;
+    color:white;
+    padding:20px;
+}
+
+header{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+header h1{
+    font-size:38px;
+    color:#a970ff;
+}
+
+header p{
+    color:#aaa;
+    margin-top:5px;
+}
+
+/* LANGUAGE */
+
+.language-wrapper{
+    position:relative;
+    display:inline-block;
+    margin-top:12px;
+}
+
+.language-btn{
+    width:auto;
+    margin:0;
+    padding:10px 16px;
+    background:#191923;
+    color:#aaa;
+    border:1px solid #292936;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.language-btn:hover{
+    background:#8b4dff;
+    color:white;
+}
+
+.language-menu{
+    display:none;
+    position:absolute;
+    top:48px;
+    left:50%;
+    transform:translateX(-50%);
+    width:180px;
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:12px;
+    padding:8px;
+    z-index:500;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+
+.language-menu.show{
+    display:block;
+}
+
+.language-menu button{
+    width:100%;
+    margin:0 0 6px;
+    background:#20202c;
+    border:1px solid #30303d;
+    cursor:pointer;
+    text-align:left;
+}
+
+.language-menu button:last-child{
+    margin-bottom:0;
+}
+
+.language-menu button:hover{
+    background:#8b4dff;
+}
+
+/* CLASS BAR */
+
+.class-bar{
+    max-width:1200px;
+    margin:0 auto 20px;
+    background:#15151f;
+    border:1px solid #282838;
+    padding:15px;
+    border-radius:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+
+.class-info{
+    color:white;
+}
+
+.class-info strong{
+    color:#b47cff;
+}
+
+.switch-btn{
+    width:auto;
+    margin:0;
+    background:#8b4dff;
+    border:none;
+    cursor:pointer;
+    padding:10px 15px;
+    border-radius:9px;
+    color:white;
+}
+
+.switch-btn:hover{
+    background:#9d68ff;
+}
+
+/* TEACHER */
+
+.teacher{
+    text-align:center;
+    margin:15px 0 25px;
+}
+
+.teacher .label{
+    color:#888;
+    font-size:13px;
+}
+
+.teacher .name{
+    color:#c59cff;
+    font-size:20px;
+    font-weight:bold;
+    margin-top:4px;
+}
+
+.principal{
+    margin-top:10px;
+    color:#aaa;
+    font-size:15px;
+}
+
+.principal strong{
+    color:#c59cff;
+}
+
+/* TABS */
+
+.tabs{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+}
+
+.tab-btn{
+    background:#191923;
+    color:#aaa;
+    border:1px solid #292936;
+    padding:11px 18px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.tab-btn:hover,
+.tab-btn.active{
+    background:#8b4dff;
+    color:white;
+}
+
+.tab{
+    display:none;
+}
+
+.tab.active{
+    display:block;
+}
+
+/* SCHEDULE */
+
+.schedule{
+    max-width:1200px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+
+.day{
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:14px;
+    padding:15px;
+}
+
+.day h2{
+    color:#b47cff;
+    font-size:20px;
+    margin-bottom:12px;
+}
+
+.lesson{
+    background:#20202c;
+    border-radius:10px;
+    padding:10px;
+    margin-bottom:8px;
+    border-left:4px solid #8b4dff;
+}
+
+.lesson-number{
+    font-size:12px;
+    color:#888;
+}
+
+.lesson-name{
+    font-weight:bold;
+    margin-top:3px;
+}
+
+.lesson-time{
+    color:#aaa;
+    font-size:12px;
+    margin-top:4px;
+}
+
+.room{
+    color:#c59cff;
+    font-size:11px;
+    margin-top:4px;
+}
+
+.empty{
+    color:#777;
+    text-align:center;
+    padding:10px 5px;
+}
+
+.break{
+    text-align:center;
+    color:#777;
+    font-size:12px;
+    margin:10px 0;
+    padding:7px;
+    border-top:1px dashed #333;
+    border-bottom:1px dashed #333;
+}
+
+/* NO SCHEDULE */
+
+.no-schedule{
+    max-width:700px;
+    margin:40px auto;
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:16px;
+    padding:40px 20px;
+    text-align:center;
+}
+
+.no-schedule h2{
+    color:#b47cff;
+    margin-bottom:10px;
+}
+
+.no-schedule p{
+    color:#888;
+}
+
+/* TIMES */
+
+.time-section,
+.changes{
+    max-width:800px;
+    margin:auto;
+}
+
+.time-box,
+.change-form,
+.change{
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:15px;
+}
+
+.time-box h2{
+    color:#b47cff;
+    margin-bottom:12px;
+}
+
+.time-row{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 0;
+    border-bottom:1px solid #292936;
+    gap:10px;
+}
+
+.time-row:last-child{
+    border-bottom:none;
+}
+
+/* SEAT PLAN */
+
+.seat-plan{
+    max-width:900px;
+    margin:auto;
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:16px;
+    padding:25px;
+}
+
+.seat-plan h2{
+    text-align:center;
+    color:#b47cff;
+    margin-bottom:25px;
+}
+
+.teacher-desk{
+    width:180px;
+    margin:0 auto 30px;
+    padding:12px;
+    text-align:center;
+    background:#8b4dff;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.seats{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:12px;
+}
+
+.seat{
+    min-height:75px;
+    background:#20202c;
+    border:1px solid #30303d;
+    border-radius:10px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+.seat-number{
+    color:#8f8f9d;
+    font-size:12px;
+    margin-bottom:5px;
+}
+
+.seat-name{
+    color:white;
+    font-weight:bold;
+}
+
+.seat.special{
+    border-color:#a970ff;
+    box-shadow:0 0 12px rgba(169,112,255,.2);
+}
+
+/* SCHEDULE CHANGES */
+
+select,
+textarea,
+button{
+    width:100%;
+    margin-top:10px;
+    padding:11px;
+    border-radius:9px;
+    border:1px solid #30303d;
+    background:#20202c;
+    color:white;
+    font-family:inherit;
+}
+
+textarea{
+    min-height:100px;
+    resize:vertical;
+}
+
+.add-btn{
+    background:#8b4dff;
+    border:none;
+    cursor:pointer;
+}
+
+.reset-schedule{
+    background:#3a2020;
+    border:1px solid #573030;
+    cursor:pointer;
+}
+
+.reset-schedule:hover{
+    background:#4a2525;
+}
+
+.change-list{
+    margin-top:15px;
+}
+
+.change strong{
+    color:#b47cff;
+}
+
+.delete-btn{
+    width:auto;
+    float:right;
+    margin:0;
+    padding:6px 10px;
+    background:#3a2020;
+    border:none;
+    cursor:pointer;
+}
+
+/* AUTOCLICKER */
+
+.autoclicker{
+    max-width:1000px;
+    margin:auto;
+}
+
+.clicker-header{
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:16px;
+    padding:20px;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.clicker-header h2{
+    color:#b47cff;
+    margin-bottom:8px;
+}
+
+.click-counter{
+    font-size:32px;
+    font-weight:bold;
+    color:white;
+}
+
+.click-rate{
+    color:#999;
+    margin-top:5px;
+}
+
+.coconut-area{
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:16px;
+    padding:30px;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.coconut{
+    width:260px;
+    max-width:80%;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-drag:none;
+    transition:transform .08s ease;
+    filter:drop-shadow(0 0 18px rgba(169,112,255,.25));
+}
+
+.coconut:hover{
+    transform:scale(1.04);
+}
+
+.coconut:active{
+    transform:scale(.92);
+}
+
+.click-hint{
+    color:#777;
+    margin-top:15px;
+}
+
+.upgrades{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.upgrade{
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:14px;
+    padding:18px;
+    text-align:center;
+}
+
+.upgrade h3{
+    color:#c59cff;
+    margin-bottom:8px;
+}
+
+.upgrade p{
+    color:#888;
+    font-size:13px;
+    min-height:38px;
+}
+
+.upgrade button{
+    background:#8b4dff;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.upgrade button:hover{
+    background:#9d68ff;
+}
+
+.upgrade button:disabled{
+    background:#292936;
+    color:#666;
+    cursor:not-allowed;
+}
+
+.reset-game{
+    display:block;
+    width:auto;
+    margin:20px auto 0;
+    padding:9px 15px;
+    background:#3a2020;
+    border:1px solid #573030;
+    cursor:pointer;
+}
+
+.offline-message{
+    color:#b47cff;
+    font-size:13px;
+    margin-top:10px;
+}
+
+/* FOOTER */
+
+footer{
+    text-align:center;
+    color:#666;
+    margin-top:40px;
+    padding:25px 0 10px;
+    font-size:13px;
+}
+
+/* CLASS SELECTION */
+
+#classSelection{
+    position:fixed;
+    inset:0;
+    background:#0d0d14;
+    z-index:9999;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:25px 15px;
+}
+
+.class-selection-box{
+    width:100%;
+    max-width:650px;
+    background:#15151f;
+    border:1px solid #282838;
+    border-radius:18px;
+    padding:30px;
+    text-align:center;
+    margin:auto 0;
+}
+
+.class-selection-box h1{
+    color:#a970ff;
+    margin-bottom:8px;
+}
+
+.class-selection-box p{
+    color:#888;
+    margin-bottom:25px;
+}
+
+.class-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+}
+
+.class-option{
+    background:#20202c;
+    border:1px solid #30303d;
+    color:white;
+    padding:13px 8px;
+    border-radius:10px;
+    cursor:pointer;
+    margin:0;
+}
+
+.class-option:hover{
+    background:#8b4dff;
+}
+
+/* TABLET */
+
+@media(max-width:1000px){
+
+    .schedule{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .upgrades{
+        grid-template-columns:1fr 1fr;
+    }
+
+}
+
+/* PHONE */
+
 @media(max-width:650px){
-body{padding:12px}
-header h1{font-size:30px}
-.schedule{grid-template-columns:1fr}
-.class-bar{flex-direction:column;align-items:stretch}
-.switch-btn{width:100%}
-#classSelection{padding:15px 10px}
-.class-selection-box{padding:20px 12px;margin:0 auto}
-.class-grid{grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:20px}
-.class-option{padding:14px 5px;font-size:14px;min-height:45px}
-.tab-btn{flex:1;min-width:100px}
-.time-row{gap:10px}
-.seat-plan{padding:15px 10px;overflow-x:auto}
-.seats{min-width:600px;gap:8px}
-.seat{min-height:65px}
-.coconut{width:220px}
-.coconut-area{padding:20px 10px}
-.upgrades{grid-template-columns:1fr}
-.click-counter{font-size:26px}
+
+    body{
+        padding:12px;
+    }
+
+    header h1{
+        font-size:30px;
+    }
+
+    .schedule{
+        grid-template-columns:1fr;
+    }
+
+    .class-bar{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .switch-btn{
+        width:100%;
+    }
+
+    .language-menu{
+        width:170px;
+    }
+
+    .tabs{
+        gap:7px;
+    }
+
+    .tab-btn{
+        flex:1;
+        min-width:100px;
+        padding:10px 8px;
+        font-size:13px;
+    }
+
+    .class-selection-box{
+        padding:20px 12px;
+        margin:0 auto;
+    }
+
+    .class-grid{
+        grid-template-columns:repeat(3,1fr);
+        gap:8px;
+        padding-bottom:20px;
+    }
+
+    .class-option{
+        padding:14px 5px;
+        font-size:14px;
+        min-height:45px;
+    }
+
+    .time-row{
+        flex-direction:column;
+        gap:3px;
+    }
+
+    .time-row span:last-child{
+        color:#aaa;
+    }
+
+    .seat-plan{
+        padding:15px 10px;
+        overflow-x:auto;
+    }
+
+    .seats{
+        min-width:600px;
+        gap:8px;
+    }
+
+    .seat{
+        min-height:65px;
+    }
+
+    .coconut{
+        width:220px;
+    }
+
+    .coconut-area{
+        padding:20px 10px;
+    }
+
+    .upgrades{
+        grid-template-columns:1fr;
+    }
+
+    .click-counter{
+        font-size:26px;
+    }
+
 }
 </style>
 </head>
 
 <body>
 
+<!-- CLASS SELECTION -->
+
 <div id="classSelection">
-<div class="class-selection-box">
-<h1>Schedool™</h1>
-<p>Select your class</p>
-<div class="class-grid" id="classGrid"></div>
+
+    <div class="class-selection-box">
+
+        <h1>Schedool™</h1>
+
+        <p id="selectClassText">
+            Select your class
+        </p>
+
+        <div
+            class="class-grid"
+            id="classGrid">
+        </div>
+
+    </div>
+
 </div>
-</div>
+
+
+<!-- HEADER -->
 
 <header>
-<h1>Schedool™</h1>
-<p>Weekly timetable</p>
+
+    <h1>Schedool™</h1>
+
+    <p id="weeklyText">
+        Weekly timetable
+    </p>
+
+    <div class="language-wrapper">
+
+        <button
+            class="language-btn"
+            onclick="toggleLanguages()">
+
+            🌐 Translate
+
+        </button>
+
+        <div
+            id="languageMenu"
+            class="language-menu">
+
+            <button onclick="setLanguage('british')">
+                🇬🇧 British
+            </button>
+
+            <button onclick="setLanguage('american')">
+                🇺🇸 American
+            </button>
+
+            <button onclick="setLanguage('german')">
+                🇩🇪 German
+            </button>
+
+        </div>
+
+    </div>
+
 </header>
 
+
+<!-- CLASS -->
+
 <div class="class-bar">
-<div class="class-info">Class: <strong id="currentClass">1DE</strong></div>
-<button class="switch-btn" onclick="switchClass()">Switch Class</button>
+
+    <div class="class-info">
+
+        <span id="classLabel">
+            Class:
+        </span>
+
+        <strong id="currentClass">
+            1DE
+        </strong>
+
+    </div>
+
+    <button
+        class="switch-btn"
+        onclick="switchClass()">
+
+        Switch Class
+
+    </button>
+
 </div>
 
-<div class="teacher" id="teacherSection">
-<div class="label">Teacher</div>
-<div class="name" id="teacherName">Mr. Mid</div>
-<div class="principal">Principle: <strong>Mr. Mid</strong></div>
+
+<!-- TEACHER -->
+
+<div
+    class="teacher"
+    id="teacherSection">
+
+    <div
+        class="label"
+        id="teacherLabel">
+
+        Teacher
+
+    </div>
+
+    <div
+        class="name"
+        id="teacherName">
+
+        Mr. Mid
+
+    </div>
+
+    <div class="principal">
+
+        <span id="principleLabel">
+            Principle:
+        </span>
+
+        <strong>
+            Mr. Mid
+        </strong>
+
+    </div>
+
 </div>
+
+
+<!-- TABS -->
 
 <div class="tabs">
 
-<button class="tab-btn active" onclick="showTab('schedule',this)">Schedule</button>
-<button class="tab-btn" onclick="showTab('times',this)">Times</button>
-<button class="tab-btn" onclick="showTab('seats',this)">Seat Plan</button>
-<button class="tab-btn" onclick="showTab('changes',this)">Schedule Changes</button>
-<button class="tab-btn" onclick="showTab('autoclicker',this)">🥥 Autoclicker</button>
+    <button
+        class="tab-btn active"
+        onclick="showTab('schedule',this)"
+        id="scheduleTab">
+
+        Schedule
+
+    </button>
+
+    <button
+        class="tab-btn"
+        onclick="showTab('times',this)"
+        id="timesTab">
+
+        Times
+
+    </button>
+
+    <button
+        class="tab-btn"
+        onclick="showTab('seats',this)"
+        id="seatsTab">
+
+        Seat Plan
+
+    </button>
+
+    <button
+        class="tab-btn"
+        onclick="showTab('changes',this)"
+        id="changesTab">
+
+        Schedule Changes
+
+    </button>
+
+    <button
+        class="tab-btn"
+        onclick="showTab('autoclicker',this)"
+        id="autoclickerTab">
+
+        🥥 Autoclicker
+
+    </button>
 
 </div>
 
-<div id="schedule" class="tab active">
-<div id="scheduleContent"></div>
-</div>
 
-<div id="times" class="tab">
+<!-- SCHEDULE -->
 
-<div class="time-section">
+<div
+    id="schedule"
+    class="tab active">
 
-<div class="time-box">
-<h2>Monday – Thursday</h2>
-<div class="time-row"><span>Lesson 1</span><span>4:00 PM – 4:25 PM</span></div>
-<div class="time-row"><span>Lesson 2</span><span>4:25 PM – 4:50 PM</span></div>
-<div class="time-row"><span>Break</span><span>4:50 PM – 5:15 PM</span></div>
-<div class="time-row"><span>Lesson 3</span><span>5:20 PM – 5:45 PM</span></div>
-<div class="time-row"><span>Lesson 4</span><span>5:45 PM – 6:10 PM</span></div>
-<div class="time-row"><span>Break</span><span>6:10 PM – 6:30 PM</span></div>
-<div class="time-row"><span>Lesson 5</span><span>6:35 PM – 7:00 PM</span></div>
-<div class="time-row"><span>Lesson 6</span><span>7:00 PM – 7:25 PM</span></div>
-</div>
-
-<div class="time-box">
-<h2>Friday + Saturday</h2>
-<div class="time-row"><span>Lesson 1</span><span>12:00 PM – 12:25 PM</span></div>
-<div class="time-row"><span>Lesson 2</span><span>12:25 PM – 12:50 PM</span></div>
-<div class="time-row"><span>Break</span><span>12:50 PM – 1:05 PM</span></div>
-<div class="time-row"><span>Lesson 3</span><span>1:10 PM – 1:35 PM</span></div>
-<div class="time-row"><span>Lesson 4</span><span>1:35 PM – 2:00 PM</span></div>
-<div class="time-row"><span>Break</span><span>2:00 PM – 2:15 PM</span></div>
-<div class="time-row"><span>Lesson 5</span><span>2:20 PM – 2:45 PM</span></div>
-<div class="time-row"><span>Lesson 6</span><span>2:45 PM – 3:10 PM</span></div>
-</div>
-
-<div class="time-box">
-<h2>Sunday</h2>
-<div class="time-row"><span>Lesson 1</span><span>5:30 PM – 5:55 PM</span></div>
-<div class="time-row"><span>Lesson 2</span><span>5:55 PM – 6:20 PM</span></div>
-<div class="time-row"><span>Lesson 3</span><span>6:15 PM – 6:40 PM</span></div>
-<div class="time-row"><span>Lesson 4</span><span>6:40 PM – 7:05 PM</span></div>
-<div class="time-row"><span>Break</span><span>7:05 PM – 7:20 PM</span></div>
-<div class="time-row"><span>Lesson 5</span><span>7:25 PM – 7:50 PM</span></div>
-</div>
-
-</div>
-</div>
-
-<div id="seats" class="tab">
-<div class="seat-plan">
-<h2>Seat Plan</h2>
-<div class="teacher-desk">Teacher</div>
-<div class="seats" id="seatGrid"></div>
-</div>
-</div>
-
-<!-- SCHEDULE CHANGER -->
-
-<div id="changes" class="tab">
-
-<div class="changes">
-
-<div class="change-form">
-
-<h2>Schedule Changes</h2>
-
-<select id="changeDay" onchange="updateLessonOptions()">
-<option>Monday</option>
-<option>Tuesday</option>
-<option>Wednesday</option>
-<option>Thursday</option>
-<option>Friday</option>
-<option>Saturday</option>
-<option>Sunday</option>
-</select>
-
-<select id="changeLesson"></select>
-
-<select id="changeSubject">
-
-<option>Gorilla Tag</option>
-<option>Geometry Dash</option>
-<option>Minecraft</option>
-<option>Backrooms</option>
-<option>Editing</option>
-<option>---</option>
-
-</select>
-
-<button class="add-btn" onclick="addScheduleChange()">
-Change Lesson
-</button>
-
-<button class="reset-schedule" onclick="resetSchedule()">
-Reset Schedule To Original
-</button>
+    <div id="scheduleContent"></div>
 
 </div>
 
-<div id="changeList" class="change-list"></div>
+
+<!-- TIMES -->
+
+<div
+    id="times"
+    class="tab">
+
+    <div class="time-section">
+
+        <div class="time-box">
+
+            <h2>Monday – Thursday</h2>
+
+            <div class="time-row">
+                <span>Lesson 1</span>
+                <span data-time="4:00 PM – 4:25 PM">4:00 PM – 4:25 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 2</span>
+                <span data-time="4:25 PM – 4:50 PM">4:25 PM – 4:50 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span data-time="4:50 PM – 5:15 PM">4:50 PM – 5:15 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 3</span>
+                <span data-time="5:20 PM – 5:45 PM">5:20 PM – 5:45 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 4</span>
+                <span data-time="5:45 PM – 6:10 PM">5:45 PM – 6:10 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span data-time="6:10 PM – 6:30 PM">6:10 PM – 6:30 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 5</span>
+                <span data-time="6:35 PM – 7:00 PM">6:35 PM – 7:00 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 6</span>
+                <span data-time="7:00 PM – 7:25 PM">7:00 PM – 7:25 PM</span>
+            </div>
+
+        </div>
+
+
+        <div class="time-box">
+
+            <h2>Friday + Saturday</h2>
+
+            <div class="time-row">
+                <span>Lesson 1</span>
+                <span data-time="12:00 PM – 12:25 PM">12:00 PM – 12:25 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 2</span>
+                <span data-time="12:25 PM – 12:50 PM">12:25 PM – 12:50 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span data-time="12:50 PM – 1:05 PM">12:50 PM – 1:05 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 3</span>
+                <span data-time="1:10 PM – 1:35 PM">1:10 PM – 1:35 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 4</span>
+                <span data-time="1:35 PM – 2:00 PM">1:35 PM – 2:00 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Break</span>
+                <span data-time="2:00 PM – 2:15 PM">2:00 PM – 2:15 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 5</span>
+                <span data-time="2:20 PM – 2:45 PM">2:20 PM – 2:45 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 6</span>
+                <span data-time="2:45 PM – 3:10 PM">2:45 PM – 3:10 PM</span>
+            </div>
+
+        </div>
+
+
+        <div class="time-box">
+
+            <h2>Sunday</h2>
+
+            <div class="time-row">
+                <span>Lesson 1</span>
+                <span data-time="5:30 PM – 5:55 PM">5:30 PM – 5:55 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 2</span>
+                <span data-time="5:55 PM – 6:20 PM">5:55 PM – 6:20 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 3</span>
+                <span data-time="6:15 PM – 6:40 PM">6:15 PM – 6:40 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 4</span>
+                <span data-time="6:40 PM – 7:05 PM">6:40 PM – 7:05 PM</span>
+            </div>
+
+            <div class="time-row">
+                <span>Lesson 5</span>
+                <span data-time="7:25 PM – 7:50 PM">7:25 PM – 7:50 PM</span>
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
+
+
+<!-- SEAT PLAN -->
+
+<div
+    id="seats"
+    class="tab">
+
+    <div class="seat-plan">
+
+        <h2 id="seatPlanTitle">
+            Seat Plan
+        </h2>
+
+        <div class="teacher-desk">
+            Teacher
+        </div>
+
+        <div
+            class="seats"
+            id="seatGrid">
+        </div>
+
+    </div>
+
 </div>
+
+
+<!-- SCHEDULE CHANGES -->
+
+<div
+    id="changes"
+    class="tab">
+
+    <div class="changes">
+
+        <div class="change-form">
+
+            <h2 id="changesTitle">
+                Schedule Changes
+            </h2>
+
+            <select
+                id="changeDay"
+                onchange="updateLessonOptions()">
+
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+
+            </select>
+
+            <select id="changeLesson"></select>
+
+            <select id="changeSubject">
+
+                <option>Gorilla Tag</option>
+                <option>Geometry Dash</option>
+                <option>Minecraft</option>
+                <option>Backrooms</option>
+                <option>Editing</option>
+                <option>---</option>
+
+            </select>
+
+            <button
+                class="add-btn"
+                onclick="addScheduleChange()"
+                id="changeButton">
+
+                Change Lesson
+
+            </button>
+
+            <button
+                class="reset-schedule"
+                onclick="resetSchedule()"
+                id="resetScheduleButton">
+
+                Reset Schedule To Original
+
+            </button>
+
+        </div>
+
+        <div
+            id="changeList"
+            class="change-list">
+        </div>
+
+    </div>
+
+</div>
+
 
 <!-- AUTOCLICKER -->
 
-<div id="autoclicker" class="tab">
+<div
+    id="autoclicker"
+    class="tab">
 
-<div class="autoclicker">
+    <div class="autoclicker">
 
-<div class="clicker-header">
-<h2>🥥 DrCoconut Clicker</h2>
+        <div class="clicker-header">
 
-<div class="click-counter" id="clickCounter">0</div>
+            <h2>🥥 DrCoconut Clicker</h2>
 
-<div class="click-rate">
-<span id="clickPower">1</span>
-click(s) per click ·
-<span id="autoRate">0</span>
-per second
+            <div
+                class="click-counter"
+                id="clickCounter">
+
+                0
+
+            </div>
+
+            <div class="click-rate">
+
+                <span id="clickPower">
+                    1
+                </span>
+
+                click(s) per click ·
+
+                <span id="autoRate">
+                    0
+                </span>
+
+                per second
+
+            </div>
+
+            <div
+                class="offline-message"
+                id="offlineMessage">
+            </div>
+
+        </div>
+
+
+        <div class="coconut-area">
+
+            <img
+                id="drCoconut"
+                class="coconut"
+                src="https://raw.githubusercontent.com/Testerlikealways/Finger-painter/main/DrCoconut.png"
+                alt="DrCoconut"
+                draggable="false"
+                onclick="clickCoconut()">
+
+            <div class="click-hint">
+                CLICK DRCOCONUT!
+            </div>
+
+        </div>
+
+
+        <div class="upgrades">
+
+            <div class="upgrade">
+
+                <h3>💪 Stronger Click</h3>
+
+                <p>
+                    Adds +1 click every time
+                    you click DrCoconut.
+                </p>
+
+                <button
+                    id="clickUpgradeButton"
+                    onclick="buyClickUpgrade()">
+
+                    Upgrade · 25
+
+                </button>
+
+            </div>
+
+
+            <div class="upgrade">
+
+                <h3>⚡ Auto Clicker</h3>
+
+                <p>
+                    Automatically generates
+                    clicks every second.
+                </p>
+
+                <button
+                    id="autoUpgradeButton"
+                    onclick="buyAutoClicker()">
+
+                    Buy · 100
+
+                </button>
+
+            </div>
+
+
+            <div class="upgrade">
+
+                <h3>🔥 Auto Power</h3>
+
+                <p>
+                    Makes every auto-clicker
+                    generate +1 more per second.
+                </p>
+
+                <button
+                    id="autoPowerButton"
+                    onclick="buyAutoPower()">
+
+                    Upgrade · 500
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="reset-game"
+            onclick="resetClicker()">
+
+            Reset Clicker Progress
+
+        </button>
+
+    </div>
+
 </div>
 
-<div class="offline-message" id="offlineMessage"></div>
-</div>
 
-<div class="coconut-area">
+<footer>
+    Schedool™
+</footer>
 
-<img
-id="drCoconut"
-class="coconut"
-src="https://raw.githubusercontent.com/Testerlikealways/Finger-painter/main/DrCoconut.png"
-alt="DrCoconut"
-draggable="false"
-onclick="clickCoconut()">
-
-<div class="click-hint">CLICK DRCOCONUT!</div>
-
-</div>
-
-<div class="upgrades">
-
-<div class="upgrade">
-<h3>💪 Stronger Click</h3>
-<p>Adds +1 click every time you click DrCoconut.</p>
-<button id="clickUpgradeButton" onclick="buyClickUpgrade()">Upgrade · 25</button>
-</div>
-
-<div class="upgrade">
-<h3>⚡ Auto Clicker</h3>
-<p>Automatically generates clicks every second.</p>
-<button id="autoUpgradeButton" onclick="buyAutoClicker()">Buy · 100</button>
-</div>
-
-<div class="upgrade">
-<h3>🔥 Auto Power</h3>
-<p>Makes every auto-clicker generate +1 more per second.</p>
-<button id="autoPowerButton" onclick="buyAutoPower()">Upgrade · 500</button>
-</div>
-
-</div>
-
-<button class="reset-game" onclick="resetClicker()">Reset Clicker Progress</button>
-
-</div>
-</div>
-
-<footer>Schedool™</footer>
 
 <script>
 
-/* ============================= */
+/* ================================= */
 /* CLASSES */
-/* ============================= */
+/* ================================= */
 
 const classes=[
-"1DE","1GR","1RG",
-"2DE","2GR","2RG",
-"3DE","3GR","3RG",
-"4DE","4GR","4RG",
-"5DE","5GR","5RG",
-"6DE","6GR","6RG",
-"7DE","7GR","7RG",
-"8DE","8GR","8RG",
-"9DE","9GR","9RG",
-"10DE","10GR","10RG",
-"11DE","11GR","11RG",
-"12DE"
+    "1DE","1GR","1RG",
+    "2DE","2GR","2RG",
+    "3DE","3GR","3RG",
+    "4DE","4GR","4RG",
+    "5DE","5GR","5RG",
+    "6DE","6GR","6RG",
+    "7DE","7GR","7RG",
+    "8DE","8GR","8RG",
+    "9DE","9GR","9RG",
+    "10DE","10GR","10RG",
+    "11DE","11GR","11RG",
+    "12DE"
 ];
 
 const classGrid=document.getElementById("classGrid");
 
 classes.forEach(className=>{
-const button=document.createElement("button");
-button.className="class-option";
-button.textContent=className;
-button.onclick=()=>selectClass(className);
-classGrid.appendChild(button);
+
+    const button=document.createElement("button");
+
+    button.className="class-option";
+    button.textContent=className;
+
+    button.onclick=()=>{
+        selectClass(className);
+    };
+
+    classGrid.appendChild(button);
+
 });
 
-let selectedClass=localStorage.getItem("schedoolClass");
+let selectedClass=
+    localStorage.getItem("schedoolClass");
+
 
 function selectClass(className){
-selectedClass=className;
-localStorage.setItem("schedoolClass",className);
-document.getElementById("classSelection").style.display="none";
-updateClass();
+
+    selectedClass=className;
+
+    localStorage.setItem(
+        "schedoolClass",
+        className
+    );
+
+    document
+        .getElementById("classSelection")
+        .style.display="none";
+
+    updateClass();
+
 }
 
+
 function switchClass(){
-document.getElementById("classSelection").style.display="flex";
+
+    document
+        .getElementById("classSelection")
+        .style.display="flex";
+
 }
+
 
 function updateClass(){
 
-document.getElementById("currentClass").textContent=selectedClass;
+    document
+        .getElementById("currentClass")
+        .textContent=selectedClass;
 
-if(selectedClass==="1DE"){
+    if(selectedClass==="1DE"){
 
-document.getElementById("teacherSection").style.display="block";
-document.getElementById("teacherName").textContent="Mr. Mid";
+        document
+            .getElementById("teacherSection")
+            .style.display="block";
 
-createSchedule();
+        document
+            .getElementById("teacherName")
+            .textContent="Mr. Mid";
 
-}else{
+        createSchedule();
 
-document.getElementById("teacherSection").style.display="none";
+    }else{
 
-document.getElementById("scheduleContent").innerHTML=`
-<div class="no-schedule">
-<h2>No official Schedules</h2>
-<p>There is currently no official schedule available for class ${selectedClass}.</p>
-</div>`;
+        document
+            .getElementById("teacherSection")
+            .style.display="none";
+
+        document
+            .getElementById("scheduleContent")
+            .innerHTML=`
+
+                <div class="no-schedule">
+
+                    <h2>
+                        ${translations[currentLanguage].noSchedule}
+                    </h2>
+
+                    <p>
+                        There is currently no official
+                        schedule available for class
+                        ${selectedClass}.
+                    </p>
+
+                </div>
+
+            `;
+
+    }
+
+    createSeatPlan();
+    updateLessonOptions();
 
 }
 
-createSeatPlan();
-updateLessonOptions();
 
-}
-
-/* ============================= */
+/* ================================= */
 /* ORIGINAL SCHEDULE */
-/* ============================= */
+/* ================================= */
 
 const originalSchedules={
 
 Monday:[
-["Gorilla Tag","4:00 PM – 4:25 PM"],
-["Gorilla Tag","4:25 PM – 4:50 PM"],
-["Geometry Dash","5:20 PM – 5:45 PM"],
-["Geometry Dash","5:45 PM – 6:10 PM"],
-["Minecraft","6:35 PM – 7:00 PM"]
+    ["Gorilla Tag","4:00 PM – 4:25 PM"],
+    ["Gorilla Tag","4:25 PM – 4:50 PM"],
+    ["Geometry Dash","5:20 PM – 5:45 PM"],
+    ["Geometry Dash","5:45 PM – 6:10 PM"],
+    ["Minecraft","6:35 PM – 7:00 PM"]
 ],
 
 Tuesday:[
-["---","4:00 PM – 4:25 PM"],
-["---","4:25 PM – 4:50 PM"],
-["Geometry Dash","5:20 PM – 5:45 PM"],
-["Geometry Dash","5:45 PM – 6:10 PM"],
-["Editing","6:35 PM – 7:00 PM"],
-["Editing","7:00 PM – 7:25 PM"]
+    ["---","4:00 PM – 4:25 PM"],
+    ["---","4:25 PM – 4:50 PM"],
+    ["Geometry Dash","5:20 PM – 5:45 PM"],
+    ["Geometry Dash","5:45 PM – 6:10 PM"],
+    ["Editing","6:35 PM – 7:00 PM"],
+    ["Editing","7:00 PM – 7:25 PM"]
 ],
 
 Wednesday:[
-["Editing","4:00 PM – 4:25 PM"],
-["Editing","4:25 PM – 4:50 PM"],
-["Backrooms","5:20 PM – 5:45 PM"],
-["Backrooms","5:45 PM – 6:10 PM"],
-["Minecraft","6:35 PM – 7:00 PM"],
-["Minecraft","7:00 PM – 7:25 PM"]
+    ["Editing","4:00 PM – 4:25 PM"],
+    ["Editing","4:25 PM – 4:50 PM"],
+    ["Backrooms","5:20 PM – 5:45 PM"],
+    ["Backrooms","5:45 PM – 6:10 PM"],
+    ["Minecraft","6:35 PM – 7:00 PM"],
+    ["Minecraft","7:00 PM – 7:25 PM"]
 ],
 
 Thursday:[
-["Geometry Dash","4:00 PM – 4:25 PM"],
-["Gorilla Tag","4:25 PM – 4:50 PM"],
-["Minecraft","5:20 PM – 5:45 PM"],
-["Minecraft","5:45 PM – 6:10 PM"]
+    ["Geometry Dash","4:00 PM – 4:25 PM"],
+    ["Gorilla Tag","4:25 PM – 4:50 PM"],
+    ["Minecraft","5:20 PM – 5:45 PM"],
+    ["Minecraft","5:45 PM – 6:10 PM"]
 ],
 
 Friday:[
-["Backrooms","12:00 PM – 12:25 PM"],
-["Backrooms","12:25 PM – 12:50 PM"],
-["Geometry Dash","1:10 PM – 1:35 PM"],
-["Geometry Dash","1:35 PM – 2:00 PM"],
-["Editing","2:20 PM – 2:45 PM"],
-["Editing","2:45 PM – 3:10 PM"]
+    ["Backrooms","12:00 PM – 12:25 PM"],
+    ["Backrooms","12:25 PM – 12:50 PM"],
+    ["Geometry Dash","1:10 PM – 1:35 PM"],
+    ["Geometry Dash","1:35 PM – 2:00 PM"],
+    ["Editing","2:20 PM – 2:45 PM"],
+    ["Editing","2:45 PM – 3:10 PM"]
 ],
 
 Saturday:[
-["Backrooms","12:00 PM – 12:25 PM"],
-["Backrooms","12:25 PM – 12:50 PM"],
-["Gorilla Tag","1:10 PM – 1:35 PM"],
-["Gorilla Tag","1:35 PM – 2:00 PM"],
-["Editing","2:20 PM – 2:45 PM"],
-["Editing","2:45 PM – 3:10 PM"]
+    ["Backrooms","12:00 PM – 12:25 PM"],
+    ["Backrooms","12:25 PM – 12:50 PM"],
+    ["Gorilla Tag","1:10 PM – 1:35 PM"],
+    ["Gorilla Tag","1:35 PM – 2:00 PM"],
+    ["Editing","2:20 PM – 2:45 PM"],
+    ["Editing","2:45 PM – 3:10 PM"]
 ],
 
 Sunday:[
-["Geometry Dash","5:30 PM – 5:55 PM"],
-["Geometry Dash","5:55 PM – 6:20 PM"],
-["Geometry Dash","6:15 PM – 6:40 PM"],
-["Gorilla Tag","6:40 PM – 7:05 PM"],
-["Gorilla Tag","7:25 PM – 7:50 PM"]
+    ["Geometry Dash","5:30 PM – 5:55 PM"],
+    ["Geometry Dash","5:55 PM – 6:20 PM"],
+    ["Geometry Dash","6:15 PM – 6:40 PM"],
+    ["Gorilla Tag","6:40 PM – 7:05 PM"],
+    ["Gorilla Tag","7:25 PM – 7:50 PM"]
 ]
 
 };
 
-/* ============================= */
-/* LOAD SAVED SCHEDULE CHANGES */
-/* ============================= */
 
-let schedules=JSON.parse(
-localStorage.getItem("schedoolSchedule")
-);
+/* ================================= */
+/* SAVED SCHEDULE */
+/* ================================= */
+
+let schedules=
+    JSON.parse(
+        localStorage.getItem("schedoolSchedule")
+    );
 
 if(!schedules){
-schedules=JSON.parse(JSON.stringify(originalSchedules));
+
+    schedules=
+        JSON.parse(
+            JSON.stringify(originalSchedules)
+        );
+
 }
 
-/* ============================= */
+
+/* ================================= */
 /* ROOMS */
-/* ============================= */
+/* ================================= */
 
 const rooms={
-"Gorilla Tag":"Discord Channel Gtag VC",
-"Geometry Dash":"Discord Channel GD VC",
-"Minecraft":"Discord Channel Minecraft VC",
-"Backrooms":"Discord Channel Backrooms VC",
-"Editing":"Discord Channel: Editing VC"
+
+    "Gorilla Tag":
+        "Discord Channel Gtag VC",
+
+    "Geometry Dash":
+        "Discord Channel GD VC",
+
+    "Minecraft":
+        "Discord Channel Minecraft VC",
+
+    "Backrooms":
+        "Discord Channel Backrooms VC",
+
+    "Editing":
+        "Discord Channel: Editing VC"
+
 };
 
-/* ============================= */
+
+/* ================================= */
+/* LANGUAGE */
+/* ================================= */
+
+let currentLanguage=
+    localStorage.getItem("schedoolLanguage")
+    || "american";
+
+
+const translations={
+
+    american:{
+        weekly:"Weekly timetable",
+        classLabel:"Class:",
+        switchClass:"Switch Class",
+        teacher:"Teacher",
+        schedule:"Schedule",
+        times:"Times",
+        seats:"Seat Plan",
+        changes:"Schedule Changes",
+        selectClass:"Select your class",
+        translate:"🌐 Translate",
+        changeLesson:"Change Lesson",
+        resetSchedule:"Reset Schedule To Original",
+        noSchedule:"No official Schedules",
+        principle:"Principle:",
+        lesson:"Lesson",
+        break:"Break",
+        reset:"Reset"
+    },
+
+    british:{
+        weekly:"Weekly timetable",
+        classLabel:"Class:",
+        switchClass:"Switch Class",
+        teacher:"Teacher",
+        schedule:"Schedule",
+        times:"Times",
+        seats:"Seat Plan",
+        changes:"Schedule Changes",
+        selectClass:"Select your class",
+        translate:"🌐 Translate",
+        changeLesson:"Change Lesson",
+        resetSchedule:"Reset Schedule To Original",
+        noSchedule:"No official Schedules",
+        principle:"Principle:",
+        lesson:"Lesson",
+        break:"Break",
+        reset:"Reset"
+    },
+
+    german:{
+        weekly:"Wöchentlicher Stundenplan",
+        classLabel:"Klasse:",
+        switchClass:"Klasse wechseln",
+        teacher:"Lehrer",
+        schedule:"Stundenplan",
+        times:"Zeiten",
+        seats:"Sitzplan",
+        changes:"Stundenplanänderungen",
+        selectClass:"Wähle deine Klasse",
+        translate:"🌐 Übersetzen",
+        changeLesson:"Stunde ändern",
+        resetSchedule:"Stundenplan auf Original zurücksetzen",
+        noSchedule:"Keine offiziellen Stundenpläne",
+        principle:"Schulleitung:",
+        lesson:"Stunde",
+        break:"Pause",
+        reset:"Zurücksetzen"
+    }
+
+};
+
+
+/* ================================= */
+/* TRANSLATION MENU */
+/* ================================= */
+
+function toggleLanguages(){
+
+    document
+        .getElementById("languageMenu")
+        .classList.toggle("show");
+
+}
+
+
+function setLanguage(language){
+
+    currentLanguage=language;
+
+    localStorage.setItem(
+        "schedoolLanguage",
+        language
+    );
+
+    document
+        .getElementById("languageMenu")
+        .classList.remove("show");
+
+    applyLanguage();
+
+}
+
+
+function applyLanguage(){
+
+    const t=
+        translations[currentLanguage];
+
+
+    document
+        .getElementById("weeklyText")
+        .textContent=t.weekly;
+
+
+    document
+        .getElementById("classLabel")
+        .textContent=t.classLabel;
+
+
+    document
+        .querySelector(".switch-btn")
+        .textContent=t.switchClass;
+
+
+    document
+        .getElementById("teacherLabel")
+        .textContent=t.teacher;
+
+
+    document
+        .getElementById("scheduleTab")
+        .textContent=t.schedule;
+
+
+    document
+        .getElementById("timesTab")
+        .textContent=t.times;
+
+
+    document
+        .getElementById("seatsTab")
+        .textContent=t.seats;
+
+
+    document
+        .getElementById("changesTab")
+        .textContent=t.changes;
+
+
+    document
+        .getElementById("autoclickerTab")
+        .textContent=t.autoclicker ||
+        "🥥 Autoclicker";
+
+
+    document
+        .getElementById("selectClassText")
+        .textContent=t.selectClass;
+
+
+    document
+        .querySelector(".language-btn")
+        .textContent=t.translate;
+
+
+    document
+        .getElementById("changeButton")
+        .textContent=t.changeLesson;
+
+
+    document
+        .getElementById("resetScheduleButton")
+        .textContent=t.resetSchedule;
+
+
+    document
+        .getElementById("seatPlanTitle")
+        .textContent=t.seats;
+
+
+    document
+        .getElementById("changesTitle")
+        .textContent=t.changes;
+
+
+    document
+        .getElementById("principleLabel")
+        .textContent=t.principle;
+
+
+    createSchedule();
+    updateTimesDisplay();
+
+}
+
+
+/* ================================= */
+/* TIME CONVERSION */
+/* ================================= */
+
+const timeMap={
+
+"12:00 PM":"12:00",
+"12:25 PM":"12:25",
+"12:50 PM":"12:50",
+
+"1:05 PM":"13:05",
+"1:10 PM":"13:10",
+"1:35 PM":"13:35",
+
+"2:00 PM":"14:00",
+"2:15 PM":"14:15",
+"2:20 PM":"14:20",
+"2:45 PM":"14:45",
+
+"3:10 PM":"15:10",
+
+"4:00 PM":"16:00",
+"4:25 PM":"16:25",
+"4:50 PM":"16:50",
+
+"5:15 PM":"17:15",
+"5:20 PM":"17:20",
+"5:30 PM":"17:30",
+"5:45 PM":"17:45",
+"5:55 PM":"17:55",
+
+"6:10 PM":"18:10",
+"6:15 PM":"18:15",
+"6:20 PM":"18:20",
+"6:30 PM":"18:30",
+"6:35 PM":"18:35",
+"6:40 PM":"18:40",
+
+"7:00 PM":"19:00",
+"7:05 PM":"19:05",
+"7:20 PM":"19:20",
+"7:25 PM":"19:25",
+"7:50 PM":"19:50",
+
+"8:15 PM":"20:15"
+
+};
+
+
+function convertTimeString(time){
+
+    if(currentLanguage!=="german")
+        return time;
+
+    let result=time;
+
+    Object.entries(timeMap).forEach(
+        ([oldTime,newTime])=>{
+            result=result.replace(
+                oldTime,
+                newTime
+            );
+        }
+    );
+
+    return result;
+
+}
+
+
+/* ================================= */
 /* SCHEDULE DISPLAY */
-/* ============================= */
+/* ================================= */
 
 function createSchedule(){
 
-const container=document.getElementById("scheduleContent");
-container.innerHTML="";
+    const container=
+        document.getElementById(
+            "scheduleContent"
+        );
 
-const grid=document.createElement("div");
-grid.className="schedule";
+    if(selectedClass!=="1DE")
+        return;
 
-Object.entries(schedules).forEach(([day,lessons])=>{
+    container.innerHTML="";
 
-const dayDiv=document.createElement("div");
-dayDiv.className="day";
+    const grid=
+        document.createElement("div");
 
-let html=`<h2>${day}</h2>`;
+    grid.className="schedule";
 
-lessons.forEach((lesson,index)=>{
 
-const subject=lesson[0];
-const time=lesson[1];
+    Object.entries(schedules).forEach(
+        ([day,lessons])=>{
 
-html+=`
+        const dayDiv=
+            document.createElement("div");
 
-<div class="lesson">
+        dayDiv.className="day";
 
-<div class="lesson-number">
-Lesson ${index+1}
-</div>
+        let html=
+            `<h2>${day}</h2>`;
 
-${
-subject==="---"
-?
-`<div class="empty">---</div>`
-:
-`<div class="lesson-name">${subject}</div>`
+
+        lessons.forEach(
+            (lesson,index)=>{
+
+            const subject=
+                lesson[0];
+
+            const time=
+                convertTimeString(lesson[1]);
+
+
+            html+=`
+
+                <div class="lesson">
+
+                    <div class="lesson-number">
+                        ${translations[currentLanguage].lesson}
+                        ${index+1}
+                    </div>
+
+                    ${
+                        subject==="---"
+                        ?
+                        `<div class="empty">---</div>`
+                        :
+                        `<div class="lesson-name">
+                            ${subject}
+                        </div>`
+                    }
+
+                    <div class="lesson-time">
+                        ${time}
+                    </div>
+
+                    ${
+                        rooms[subject]
+                        ?
+                        `<div class="room">
+                            ${rooms[subject]}
+                        </div>`
+                        :
+                        ""
+                    }
+
+                </div>
+
+            `;
+
+
+            if(index===1){
+
+                if(
+                    [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday"
+                    ].includes(day)
+                ){
+
+                    html+=`
+                        <div class="break">
+                            ${translations[currentLanguage].break}
+                            ·
+                            ${convertTimeString(
+                                "4:50 PM – 5:15 PM"
+                            )}
+                        </div>
+                    `;
+
+                }
+
+
+                if(
+                    ["Friday","Saturday"].includes(day)
+                ){
+
+                    html+=`
+                        <div class="break">
+                            ${translations[currentLanguage].break}
+                            ·
+                            ${convertTimeString(
+                                "12:50 PM – 1:05 PM"
+                            )}
+                        </div>
+                    `;
+
+                }
+
+            }
+
+
+            if(index===3){
+
+                if(
+                    [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday"
+                    ].includes(day)
+                ){
+
+                    html+=`
+                        <div class="break">
+                            ${translations[currentLanguage].break}
+                            ·
+                            ${convertTimeString(
+                                "6:10 PM – 6:30 PM"
+                            )}
+                        </div>
+                    `;
+
+                }
+
+
+                if(
+                    ["Friday","Saturday"].includes(day)
+                ){
+
+                    html+=`
+                        <div class="break">
+                            ${translations[currentLanguage].break}
+                            ·
+                            ${convertTimeString(
+                                "2:00 PM – 2:15 PM"
+                            )}
+                        </div>
+                    `;
+
+                }
+
+            }
+
+        });
+
+
+        dayDiv.innerHTML=html;
+
+        grid.appendChild(dayDiv);
+
+    });
+
+
+    container.appendChild(grid);
+
 }
 
-<div class="lesson-time">
-${time}
-</div>
 
-${
-rooms[subject]
-?
-`<div class="room">${rooms[subject]}</div>`
-:
-""
-}
+/* ================================= */
+/* TIMES TAB */
+/* ================================= */
 
-</div>
-`;
+function updateTimesDisplay(){
 
-if(index===1){
+    document
+        .querySelectorAll("[data-time]")
+        .forEach(element=>{
 
-if(["Monday","Tuesday","Wednesday","Thursday"].includes(day)){
-html+=`<div class="break">Break · 4:50 PM – 5:15 PM</div>`;
-}
+            element.textContent=
+                convertTimeString(
+                    element.dataset.time
+                );
 
-if(["Friday","Saturday"].includes(day)){
-html+=`<div class="break">Break · 12:50 PM – 1:05 PM</div>`;
-}
+        });
 
 }
 
-if(index===3){
 
-if(["Monday","Tuesday","Wednesday","Thursday"].includes(day)){
-html+=`<div class="break">Break · 6:10 PM – 6:30 PM</div>`;
-}
-
-if(["Friday","Saturday"].includes(day)){
-html+=`<div class="break">Break · 2:00 PM – 2:15 PM</div>`;
-}
-
-}
-
-});
-
-dayDiv.innerHTML=html;
-grid.appendChild(dayDiv);
-
-});
-
-container.appendChild(grid);
-
-}
-
-/* ============================= */
+/* ================================= */
 /* SEAT PLAN */
-/* ============================= */
+/* ================================= */
 
 function createSeatPlan(){
 
-const grid=document.getElementById("seatGrid");
-grid.innerHTML="";
+    const grid=
+        document.getElementById(
+            "seatGrid"
+        );
 
-for(let i=1;i<=18;i++){
+    grid.innerHTML="";
 
-let student="???";
 
-if(selectedClass==="1DE"&&i===4){
-student="Flie";
+    for(let i=1;i<=18;i++){
+
+        let student="???";
+
+        if(
+            selectedClass==="1DE" &&
+            i===4
+        ){
+
+            student="Flie";
+
+        }
+
+
+        const seat=
+            document.createElement("div");
+
+        seat.className="seat";
+
+
+        if(
+            selectedClass==="1DE" &&
+            i===4
+        ){
+
+            seat.classList.add("special");
+
+        }
+
+
+        seat.innerHTML=`
+
+            <div class="seat-number">
+                ${i}.
+            </div>
+
+            <div class="seat-name">
+                ${student}
+            </div>
+
+        `;
+
+
+        grid.appendChild(seat);
+
+    }
+
 }
 
-const seat=document.createElement("div");
-seat.className="seat";
 
-if(selectedClass==="1DE"&&i===4){
-seat.classList.add("special");
-}
-
-seat.innerHTML=`
-<div class="seat-number">${i}.</div>
-<div class="seat-name">${student}</div>
-`;
-
-grid.appendChild(seat);
-
-}
-
-}
-
-/* ============================= */
+/* ================================= */
 /* TABS */
-/* ============================= */
+/* ================================= */
 
 function showTab(tabId,button){
 
-document.querySelectorAll(".tab").forEach(tab=>{
-tab.classList.remove("active");
-});
+    document
+        .querySelectorAll(".tab")
+        .forEach(tab=>{
+            tab.classList.remove("active");
+        });
 
-document.querySelectorAll(".tab-btn").forEach(btn=>{
-btn.classList.remove("active");
-});
 
-document.getElementById(tabId).classList.add("active");
-button.classList.add("active");
+    document
+        .querySelectorAll(".tab-btn")
+        .forEach(btn=>{
+            btn.classList.remove("active");
+        });
+
+
+    document
+        .getElementById(tabId)
+        .classList.add("active");
+
+
+    button.classList.add("active");
 
 }
 
-/* ============================= */
+
+/* ================================= */
 /* SCHEDULE CHANGER */
-/* ============================= */
+/* ================================= */
 
 function updateLessonOptions(){
 
-const day=document.getElementById("changeDay").value;
-const lessonSelect=document.getElementById("changeLesson");
+    const day=
+        document.getElementById(
+            "changeDay"
+        ).value;
 
-lessonSelect.innerHTML="";
+    const lessonSelect=
+        document.getElementById(
+            "changeLesson"
+        );
 
-const lessons=schedules[day];
+    lessonSelect.innerHTML="";
 
-lessons.forEach((lesson,index)=>{
+    const lessons=
+        schedules[day];
 
-const option=document.createElement("option");
 
-option.value=index;
-option.textContent=`Lesson ${index+1} · ${lesson[0]} · ${lesson[1]}`;
+    lessons.forEach(
+        (lesson,index)=>{
 
-lessonSelect.appendChild(option);
+        const option=
+            document.createElement("option");
 
-});
+        option.value=index;
+
+        option.textContent=
+            `${translations[currentLanguage].lesson}
+             ${index+1} ·
+             ${lesson[0]} ·
+             ${convertTimeString(lesson[1])}`;
+
+        lessonSelect.appendChild(option);
+
+    });
 
 }
+
 
 function addScheduleChange(){
 
-const day=document.getElementById("changeDay").value;
-const lessonIndex=parseInt(document.getElementById("changeLesson").value);
-const subject=document.getElementById("changeSubject").value;
+    const day=
+        document.getElementById(
+            "changeDay"
+        ).value;
 
-if(isNaN(lessonIndex))return;
+    const lessonIndex=
+        parseInt(
+            document.getElementById(
+                "changeLesson"
+            ).value
+        );
 
-const oldSubject=schedules[day][lessonIndex][0];
+    const subject=
+        document.getElementById(
+            "changeSubject"
+        ).value;
 
-schedules[day][lessonIndex][0]=subject;
 
-localStorage.setItem(
-"schedoolSchedule",
-JSON.stringify(schedules)
-);
+    if(isNaN(lessonIndex))
+        return;
 
-createSchedule();
-updateLessonOptions();
-renderChanges();
+
+    schedules[day][lessonIndex][0]=
+        subject;
+
+
+    localStorage.setItem(
+        "schedoolSchedule",
+        JSON.stringify(schedules)
+    );
+
+
+    createSchedule();
+    updateLessonOptions();
+    renderChanges();
 
 }
+
 
 function renderChanges(){
 
-const list=document.getElementById("changeList");
-list.innerHTML="";
+    const list=
+        document.getElementById(
+            "changeList"
+        );
 
-const original=originalSchedules;
+    list.innerHTML="";
 
-Object.entries(schedules).forEach(([day,lessons])=>{
 
-lessons.forEach((lesson,index)=>{
+    Object.entries(schedules).forEach(
+        ([day,lessons])=>{
 
-const originalLesson=original[day]?.[index];
+        lessons.forEach(
+            (lesson,index)=>{
 
-if(originalLesson&&originalLesson[0]!==lesson[0]){
+            const originalLesson=
+                originalSchedules[day]?.[index];
 
-const div=document.createElement("div");
-div.className="change";
 
-div.innerHTML=`
+            if(
+                originalLesson &&
+                originalLesson[0]!==lesson[0]
+            ){
 
-<button
-class="delete-btn"
-onclick="resetSingleChange('${day}',${index})">
-Reset
-</button>
+                const div=
+                    document.createElement("div");
 
-<strong>${day}</strong>
+                div.className="change";
 
-<p style="margin-top:8px;">
-Lesson ${index+1}:
-${escapeHTML(originalLesson[0])}
-→
-${escapeHTML(lesson[0])}
-</p>
 
-`;
+                div.innerHTML=`
 
-list.appendChild(div);
+                    <button
+                        class="delete-btn"
+                        onclick="resetSingleChange('${day}',${index})">
+
+                        ${translations[currentLanguage].reset}
+
+                    </button>
+
+                    <strong>
+                        ${day}
+                    </strong>
+
+                    <p style="margin-top:8px;">
+
+                        ${translations[currentLanguage].lesson}
+                        ${index+1}:
+
+                        ${escapeHTML(
+                            originalLesson[0]
+                        )}
+
+                        →
+
+                        ${escapeHTML(
+                            lesson[0]
+                        )}
+
+                    </p>
+
+                `;
+
+
+                list.appendChild(div);
+
+            }
+
+        });
+
+    });
+
+
+    if(!list.innerHTML){
+
+        list.innerHTML=`
+
+            <div class="change">
+
+                <strong>
+                    No schedule changes
+                </strong>
+
+                <p style="margin-top:8px;color:#888;">
+
+                    Your schedule is currently
+                    using the original timetable.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
 
 }
 
-});
-
-});
-
-if(!list.innerHTML){
-
-list.innerHTML=`
-<div class="change">
-<strong>No schedule changes</strong>
-<p style="margin-top:8px;color:#888;">
-Your schedule is currently using the original timetable.
-</p>
-</div>
-`;
-
-}
-
-}
 
 function resetSingleChange(day,index){
 
-schedules[day][index][0]=originalSchedules[day][index][0];
+    schedules[day][index][0]=
+        originalSchedules[day][index][0];
 
-localStorage.setItem(
-"schedoolSchedule",
-JSON.stringify(schedules)
-);
 
-createSchedule();
-updateLessonOptions();
-renderChanges();
+    localStorage.setItem(
+        "schedoolSchedule",
+        JSON.stringify(schedules)
+    );
+
+
+    createSchedule();
+    updateLessonOptions();
+    renderChanges();
 
 }
+
 
 function resetSchedule(){
 
-if(!confirm("Reset the entire schedule back to the original timetable?")){
-return;
+    if(
+        !confirm(
+            "Reset the entire schedule back to the original timetable?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    schedules=
+        JSON.parse(
+            JSON.stringify(originalSchedules)
+        );
+
+
+    localStorage.setItem(
+        "schedoolSchedule",
+        JSON.stringify(schedules)
+    );
+
+
+    createSchedule();
+    updateLessonOptions();
+    renderChanges();
+
 }
 
-schedules=JSON.parse(
-JSON.stringify(originalSchedules)
-);
-
-localStorage.setItem(
-"schedoolSchedule",
-JSON.stringify(schedules)
-);
-
-createSchedule();
-updateLessonOptions();
-renderChanges();
-
-}
 
 function escapeHTML(text){
 
-const div=document.createElement("div");
-div.textContent=text;
-return div.innerHTML;
+    const div=
+        document.createElement("div");
+
+    div.textContent=text;
+
+    return div.innerHTML;
 
 }
 
-/* ============================= */
-/* DRCOCONUT AUTOCLICKER */
-/* ============================= */
 
-const coconutSaveKey="schedoolDrCoconutClicker";
+/* ================================= */
+/* DRCOCONUT AUTOCLICKER */
+/* ================================= */
+
+const coconutSaveKey=
+    "schedoolDrCoconutClicker";
 
 let clicker={
-clicks:0,
-clickPower:1,
-autoClickers:0,
-autoPower:1,
-clickUpgradeCost:25,
-autoClickerCost:100,
-autoPowerCost:500,
-lastSaved:Date.now()
+
+    clicks:0,
+
+    clickPower:1,
+
+    autoClickers:0,
+
+    autoPower:1,
+
+    clickUpgradeCost:25,
+
+    autoClickerCost:100,
+
+    autoPowerCost:500,
+
+    lastSaved:Date.now()
+
 };
+
 
 function loadClicker(){
 
-const saved=localStorage.getItem(coconutSaveKey);
+    const saved=
+        localStorage.getItem(
+            coconutSaveKey
+        );
 
-if(saved){
 
-try{
-clicker={...clicker,...JSON.parse(saved)};
-}catch{}
+    if(saved){
+
+        try{
+
+            clicker={
+                ...clicker,
+                ...JSON.parse(saved)
+            };
+
+        }catch{}
+
+    }
+
+
+    const now=
+        Date.now();
+
+
+    const elapsed=
+        Math.max(
+            0,
+            Math.min(
+                (now-clicker.lastSaved)/1000,
+                86400
+            )
+        );
+
+
+    if(
+        clicker.autoClickers>0 &&
+        elapsed>5
+    ){
+
+        const offlineClicks=
+            Math.floor(
+                elapsed*
+                clicker.autoClickers*
+                clicker.autoPower
+            );
+
+
+        clicker.clicks+=
+            offlineClicks;
+
+
+        document
+            .getElementById(
+                "offlineMessage"
+            )
+            .textContent=
+            `While you were away, DrCoconut earned ${formatNumber(offlineClicks)} clicks!`;
+
+    }
+
+
+    clicker.lastSaved=now;
+
+    saveClicker();
+
+    updateClickerUI();
+
 }
 
-const now=Date.now();
-
-const elapsed=Math.max(
-0,
-Math.min((now-clicker.lastSaved)/1000,86400)
-);
-
-if(clicker.autoClickers>0&&elapsed>5){
-
-const offlineClicks=Math.floor(
-elapsed*
-clicker.autoClickers*
-clicker.autoPower
-);
-
-clicker.clicks+=offlineClicks;
-
-document.getElementById("offlineMessage").textContent=
-`While you were away, DrCoconut earned ${formatNumber(offlineClicks)} clicks!`;
-
-}
-
-clicker.lastSaved=now;
-saveClicker();
-updateClickerUI();
-
-}
 
 function saveClicker(){
 
-clicker.lastSaved=Date.now();
+    clicker.lastSaved=
+        Date.now();
 
-localStorage.setItem(
-coconutSaveKey,
-JSON.stringify(clicker)
-);
+    localStorage.setItem(
+        coconutSaveKey,
+        JSON.stringify(clicker)
+    );
 
 }
+
 
 function formatNumber(number){
 
-if(number<1000)return Math.floor(number).toString();
-if(number<1000000)return Math.floor(number).toLocaleString();
-if(number<1000000000)return(number/1000000).toFixed(2)+"M";
-if(number<1000000000000)return(number/1000000000).toFixed(2)+"B";
-return(number/1000000000000).toFixed(2)+"T";
+    if(number<1000)
+        return Math.floor(number).toString();
+
+    if(number<1000000)
+        return Math.floor(number).toLocaleString();
+
+    if(number<1000000000)
+        return(
+            number/1000000
+        ).toFixed(2)+"M";
+
+    if(number<1000000000000)
+        return(
+            number/1000000000
+        ).toFixed(2)+"B";
+
+    return(
+        number/1000000000000
+    ).toFixed(2)+"T";
 
 }
+
 
 function clickCoconut(){
 
-clicker.clicks+=clicker.clickPower;
-updateClickerUI();
-saveClicker();
+    clicker.clicks+=
+        clicker.clickPower;
+
+    updateClickerUI();
+    saveClicker();
 
 }
+
 
 function buyClickUpgrade(){
 
-if(clicker.clicks<clicker.clickUpgradeCost)return;
+    if(
+        clicker.clicks<
+        clicker.clickUpgradeCost
+    )
+        return;
 
-clicker.clicks-=clicker.clickUpgradeCost;
-clicker.clickPower++;
 
-clicker.clickUpgradeCost=Math.ceil(
-clicker.clickUpgradeCost*1.65
-);
+    clicker.clicks-=
+        clicker.clickUpgradeCost;
 
-updateClickerUI();
-saveClicker();
+    clicker.clickPower++;
+
+
+    clicker.clickUpgradeCost=
+        Math.ceil(
+            clicker.clickUpgradeCost*
+            1.65
+        );
+
+
+    updateClickerUI();
+    saveClicker();
 
 }
+
 
 function buyAutoClicker(){
 
-if(clicker.clicks<clicker.autoClickerCost)return;
+    if(
+        clicker.clicks<
+        clicker.autoClickerCost
+    )
+        return;
 
-clicker.clicks-=clicker.autoClickerCost;
-clicker.autoClickers++;
 
-clicker.autoClickerCost=Math.ceil(
-clicker.autoClickerCost*1.35
-);
+    clicker.clicks-=
+        clicker.autoClickerCost;
 
-updateClickerUI();
-saveClicker();
+    clicker.autoClickers++;
+
+
+    clicker.autoClickerCost=
+        Math.ceil(
+            clicker.autoClickerCost*
+            1.35
+        );
+
+
+    updateClickerUI();
+    saveClicker();
 
 }
+
 
 function buyAutoPower(){
 
-if(clicker.clicks<clicker.autoPowerCost)return;
+    if(
+        clicker.clicks<
+        clicker.autoPowerCost
+    )
+        return;
 
-clicker.clicks-=clicker.autoPowerCost;
-clicker.autoPower++;
 
-clicker.autoPowerCost=Math.ceil(
-clicker.autoPowerCost*2
-);
+    clicker.clicks-=
+        clicker.autoPowerCost;
 
-updateClickerUI();
-saveClicker();
+    clicker.autoPower++;
+
+
+    clicker.autoPowerCost=
+        Math.ceil(
+            clicker.autoPowerCost*
+            2
+        );
+
+
+    updateClickerUI();
+    saveClicker();
 
 }
+
 
 function updateClickerUI(){
 
-document.getElementById("clickCounter").textContent=
-formatNumber(clicker.clicks);
+    document
+        .getElementById("clickCounter")
+        .textContent=
+        formatNumber(
+            clicker.clicks
+        );
 
-document.getElementById("clickPower").textContent=
-clicker.clickPower;
 
-document.getElementById("autoRate").textContent=
-clicker.autoClickers*clicker.autoPower;
+    document
+        .getElementById("clickPower")
+        .textContent=
+        clicker.clickPower;
 
-document.getElementById("clickUpgradeButton").textContent=
-`Upgrade · ${formatNumber(clicker.clickUpgradeCost)}`;
 
-document.getElementById("autoUpgradeButton").textContent=
-`Buy · ${formatNumber(clicker.autoClickerCost)}`;
+    document
+        .getElementById("autoRate")
+        .textContent=
+        clicker.autoClickers*
+        clicker.autoPower;
 
-document.getElementById("autoPowerButton").textContent=
-`Upgrade · ${formatNumber(clicker.autoPowerCost)}`;
 
-document.getElementById("clickUpgradeButton").disabled=
-clicker.clicks<clicker.clickUpgradeCost;
+    document
+        .getElementById(
+            "clickUpgradeButton"
+        )
+        .textContent=
+        `Upgrade · ${formatNumber(
+            clicker.clickUpgradeCost
+        )}`;
 
-document.getElementById("autoUpgradeButton").disabled=
-clicker.clicks<clicker.autoClickerCost;
 
-document.getElementById("autoPowerButton").disabled=
-clicker.clicks<clicker.autoPowerCost;
+    document
+        .getElementById(
+            "autoUpgradeButton"
+        )
+        .textContent=
+        `Buy · ${formatNumber(
+            clicker.autoClickerCost
+        )}`;
+
+
+    document
+        .getElementById(
+            "autoPowerButton"
+        )
+        .textContent=
+        `Upgrade · ${formatNumber(
+            clicker.autoPowerCost
+        )}`;
+
+
+    document
+        .getElementById(
+            "clickUpgradeButton"
+        )
+        .disabled=
+        clicker.clicks<
+        clicker.clickUpgradeCost;
+
+
+    document
+        .getElementById(
+            "autoUpgradeButton"
+        )
+        .disabled=
+        clicker.clicks<
+        clicker.autoClickerCost;
+
+
+    document
+        .getElementById(
+            "autoPowerButton"
+        )
+        .disabled=
+        clicker.clicks<
+        clicker.autoPowerCost;
 
 }
+
 
 setInterval(()=>{
 
-if(clicker.autoClickers>0){
+    if(
+        clicker.autoClickers>0
+    ){
 
-clicker.clicks+=
-clicker.autoClickers*
-clicker.autoPower;
+        clicker.clicks+=
+            clicker.autoClickers*
+            clicker.autoPower;
 
-updateClickerUI();
-saveClicker();
+        updateClickerUI();
+        saveClicker();
 
-}
+    }
 
 },1000);
 
+
 function resetClicker(){
 
-if(!confirm("Reset ALL DrCoconut clicker progress?"))return;
+    if(
+        !confirm(
+            "Reset ALL DrCoconut clicker progress?"
+        )
+    )
+        return;
 
-clicker={
-clicks:0,
-clickPower:1,
-autoClickers:0,
-autoPower:1,
-clickUpgradeCost:25,
-autoClickerCost:100,
-autoPowerCost:500,
-lastSaved:Date.now()
-};
 
-document.getElementById("offlineMessage").textContent="";
+    clicker={
 
-saveClicker();
-updateClickerUI();
+        clicks:0,
+
+        clickPower:1,
+
+        autoClickers:0,
+
+        autoPower:1,
+
+        clickUpgradeCost:25,
+
+        autoClickerCost:100,
+
+        autoPowerCost:500,
+
+        lastSaved:Date.now()
+
+    };
+
+
+    document
+        .getElementById(
+            "offlineMessage"
+        )
+        .textContent="";
+
+
+    saveClicker();
+    updateClickerUI();
 
 }
 
-window.addEventListener("beforeunload",saveClicker);
 
-document.addEventListener("visibilitychange",()=>{
-if(document.visibilityState==="hidden")saveClicker();
-});
+window.addEventListener(
+    "beforeunload",
+    saveClicker
+);
 
-/* ============================= */
+
+document.addEventListener(
+    "visibilitychange",
+    ()=>{
+
+        if(
+            document.visibilityState==="hidden"
+        ){
+
+            saveClicker();
+
+        }
+
+    }
+);
+
+
+/* ================================= */
 /* START */
-/* ============================= */
+/* ================================= */
 
 loadClicker();
 
 if(selectedClass){
 
-document.getElementById("classSelection").style.display="none";
-updateClass();
+    document
+        .getElementById(
+            "classSelection"
+        )
+        .style.display="none";
+
+    updateClass();
 
 }else{
 
-document.getElementById("classSelection").style.display="flex";
+    document
+        .getElementById(
+            "classSelection"
+        )
+        .style.display="flex";
 
 }
 
 updateLessonOptions();
 renderChanges();
+applyLanguage();
 
 </script>
 
