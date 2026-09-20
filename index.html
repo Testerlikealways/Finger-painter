@@ -112,6 +112,21 @@ textarea{min-height:100px;resize:vertical;}
 .reset-game{display:block;width:auto;margin:20px auto 0;padding:9px 15px;background:#3a2020;border:1px solid #573030;cursor:pointer;}
 .offline-message{color:#b47cff;font-size:13px;margin-top:10px;}
 
+/* AUTH */
+.auth-wrapper{margin-top:12px;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;}
+.auth-wrapper button{width:auto;margin:0;padding:10px 16px;background:#191923;color:#aaa;border:1px solid #292936;border-radius:10px;cursor:pointer;}
+.auth-wrapper button:hover{background:#8b4dff;color:white;}
+.auth-status{color:#c59cff;font-size:14px;}
+#loginModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;justify-content:center;align-items:center;padding:15px;}
+#loginModal.show{display:flex;}
+.login-box{width:100%;max-width:380px;background:#15151f;border:1px solid #282838;border-radius:16px;padding:25px;}
+.login-box h2{color:#b47cff;text-align:center;margin-bottom:5px;}
+.login-box input{width:100%;margin-top:10px;padding:11px;border-radius:9px;border:1px solid #30303d;background:#20202c;color:white;font-family:inherit;}
+.login-error{color:#ff7a7a;font-size:13px;margin-top:10px;min-height:16px;text-align:center;}
+.request-status{margin-top:12px;font-size:14px;text-align:center;min-height:18px;}
+.request-status.ok{color:#7dff9c;}
+.request-status.err{color:#ff7a7a;}
+
 /* FOOTER */
 footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-size:13px;}
 
@@ -166,6 +181,17 @@ footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-siz
     </div>
 </div>
 
+<div id="loginModal" onclick="if(event.target===this)closeLogin()">
+    <div class="login-box">
+        <h2 id="loginTitle">Teacher Login</h2>
+        <input type="text" id="loginUser" placeholder="Username" autocomplete="username" autocapitalize="off">
+        <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <div class="login-error" id="loginError"></div>
+        <button class="add-btn" id="loginSubmit" onclick="doLogin()">Login</button>
+        <button id="loginCancel" onclick="closeLogin()">Cancel</button>
+    </div>
+</div>
+
 <header>
     <h1>Schedool™</h1>
     <p id="weeklyText">Weekly timetable</p>
@@ -181,6 +207,12 @@ footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-siz
 
     <div class="timezone-wrapper">
         <select id="timezoneSelect" onchange="setTimezone(this.value)"></select>
+    </div>
+
+    <div class="auth-wrapper">
+        <span class="auth-status" id="authStatus"></span>
+        <button id="loginBtn" onclick="openLogin()">🔒 Login</button>
+        <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
     </div>
 </header>
 
@@ -205,7 +237,7 @@ footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-siz
     <button class="tab-btn active" onclick="showTab('schedule',this)" id="scheduleTab">Schedule</button>
     <button class="tab-btn" onclick="showTab('times',this)" id="timesTab">Times</button>
     <button class="tab-btn" onclick="showTab('seats',this)" id="seatsTab">Seat Plan</button>
-    <button class="tab-btn" onclick="showTab('changes',this)" id="changesTab">Schedule Changes</button>
+    <button class="tab-btn" onclick="showTab('changes',this)" id="changesTab" style="display:none;">Schedule Changer</button>
     <button class="tab-btn" onclick="showTab('autoclicker',this)" id="autoclickerTab">🥥 Autoclicker</button>
 </div>
 
@@ -263,7 +295,7 @@ footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-siz
 <div id="changes" class="tab">
     <div class="changes">
         <div class="change-form">
-            <h2 id="changesTitle">Schedule Changes</h2>
+            <h2 id="changesTitle">Schedule Changer</h2>
 
             <select id="changeDay" onchange="updateLessonOptions()">
                 <option>Monday</option>
@@ -286,11 +318,10 @@ footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-siz
                 <option>---</option>
             </select>
 
-            <button class="add-btn" onclick="addScheduleChange()" id="changeButton">Change Lesson</button>
-            <button class="reset-schedule" onclick="resetSchedule()" id="resetScheduleButton">Reset Schedule To Original</button>
-        </div>
+            <button class="add-btn" onclick="addScheduleChange()" id="changeButton">Send Change Request</button>
 
-        <div id="changeList" class="change-list"></div>
+            <div class="request-status" id="requestStatus"></div>
+        </div>
     </div>
 </div>
 
@@ -487,11 +518,8 @@ Sunday:[
 /* SAVED SCHEDULE */
 /* ================================= */
 
-let schedules=JSON.parse(localStorage.getItem("schedoolSchedule"));
-
-if(!schedules){
-    schedules=JSON.parse(JSON.stringify(originalSchedules));
-}
+let schedules=JSON.parse(JSON.stringify(originalSchedules));
+localStorage.removeItem("schedoolSchedule");
 
 
 /* ================================= */
@@ -523,11 +551,11 @@ const translations={
         schedule:"Schedule",
         times:"Times",
         seats:"Seat Plan",
-        changes:"Schedule Changes",
+        changes:"Schedule Changer",
         autoclicker:"🥥 Autoclicker",
         selectClass:"Select your class",
         translate:"🌐 Translate",
-        changeLesson:"Change Lesson",
+        changeLesson:"Send Change Request",
         resetSchedule:"Reset Schedule To Original",
         noSchedule:"No official Schedules",
         principle:"Principle:",
@@ -536,7 +564,14 @@ const translations={
         reset:"Reset",
         germanTime:"🕐 German time (original)",
         hour:"hour",
-        hours:"hours"
+        hours:"hours",
+        login:"🔒 Login",
+        logout:"Logout",
+        loggedInAs:"Logged in as",
+        loginTitle:"Teacher Login",
+        username:"Username",
+        password:"Password",
+        cancel:"Cancel"
     },
 
     british:{
@@ -547,11 +582,11 @@ const translations={
         schedule:"Schedule",
         times:"Times",
         seats:"Seat Plan",
-        changes:"Schedule Changes",
+        changes:"Schedule Changer",
         autoclicker:"🥥 Autoclicker",
         selectClass:"Select your class",
         translate:"🌐 Translate",
-        changeLesson:"Change Lesson",
+        changeLesson:"Send Change Request",
         resetSchedule:"Reset Schedule To Original",
         noSchedule:"No official Schedules",
         principle:"Principle:",
@@ -560,7 +595,14 @@ const translations={
         reset:"Reset",
         germanTime:"🕐 German time (original)",
         hour:"hour",
-        hours:"hours"
+        hours:"hours",
+        login:"🔒 Login",
+        logout:"Logout",
+        loggedInAs:"Logged in as",
+        loginTitle:"Teacher Login",
+        username:"Username",
+        password:"Password",
+        cancel:"Cancel"
     },
 
     german:{
@@ -571,11 +613,11 @@ const translations={
         schedule:"Stundenplan",
         times:"Zeiten",
         seats:"Sitzplan",
-        changes:"Stundenplanänderungen",
+        changes:"Stundenplan ändern",
         autoclicker:"🥥 Autoclicker",
         selectClass:"Wähle deine Klasse",
         translate:"🌐 Übersetzen",
-        changeLesson:"Stunde ändern",
+        changeLesson:"Änderungsanfrage senden",
         resetSchedule:"Stundenplan auf Original zurücksetzen",
         noSchedule:"Keine offiziellen Stundenpläne",
         principle:"Schulleitung:",
@@ -584,7 +626,14 @@ const translations={
         reset:"Zurücksetzen",
         germanTime:"🕐 Deutsche Zeit (Original)",
         hour:"Stunde",
-        hours:"Stunden"
+        hours:"Stunden",
+        login:"🔒 Anmelden",
+        logout:"Abmelden",
+        loggedInAs:"Angemeldet als",
+        loginTitle:"Lehrer-Login",
+        username:"Benutzername",
+        password:"Passwort",
+        cancel:"Abbrechen"
     }
 
 };
@@ -623,15 +672,22 @@ function applyLanguage(){
     document.getElementById("selectClassText").textContent=t.selectClass;
     document.querySelector(".language-btn").textContent=t.translate;
     document.getElementById("changeButton").textContent=t.changeLesson;
-    document.getElementById("resetScheduleButton").textContent=t.resetSchedule;
     document.getElementById("seatPlanTitle").textContent=t.seats;
     document.getElementById("changesTitle").textContent=t.changes;
     document.getElementById("principleLabel").textContent=t.principle;
+
+    document.getElementById("changeButton").textContent=t.changeLesson;
+    document.getElementById("loginTitle").textContent=t.loginTitle;
+    document.getElementById("loginUser").placeholder=t.username;
+    document.getElementById("loginPass").placeholder=t.password;
+    document.getElementById("loginSubmit").textContent=t.login.replace("🔒 ","");
+    document.getElementById("loginCancel").textContent=t.cancel;
 
     buildTimezoneSelect();
     createSchedule();
     updateTimesDisplay();
     updateLessonOptions();
+    updateAuthUI();
 }
 
 
@@ -933,7 +989,146 @@ function updateLessonOptions(){
     });
 }
 
-function addScheduleChange(){
+/* ================================= */
+/* LOGIN */
+/* ================================= */
+
+const USER_JSON_URL=
+    "https://raw.githubusercontent.com/Testerlikealways/Finger-painter/main/user.json";
+
+const WEBHOOK_URL=
+    "https://discord.com/api/webhooks/1551292443599839271/bbBoyuphYnVnDpaHCod4o8DgBJdaZQLpXPEnlRt4WH9TdBMGxB3RDX1BGbxxmBG-By6R";
+
+let loggedInUser=localStorage.getItem("schedoolUser");
+
+async function sha256Hex(text){
+
+    const data=new TextEncoder().encode(text);
+    const buf=await crypto.subtle.digest("SHA-256",data);
+
+    return Array.from(new Uint8Array(buf))
+        .map(b=>b.toString(16).padStart(2,"0"))
+        .join("");
+}
+
+function openLogin(){
+    document.getElementById("loginError").textContent="";
+    document.getElementById("loginPass").value="";
+    document.getElementById("loginModal").classList.add("show");
+    document.getElementById("loginUser").focus();
+}
+
+function closeLogin(){
+    document.getElementById("loginModal").classList.remove("show");
+}
+
+async function doLogin(){
+
+    const errorBox=document.getElementById("loginError");
+    const username=document.getElementById("loginUser").value.trim();
+    const password=document.getElementById("loginPass").value;
+
+    errorBox.textContent="";
+
+    if(!username || !password){
+        errorBox.textContent="Enter username and password.";
+        return;
+    }
+
+    try{
+
+        if(!window.crypto || !crypto.subtle){
+            errorBox.textContent="Login needs a secure (https) page.";
+            return;
+        }
+
+        const res=await fetch(USER_JSON_URL+"?t="+Date.now(),{cache:"no-store"});
+        if(!res.ok) throw new Error("fetch failed");
+
+        const data=await res.json();
+
+        const user=(data.users||[]).find(u=>u.username===username);
+
+        /* always hash so timing is similar for unknown users */
+        const hash=await sha256Hex((user?user.salt:"")+password);
+
+        if(!user || hash!==user.hash){
+            errorBox.textContent="Wrong username or password.";
+            return;
+        }
+
+        loggedInUser=user.username;
+        localStorage.setItem("schedoolUser",loggedInUser);
+
+        document.getElementById("loginPass").value="";
+        closeLogin();
+        updateAuthUI();
+
+    }catch(e){
+        errorBox.textContent="Could not load login data.";
+    }
+}
+
+function logout(){
+
+    loggedInUser=null;
+    localStorage.removeItem("schedoolUser");
+
+    updateAuthUI();
+}
+
+function updateAuthUI(){
+
+    const t=translations[currentLanguage];
+    const changesTab=document.getElementById("changesTab");
+
+    document.getElementById("loginBtn").textContent=t.login;
+    document.getElementById("logoutBtn").textContent=t.logout;
+
+    if(loggedInUser){
+
+        document.getElementById("authStatus").textContent=
+            `${t.loggedInAs} ${loggedInUser}`;
+
+        document.getElementById("loginBtn").style.display="none";
+        document.getElementById("logoutBtn").style.display="inline-block";
+        changesTab.style.display="";
+
+    }else{
+
+        document.getElementById("authStatus").textContent="";
+        document.getElementById("loginBtn").style.display="inline-block";
+        document.getElementById("logoutBtn").style.display="none";
+        changesTab.style.display="none";
+
+        /* kick a logged-out user off the changer tab */
+        if(document.getElementById("changes").classList.contains("active")){
+            showTab("schedule",document.getElementById("scheduleTab"));
+        }
+
+    }
+}
+
+
+/* ================================= */
+/* CHANGE REQUEST -> DISCORD         */
+/* ================================= */
+
+let lastRequestTime=0;
+
+async function addScheduleChange(){
+
+    const status=document.getElementById("requestStatus");
+
+    if(!loggedInUser){
+        return;
+    }
+
+    if(Date.now()-lastRequestTime<10000){
+        status.className="request-status err";
+        status.textContent="Please wait a few seconds before sending another request.";
+        return;
+    }
 
     const day=document.getElementById("changeDay").value;
     const lessonIndex=parseInt(document.getElementById("changeLesson").value);
@@ -942,97 +1137,46 @@ function addScheduleChange(){
     if(isNaN(lessonIndex))
         return;
 
-    schedules[day][lessonIndex][0]=subject;
+    const lesson=originalSchedules[day][lessonIndex];
 
-    localStorage.setItem("schedoolSchedule",JSON.stringify(schedules));
+    const payload={
+        username:"Schedool",
+        embeds:[{
+            title:"📅 Schedule Change Request",
+            color:0x8b4dff,
+            fields:[
+                {name:"Requested by",value:loggedInUser,inline:true},
+                {name:"Class",value:selectedClass||"1DE",inline:true},
+                {name:"Day",value:day,inline:true},
+                {name:"Lesson",value:`Lesson ${lessonIndex+1} (${lesson[1]}, German time)`,inline:false},
+                {name:"Current",value:lesson[0],inline:true},
+                {name:"Requested",value:subject,inline:true}
+            ],
+            timestamp:new Date().toISOString()
+        }]
+    };
 
-    createSchedule();
-    updateLessonOptions();
-    renderChanges();
-}
+    status.className="request-status";
+    status.textContent="Sending...";
 
-function renderChanges(){
+    try{
 
-    const list=document.getElementById("changeList");
-    list.innerHTML="";
-
-    Object.entries(schedules).forEach(([day,lessons])=>{
-
-        lessons.forEach((lesson,index)=>{
-
-            const originalLesson=originalSchedules[day]?.[index];
-
-            if(originalLesson && originalLesson[0]!==lesson[0]){
-
-                const div=document.createElement("div");
-                div.className="change";
-
-                div.innerHTML=`
-
-                    <button
-                        class="delete-btn"
-                        onclick="resetSingleChange('${day}',${index})">
-                        ${translations[currentLanguage].reset}
-                    </button>
-
-                    <strong>${day}</strong>
-
-                    <p style="margin-top:8px;">
-                        ${translations[currentLanguage].lesson}
-                        ${index+1}:
-                        ${escapeHTML(originalLesson[0])}
-                        →
-                        ${escapeHTML(lesson[0])}
-                    </p>
-
-                `;
-
-                list.appendChild(div);
-            }
-
+        const res=await fetch(WEBHOOK_URL,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(payload)
         });
 
-    });
+        if(!res.ok) throw new Error("webhook failed");
 
-    if(!list.innerHTML){
+        lastRequestTime=Date.now();
+        status.className="request-status ok";
+        status.textContent="✅ Change request sent!";
 
-        list.innerHTML=`
-            <div class="change">
-                <strong>No schedule changes</strong>
-                <p style="margin-top:8px;color:#888;">
-                    Your schedule is currently
-                    using the original timetable.
-                </p>
-            </div>
-        `;
-
+    }catch(e){
+        status.className="request-status err";
+        status.textContent="❌ Could not send the request.";
     }
-}
-
-function resetSingleChange(day,index){
-
-    schedules[day][index][0]=originalSchedules[day][index][0];
-
-    localStorage.setItem("schedoolSchedule",JSON.stringify(schedules));
-
-    createSchedule();
-    updateLessonOptions();
-    renderChanges();
-}
-
-function resetSchedule(){
-
-    if(!confirm("Reset the entire schedule back to the original timetable?")){
-        return;
-    }
-
-    schedules=JSON.parse(JSON.stringify(originalSchedules));
-
-    localStorage.setItem("schedoolSchedule",JSON.stringify(schedules));
-
-    createSchedule();
-    updateLessonOptions();
-    renderChanges();
 }
 
 function escapeHTML(text){
@@ -1237,9 +1381,9 @@ if(selectedClass){
 }
 
 updateLessonOptions();
-renderChanges();
 buildTimezoneSelect();
 applyLanguage();
+updateAuthUI();
 
 </script>
 
