@@ -12,6 +12,11 @@ header{text-align:center;margin-bottom:20px;}
 header h1{font-size:38px;color:#a970ff;}
 header p{color:#aaa;margin-top:5px;}
 
+/* CLOCK */
+.live-clock{margin-top:14px;display:inline-block;background:#15151f;border:1px solid #282838;border-radius:12px;padding:10px 20px;}
+.live-clock .clock-time{font-size:30px;font-weight:bold;color:#c59cff;font-variant-numeric:tabular-nums;}
+.live-clock .clock-day{font-size:12px;color:#888;margin-top:2px;}
+
 /* LANGUAGE */
 .language-wrapper{position:relative;display:inline-block;margin-top:12px;}
 .language-btn{width:auto;margin:0;padding:10px 16px;background:#191923;color:#aaa;border:1px solid #292936;border-radius:10px;cursor:pointer;}
@@ -56,6 +61,8 @@ header p{color:#aaa;margin-top:5px;}
 .lesson-name{font-weight:bold;margin-top:3px;}
 .lesson-time{color:#aaa;font-size:12px;margin-top:4px;}
 .room{color:#c59cff;font-size:11px;margin-top:4px;}
+.teacher-line{color:#aaa;font-size:11px;margin-top:4px;}
+.teacher-line.pinny{color:#ffb86c;}
 .empty{color:#777;text-align:center;padding:10px 5px;}
 .break{text-align:center;color:#777;font-size:12px;margin:10px 0;padding:7px;border-top:1px dashed #333;border-bottom:1px dashed #333;}
 
@@ -196,12 +203,19 @@ footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-siz
     <h1>Schedool™</h1>
     <p id="weeklyText">Weekly timetable</p>
 
-    <div class="language-wrapper">
-        <button class="language-btn" onclick="toggleLanguages()">🌐 Translate</button>
-        <div id="languageMenu" class="language-menu">
-            <button onclick="setLanguage('british')">🇬🇧 British</button>
-            <button onclick="setLanguage('american')">🇺🇸 American</button>
-            <button onclick="setLanguage('german')">🇩🇪 German</button>
+    <div class="live-clock">
+        <div class="clock-time" id="clockTime">--:--:--</div>
+        <div class="clock-day" id="clockDay"></div>
+    </div>
+
+    <div>
+        <div class="language-wrapper">
+            <button class="language-btn" onclick="toggleLanguages()">🌐 Translate</button>
+            <div id="languageMenu" class="language-menu">
+                <button onclick="setLanguage('british')">🇬🇧 British</button>
+                <button onclick="setLanguage('american')">🇺🇸 American</button>
+                <button onclick="setLanguage('german')">🇩🇪 German</button>
+            </div>
         </div>
     </div>
 
@@ -315,6 +329,7 @@ footer{text-align:center;color:#666;margin-top:40px;padding:25px 0 10px;font-siz
                 <option>Minecraft</option>
                 <option>Backrooms</option>
                 <option>Editing</option>
+                <option>EtoH</option>
                 <option>---</option>
             </select>
 
@@ -536,6 +551,20 @@ const rooms={
 
 
 /* ================================= */
+/* TEACHERS                          */
+/* Mr. Mid teaches everything except */
+/* the subjects listed below.        */
+/* ================================= */
+
+const pinnySubjects=["EtoH","Geometry Dash"];
+
+function getTeacher(subject){
+    if(subject==="---") return null;
+    return pinnySubjects.includes(subject) ? "Mr. Pinny" : "Mr. Mid";
+}
+
+
+/* ================================= */
 /* LANGUAGE */
 /* ================================= */
 
@@ -688,6 +717,7 @@ function applyLanguage(){
     updateTimesDisplay();
     updateLessonOptions();
     updateAuthUI();
+    updateClock();
 }
 
 
@@ -735,6 +765,7 @@ function setTimezone(value){
     createSchedule();
     updateTimesDisplay();
     updateLessonOptions();
+    updateClock();
 }
 
 function convertTimeString(time){
@@ -801,6 +832,7 @@ function createSchedule(){
 
             const subject=lesson[0];
             const time=convertTimeString(lesson[1]);
+            const teacher=getTeacher(subject);
 
             html+=`
                 <div class="lesson">
@@ -824,6 +856,14 @@ function createSchedule(){
                         rooms[subject]
                         ?
                         `<div class="room">${rooms[subject]}</div>`
+                        :
+                        ""
+                    }
+
+                    ${
+                        teacher
+                        ?
+                        `<div class="teacher-line ${teacher==="Mr. Pinny"?"pinny":""}">👤 ${teacher}</div>`
                         :
                         ""
                     }
@@ -1365,6 +1405,40 @@ document.addEventListener("visibilitychange",()=>{
         saveClicker();
     }
 });
+
+
+/* ================================= */
+/* LIVE CLOCK (German time + offset) */
+/* ================================= */
+
+function updateClock(){
+
+    /* current time in Germany, then shifted by the timezone changer */
+    const berlinNow=new Date(
+        new Date().toLocaleString("en-US",{timeZone:"Europe/Berlin"})
+    );
+    const shifted=new Date(berlinNow.getTime()+timezoneOffset*3600000);
+
+    const H=shifted.getHours();
+    const M=String(shifted.getMinutes()).padStart(2,"0");
+    const S=String(shifted.getSeconds()).padStart(2,"0");
+
+    let text;
+    if(currentLanguage==="german"){
+        text=`${String(H).padStart(2,"0")}:${M}:${S}`;
+    }else{
+        text=`${H%12||12}:${M}:${S} ${H>=12?"PM":"AM"}`;
+    }
+
+    const locale=currentLanguage==="german"?"de-DE":"en-GB";
+
+    document.getElementById("clockTime").textContent=text;
+    document.getElementById("clockDay").textContent=
+        shifted.toLocaleDateString(locale,{weekday:"long",day:"numeric",month:"long"});
+}
+
+setInterval(updateClock,1000);
+updateClock();
 
 
 /* ================================= */
