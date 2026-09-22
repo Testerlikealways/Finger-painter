@@ -555,13 +555,32 @@ const rooms={
 /* ================================= */
 /* TEACHERS                          */
 /* Mr. Mid teaches everything except */
-/* the subjects listed below.        */
+/* the subjects listed below         */
+/* (with day-specific overrides).    */
 /* ================================= */
 
 const pinnySubjects=["EToH","Geometry Dash"];
 
-function getTeacher(subject){
+function getTeacher(subject,day){
+
     if(subject==="---") return null;
+
+    /* Tuesday: Mr. Mid teaches everything except EToH */
+    if(day==="Tuesday"){
+        return subject==="EToH" ? "Mr. Pinny" : "Mr. Mid";
+    }
+
+    /* Thursday: Geometry Dash is taught by Mr. Mid (normally Pinny) */
+    if(day==="Thursday"){
+        if(subject==="Geometry Dash") return "Mr. Mid";
+        return pinnySubjects.includes(subject) ? "Mr. Pinny" : "Mr. Mid";
+    }
+
+    /* Saturday: Mr. Mid teaches everything */
+    if(day==="Saturday"){
+        return "Mr. Mid";
+    }
+
     return pinnySubjects.includes(subject) ? "Mr. Pinny" : "Mr. Mid";
 }
 
@@ -834,7 +853,7 @@ function createSchedule(){
 
             const subject=lesson[0];
             const time=convertTimeString(lesson[1]);
-            const teacher=getTeacher(subject);
+            const teacher=getTeacher(subject,day);
 
             html+=`
                 <div class="lesson">
